@@ -32,8 +32,8 @@ export function Tabs({ tabs, activeTab, onChange, className }: TabsProps) {
             className={cn(
               "flex items-center gap-2 px-3.5 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px whitespace-nowrap select-none",
               isActive
-                ? "border-text-primary text-text-primary"
-                : "border-transparent text-text-secondary hover:text-text-primary hover:border-border-strong"
+                ? "border-brand text-brand-text font-semibold"
+                : "border-transparent text-text-secondary hover:text-brand-text hover:border-brand-border"
             )}
           >
             {tab.icon && <span className="w-4 h-4 shrink-0">{tab.icon}</span>}

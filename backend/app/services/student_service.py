@@ -131,9 +131,21 @@ class StudentService:
             db.commit()
 
     @staticmethod
-    def get_students(params: StudentFilterParams, db: Session) -> PaginatedResponse[StudentResponse]:
+    def get_students(
+        params: StudentFilterParams, db: Session, current_user: Optional[User] = None
+    ) -> PaginatedResponse[StudentResponse]:
         StudentService.ensure_seeded(db)
         query = db.query(Student)
+
+        # Student privacy protection: If caller has role 'student', they can only access their own linked record
+        if current_user and current_user.role == "student":
+            query = query.filter(
+                or_(
+                    Student.profile_id == current_user.id,
+                    Student.email.ilike(current_user.email),
+                    Student.student_id == str(current_user.id),
+                )
+            )
 
         if params.search_query:
             term = f"%{params.search_query.strip()}%"
@@ -199,7 +211,9 @@ class StudentService:
         )
 
     @staticmethod
-    def get_student_by_id(student_id: str, db: Session) -> StudentResponse:
+    def get_student_by_id(
+        student_id: str, db: Session, current_user: Optional[User] = None
+    ) -> StudentResponse:
         StudentService.ensure_seeded(db)
 
         student = db.query(Student).filter(
@@ -215,6 +229,17 @@ class StudentService:
 
         if not student:
             raise EntityNotFoundException("Student", student_id)
+
+        # Student privacy check: Students can only view their own record
+        if current_user and current_user.role == "student":
+            is_own = (
+                str(student.profile_id) == str(current_user.id)
+                or student.email.lower() == current_user.email.lower()
+                or student.student_id == str(current_user.id)
+            )
+            if not is_own:
+                from app.core.exceptions import PermissionDeniedException
+                raise PermissionDeniedException("Access denied: You may only view your own student record.")
 
         # Return "stu-101" as string id if matched
         ret_id = "stu-101" if student_id == "stu-101" else str(student.id)
@@ -237,7 +262,7 @@ class StudentService:
         )
 
     @staticmethod
-    def create_student(data: StudentCreate, db: Session) -> StudentResponse:
+    def create_student(data: StudentCreate, db: Session, actor_id: Optional[str] = None) -> StudentResponse:
         roll = data.roll_number or data.student_id
         name = data.name or data.full_name
 
@@ -265,6 +290,17 @@ class StudentService:
         db.commit()
         db.refresh(student)
 
+        # Audit log creation
+        from app.services.audit_service import AuditService
+        AuditService.log_event(
+            db=db,
+            action="student_created",
+            resource_type="student",
+            resource_id=str(student.id),
+            user_id=actor_id,
+            details={"roll_number": student.student_id, "department": student.department},
+        )
+
         return StudentResponse(
             id=str(student.id),
             name=student.full_name,
@@ -283,7 +319,7 @@ class StudentService:
         )
 
     @staticmethod
-    def update_student(student_id: str, data: StudentUpdate, db: Session) -> StudentResponse:
+    def update_student(student_id: str, data: StudentUpdate, db: Session, actor_id: Optional[str] = None) -> StudentResponse:
         student = db.query(Student).filter(
             or_(Student.student_id == student_id, Student.id == student_id)
         ).first()
@@ -291,29 +327,51 @@ class StudentService:
         if not student:
             raise EntityNotFoundException("Student", student_id)
 
+        updated_fields = []
         if data.name or data.full_name:
             student.full_name = data.name or data.full_name
+            updated_fields.append("full_name")
         if data.email:
             student.email = data.email
+            updated_fields.append("email")
         if data.phone:
             student.phone = data.phone
+            updated_fields.append("phone")
         if data.department:
             student.department = data.department
+            updated_fields.append("department")
         if data.course:
             student.course_name = data.course
+            updated_fields.append("course_name")
         if data.semester is not None:
             student.semester = data.semester
+            updated_fields.append("semester")
         if data.gpa is not None:
             student.gpa = data.gpa
+            updated_fields.append("gpa")
         if data.status or data.enrollment_status:
             student.status = data.enrollment_status or data.status
+            updated_fields.append("status")
         if data.avatar_url:
             student.avatar_url = data.avatar_url
+            updated_fields.append("avatar_url")
         if data.advisor_name:
             student.advisor_name = data.advisor_name
+            updated_fields.append("advisor_name")
 
         db.commit()
         db.refresh(student)
+
+        # Audit log update
+        from app.services.audit_service import AuditService
+        AuditService.log_event(
+            db=db,
+            action="student_updated",
+            resource_type="student",
+            resource_id=str(student.id),
+            user_id=actor_id,
+            details={"updated_fields": updated_fields},
+        )
 
         return StudentResponse(
             id=str(student.id),

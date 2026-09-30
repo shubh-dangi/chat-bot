@@ -47,6 +47,17 @@ export default {
           placeholder: "var(--color-input-placeholder)",
           "disabled-bg": "var(--color-input-disabled-bg)",
         },
+        brand: {
+          DEFAULT: "var(--color-brand-primary)",
+          hover: "var(--color-brand-hover)",
+          active: "var(--color-brand-active)",
+          surface: "var(--color-brand-surface)",
+          "surface-strong": "var(--color-brand-surface-strong)",
+          border: "var(--color-brand-border)",
+          "border-strong": "var(--color-brand-border-strong)",
+          text: "var(--color-brand-text)",
+          contrast: "var(--color-brand-contrast)",
+        },
         status: {
           "success-surface": "var(--color-success-surface)",
           "success-text": "var(--color-success-text)",

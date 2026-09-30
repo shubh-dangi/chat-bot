@@ -3,46 +3,50 @@
 @tailwind utilities;
 
 :root {
-  /* Raw Neutral Palette */
+  /* Raw Neutral Palette with Cool Slate Undertones */
   --neutral-0: #ffffff;
-  --neutral-50: #f8f9fa;
-  --neutral-100: #eff1f4;
-  --neutral-150: #e5e9ef;
-  --neutral-200: #d8dee6;
-  --neutral-300: #b0bac5;
-  --neutral-400: #788596;
-  --neutral-500: #526071;
-  --neutral-600: #394452;
-  --neutral-700: #252d37;
-  --neutral-800: #171d24;
-  --neutral-900: #0f1318;
-  --neutral-950: #090b0e;
+  --neutral-50: #f8fafc;
+  --neutral-100: #f1f5f9;
+  --neutral-150: #e2e8f0;
+  --neutral-200: #cbd5e1;
+  --neutral-300: #94a3b8;
+  --neutral-400: #64748b;
+  --neutral-500: #475569;
+  --neutral-600: #334155;
+  --neutral-700: #1e293b;
+  --neutral-800: #0f172a;
+  --neutral-900: #090d16;
+  --neutral-950: #05080e;
   --neutral-1000: #000000;
 
-  /* Raw Semantic Palette - Solid Clean Colors */
+  /* Brand SaaS Blue Palette (Solid, Modern, Premium) */
+  --blue-50: #eff6ff;
+  --blue-100: #dbeafe;
+  --blue-200: #bfdbfe;
+  --blue-300: #93c5fd;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --blue-600: #2563eb;
+  --blue-700: #1d4ed8;
+  --blue-800: #1e40af;
+  --blue-900: #172554;
+  --blue-950: #0f1f3d;
+
+  /* Raw Semantic Status Palette - Solid Clean Colors */
   --green-50: #edfcf2;
   --green-500: #16a34a;
   --green-600: #15803d;
   --green-700: #166534;
-  --green-900: #052e16;
 
   --yellow-50: #fefce8;
   --yellow-500: #ca8a04;
   --yellow-600: #a16207;
   --yellow-700: #854d0e;
-  --yellow-900: #422006;
 
   --red-50: #fef2f2;
   --red-500: #dc2626;
   --red-600: #b91c1c;
   --red-700: #991b1b;
-  --red-900: #450a0a;
-
-  --blue-50: #eff6ff;
-  --blue-500: #2563eb;
-  --blue-600: #1d4ed8;
-  --blue-700: #1e40af;
-  --blue-900: #172554;
 
   /* Typography */
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -66,39 +70,50 @@
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.1);
 
-  /* Light Theme Semantic Mappings (Layered, High Contrast, NOT washed out) */
-  --color-bg-primary: #f8f9fa;
-  --color-bg-secondary: #f0f2f5;
-  --color-bg-tertiary: #e4e7eb;
+  /* Light Theme Semantic Mappings (Layered, High Contrast, SaaS Blue) */
+  --color-bg-primary: #f8fafc;
+  --color-bg-secondary: #f1f5f9;
+  --color-bg-tertiary: #e2e8f0;
   --color-bg-elevated: #ffffff;
-  --color-bg-inverse: #0f1318;
-  --color-bg-overlay: rgba(15, 19, 24, 0.65);
-  --color-bg-skeleton: #e2e6eb;
+  --color-bg-inverse: #0f172a;
+  --color-bg-overlay: rgba(15, 23, 42, 0.65);
+  --color-bg-skeleton: #e2e8f0;
+
+  /* Brand Blue Light Tokens */
+  --color-brand-primary: #2563eb;
+  --color-brand-hover: #1d4ed8;
+  --color-brand-active: #1e40af;
+  --color-brand-surface: #eff6ff;
+  --color-brand-surface-strong: #dbeafe;
+  --color-brand-border: #bfdbfe;
+  --color-brand-border-strong: #3b82f6;
+  --color-brand-text: #1d4ed8;
+  --color-brand-contrast: #ffffff;
 
   --color-text-primary: #0f172a;
-  --color-text-secondary: #475569;
+  --color-text-secondary: #334155;
   --color-text-muted: #64748b;
   --color-text-inverse: #ffffff;
   --color-text-disabled: #94a3b8;
 
-  --color-border-default: #d8dee6;
-  --color-border-strong: #b0bac5;
-  --color-border-subtle: #e5e9ef;
-  --color-border-focus: #0f172a;
+  --color-border-default: #cbd5e1;
+  --color-border-strong: #94a3b8;
+  --color-border-subtle: #e2e8f0;
+  --color-border-focus: #2563eb;
   --color-border-error: #dc2626;
 
-  --color-hover-bg: #eaedf2;
-  --color-hover-bg-strong: #e1e5eb;
-  --color-active-bg: #d7dce4;
-  --color-selected-bg: #e1e6ee;
-  --color-selected-bg-strong: #d2d9e3;
-  --color-focus-ring: rgba(15, 23, 42, 0.25);
+  --color-hover-bg: #e2e8f0;
+  --color-hover-bg-strong: #cbd5e1;
+  --color-active-bg: #cbd5e1;
+  --color-selected-bg: #eff6ff;
+  --color-selected-bg-strong: #dbeafe;
+  --color-focus-ring: rgba(37, 99, 235, 0.28);
 
   --color-input-bg: #ffffff;
-  --color-input-border: #d8dee6;
-  --color-input-border-focus: #0f172a;
+  --color-input-border: #cbd5e1;
+  --color-input-border-focus: #2563eb;
   --color-input-placeholder: #94a3b8;
-  --color-input-disabled-bg: #f0f2f5;
+  --color-input-disabled-bg: #f1f5f9;
 
   --color-success-surface: #edfcf2;
   --color-success-text: #15803d;
@@ -123,41 +138,52 @@
   --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.09), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
 }
 
-/* Dark Theme Semantic Mappings (Layered, Deep Carbon, High Contrast, Distinguishable) */
+/* Dark Theme Semantic Mappings (Layered Slate-Midnight, Electric Blue Accent, Zero Gradients) */
 html[data-theme="dark"],
 html.dark {
-  --color-bg-primary: #0c0d11;
-  --color-bg-secondary: #13151b;
-  --color-bg-tertiary: #191c24;
-  --color-bg-elevated: #1e222c;
-  --color-bg-inverse: #f8f9fa;
-  --color-bg-overlay: rgba(5, 6, 8, 0.85);
-  --color-bg-skeleton: #1c202a;
+  --color-bg-primary: #090d16;
+  --color-bg-secondary: #0f1626;
+  --color-bg-tertiary: #182236;
+  --color-bg-elevated: #131c2e;
+  --color-bg-inverse: #f8fafc;
+  --color-bg-overlay: rgba(4, 7, 12, 0.85);
+  --color-bg-skeleton: #1a253a;
+
+  /* Brand Blue Dark Tokens */
+  --color-brand-primary: #3b82f6;
+  --color-brand-hover: #2563eb;
+  --color-brand-active: #1d4ed8;
+  --color-brand-surface: #0f1f3d;
+  --color-brand-surface-strong: #172e54;
+  --color-brand-border: #1e3a8a;
+  --color-brand-border-strong: #3b82f6;
+  --color-brand-text: #60a5fa;
+  --color-brand-contrast: #ffffff;
 
   --color-text-primary: #f8fafc;
-  --color-text-secondary: #94a3b8;
-  --color-text-muted: #64748b;
-  --color-text-inverse: #0c0d11;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #94a3b8;
+  --color-text-inverse: #090d16;
   --color-text-disabled: #475569;
 
-  --color-border-default: #262b36;
-  --color-border-strong: #384152;
-  --color-border-subtle: #1c202a;
-  --color-border-focus: #f8fafc;
+  --color-border-default: #1e293b;
+  --color-border-strong: #334155;
+  --color-border-subtle: #151f33;
+  --color-border-focus: #3b82f6;
   --color-border-error: #ef4444;
 
-  --color-hover-bg: #1c202a;
-  --color-hover-bg-strong: #252b38;
-  --color-active-bg: #2a313f;
-  --color-selected-bg: #222733;
-  --color-selected-bg-strong: #2e3646;
-  --color-focus-ring: rgba(248, 250, 252, 0.3);
+  --color-hover-bg: #182236;
+  --color-hover-bg-strong: #1f2c44;
+  --color-active-bg: #23324d;
+  --color-selected-bg: #0f2347;
+  --color-selected-bg-strong: #173468;
+  --color-focus-ring: rgba(59, 130, 246, 0.4);
 
-  --color-input-bg: #13151b;
-  --color-input-border: #262b36;
-  --color-input-border-focus: #f8fafc;
+  --color-input-bg: #0f1626;
+  --color-input-border: #1e293b;
+  --color-input-border-focus: #3b82f6;
   --color-input-placeholder: #64748b;
-  --color-input-disabled-bg: #101217;
+  --color-input-disabled-bg: #0b101c;
 
   --color-success-surface: #0a1f14;
   --color-success-text: #4ade80;
@@ -171,7 +197,7 @@ html.dark {
   --color-error-text: #f87171;
   --color-error-border: #991b1b;
 
-  --color-info-surface: #0c1c38;
+  --color-info-surface: #0f1f3d;
   --color-info-text: #60a5fa;
   --color-info-border: #1e40af;
 

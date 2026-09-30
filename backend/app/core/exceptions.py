@@ -73,10 +73,37 @@ class DuplicateResourceException(AppException):
         )
 
 
-def format_error_response(message: str, code: str, status_code: int, details: Optional[Dict[str, Any]] = None):
+class RateLimitExceededException(AppException):
+    def __init__(self, message: str = "Rate limit exceeded. Please try again later.", retry_after: int = 60):
+        super().__init__(
+            message=message,
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            code="RATE_LIMIT_EXCEEDED",
+            details={"retry_after_seconds": retry_after},
+        )
+        self.retry_after = retry_after
+
+
+class PayloadTooLargeException(AppException):
+    def __init__(self, message: str = "Request payload exceeds the maximum allowed size."):
+        super().__init__(
+            message=message,
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            code="PAYLOAD_TOO_LARGE",
+        )
+
+
+def format_error_response(
+    message: str,
+    code: str,
+    status_code: int,
+    details: Optional[Dict[str, Any]] = None,
+    headers: Optional[Dict[str, str]] = None,
+):
     """Formats uniform SaaS error response matching frontend expectations."""
     return JSONResponse(
         status_code=status_code,
+        headers=headers,
         content={
             "error": {
                 "message": message,
@@ -90,7 +117,10 @@ def format_error_response(message: str, code: str, status_code: int, details: Op
 
 async def app_exception_handler(request: Request, exc: AppException):
     logger.warning(f"Domain exception on {request.method} {request.url.path}: [{exc.code}] {exc.message}")
-    return format_error_response(exc.message, exc.code, exc.status_code, exc.details)
+    resp_headers = {}
+    if isinstance(exc, RateLimitExceededException):
+        resp_headers["Retry-After"] = str(exc.retry_after)
+    return format_error_response(exc.message, exc.code, exc.status_code, exc.details, headers=resp_headers or None)
 
 
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):

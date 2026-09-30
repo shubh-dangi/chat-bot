@@ -1,49 +1,83 @@
+"""
+Enterprise Authentication Service for College AI.
+Handles credential verification, secure password hashing, and token issuance.
+Prevents unauthenticated self-promotion to admin roles.
+"""
 from datetime import datetime, timezone
 import uuid
 from typing import Optional
 from sqlalchemy.orm import Session
-from app.core.exceptions import AuthenticationException, DuplicateResourceException, EntityNotFoundException
+from app.core.exceptions import AuthenticationException, DuplicateResourceException
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.user import User
 from app.schemas.auth import AuthResponse, LoginCredentials, RegisterCredentials
 from app.schemas.user import UserResponse
+from app.services.audit_service import AuditService
 
 
 class AuthService:
     @staticmethod
-    def login(credentials: LoginCredentials, db: Session) -> AuthResponse:
+    def login(credentials: LoginCredentials, db: Session, ip_address: Optional[str] = None) -> AuthResponse:
         email = credentials.email.lower().strip()
         user = db.query(User).filter(User.email == email).first()
 
         if not user:
-            # In development/prototype mode, auto-create student or admin user if not present
-            role = "admin" if "admin" in email else "student"
-            name = email.split("@")[0].replace(".", " ").capitalize()
-            user = User(
-                id=f"usr-{uuid.uuid4().hex[:10]}",
-                email=email,
-                name=name,
-                role=role,
-                department="Computer Science",
-                hashed_password=hash_password(credentials.password),
-                is_active=True,
+            AuditService.log_event(
+                db=db,
+                action="login_failure",
+                resource_type="auth",
+                resource_id=email,
+                ip_address=ip_address,
+                details={"reason": "user_not_found"},
             )
-            db.add(user)
+            raise AuthenticationException("Incorrect email or password.")
+
+        # Verify password
+        password_valid = False
+        if user.hashed_password:
+            password_valid = verify_password(credentials.password, user.hashed_password)
+        elif credentials.password == "password123":
+            # Upgrade legacy seed account with proper bcrypt hash
+            user.hashed_password = hash_password(credentials.password)
             db.commit()
-            db.refresh(user)
-        else:
-            # If user has a hashed password, verify it
-            if user.hashed_password and not verify_password(credentials.password, user.hashed_password):
-                # For smooth dev experience, also allow if plain password matches or in dev mode
-                if credentials.password != "password123":
-                    raise AuthenticationException("Incorrect email or password.")
+            password_valid = True
+
+        if not password_valid:
+            AuditService.log_event(
+                db=db,
+                action="login_failure",
+                resource_type="auth",
+                resource_id=email,
+                user_id=user.id,
+                ip_address=ip_address,
+                details={"reason": "invalid_password"},
+            )
+            raise AuthenticationException("Incorrect email or password.")
 
         if not user.is_active:
+            AuditService.log_event(
+                db=db,
+                action="login_blocked_inactive",
+                resource_type="auth",
+                resource_id=email,
+                user_id=user.id,
+                ip_address=ip_address,
+            )
             raise AuthenticationException("This account has been deactivated.")
 
         # Update last active timestamp
         user.last_active = datetime.now(timezone.utc)
         db.commit()
+
+        # Audit successful login
+        AuditService.log_event(
+            db=db,
+            action="login_success",
+            resource_type="auth",
+            resource_id=str(user.id),
+            user_id=user.id,
+            ip_address=ip_address,
+        )
 
         token = create_access_token(
             subject=user.id,
@@ -71,25 +105,39 @@ class AuthService:
         return AuthResponse(user=user_resp, token=token)
 
     @staticmethod
-    def register(credentials: RegisterCredentials, db: Session) -> AuthResponse:
+    def register(credentials: RegisterCredentials, db: Session, ip_address: Optional[str] = None) -> AuthResponse:
         email = credentials.email.lower().strip()
         existing = db.query(User).filter(User.email == email).first()
         if existing:
             raise DuplicateResourceException("User", "email", email)
 
-        role = credentials.role or ("admin" if "admin" in email else "student")
+        # Strictly enforce student role for public self-registration.
+        # Administrative accounts must be created or elevated by an existing admin.
+        assigned_role = "student"
+
         new_user = User(
             id=f"usr-{uuid.uuid4().hex[:10]}",
             email=email,
             name=credentials.name.strip(),
-            department=credentials.department or "Computer Science",
-            role=role,
+            department=credentials.department or "General",
+            role=assigned_role,
             hashed_password=hash_password(credentials.password),
             is_active=True,
         )
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
+
+        # Audit account registration
+        AuditService.log_event(
+            db=db,
+            action="user_registered",
+            resource_type="user",
+            resource_id=str(new_user.id),
+            user_id=new_user.id,
+            ip_address=ip_address,
+            details={"assigned_role": assigned_role},
+        )
 
         token = create_access_token(
             subject=new_user.id,
@@ -117,8 +165,15 @@ class AuthService:
         return AuthResponse(user=user_resp, token=token)
 
     @staticmethod
-    def request_password_reset(email: str, db: Session) -> bool:
-        # In production with Supabase, trigger supabase.auth.reset_password_email()
+    def request_password_reset(email: str, db: Session, ip_address: Optional[str] = None) -> bool:
+        # Generic response prevents account enumeration
+        AuditService.log_event(
+            db=db,
+            action="password_reset_requested",
+            resource_type="auth",
+            resource_id=email.lower().strip(),
+            ip_address=ip_address,
+        )
         return True
 
     @staticmethod

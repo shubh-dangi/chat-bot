@@ -90,14 +90,22 @@ class DocumentService:
     def create_document(
         data: DocumentCreate, user_id: Optional[str], db: Session
     ) -> DocumentResponse:
-        name = data.filename or data.file_name or "Untitled Document"
+        from app.core.file_security import generate_secure_storage_path, sanitize_filename, validate_file_metadata
+        from app.services.audit_service import AuditService
+
+        raw_name = data.filename or data.file_name or "Untitled_Document.pdf"
+        validate_file_metadata(raw_name)
+        safe_name = sanitize_filename(raw_name)
+
         category = data.doc_type or "Official Circular"
+        safe_storage_path = data.storage_path or generate_secure_storage_path(safe_name)
+
         doc = Document(
-            file_name=name,
-            title=name,
+            file_name=safe_name,
+            title=safe_name,
             category=category,
             status=data.status or "Processed",
-            storage_path=data.storage_path,
+            storage_path=safe_storage_path,
             created_at=datetime.now(timezone.utc),
         )
         if data.size_str:
@@ -105,6 +113,16 @@ class DocumentService:
         db.add(doc)
         db.commit()
         db.refresh(doc)
+
+        # Audit log document registration
+        AuditService.log_event(
+            db=db,
+            action="document_uploaded",
+            resource_type="document",
+            resource_id=str(doc.id),
+            user_id=user_id,
+            details={"filename": safe_name, "category": category},
+        )
 
         return DocumentResponse(
             id=str(doc.id),
@@ -116,13 +134,27 @@ class DocumentService:
         )
 
     @staticmethod
-    def delete_document(document_id: str, db: Session) -> None:
+    def delete_document(document_id: str, db: Session, actor_id: Optional[str] = None) -> None:
+        from app.services.audit_service import AuditService
+
         uid = parse_doc_uuid(document_id)
         doc = db.query(Document).filter(Document.id == uid).first()
         if not doc:
             raise EntityNotFoundException("Document", document_id)
+
+        filename = doc.file_name
         db.delete(doc)
         db.commit()
+
+        # Audit log document deletion
+        AuditService.log_event(
+            db=db,
+            action="document_deleted",
+            resource_type="document",
+            resource_id=str(document_id),
+            user_id=actor_id,
+            details={"filename": filename},
+        )
 
     @staticmethod
     def update_status(document_id: str, status: str, db: Session) -> DocumentResponse:

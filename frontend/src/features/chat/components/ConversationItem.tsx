@@ -124,13 +124,13 @@ export function ConversationItem({
         className={cn(
           "group relative flex items-center justify-between px-3 py-2.5 rounded-lg text-xs transition-all duration-fast cursor-pointer select-none",
           isActive
-            ? "bg-interactive-selected text-text-primary font-medium shadow-xs"
-            : "text-text-secondary hover:text-text-primary hover:bg-interactive-hover"
+            ? "bg-brand-surface text-brand-text font-semibold shadow-xs border border-brand-border"
+            : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
         )}
       >
         {/* Left active marker */}
         {isActive && (
-          <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-text-primary" />
+          <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-brand" />
         )}
 
         <div className="min-w-0 flex-1 pr-2">

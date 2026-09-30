@@ -32,11 +32,14 @@ def get_current_user(
 
     user = db.query(User).filter(User.id == str(user_id)).first()
 
-    # If user doesn't exist yet in local DB (e.g. newly signed up in Supabase Auth or mock user)
+    # If user doesn't exist yet in local DB (e.g. newly signed up in Supabase Auth)
     if not user:
         email = payload.get("email") or f"{user_id}@college.edu"
         name = payload.get("name") or payload.get("user_metadata", {}).get("name") or email.split("@")[0].capitalize()
-        role = payload.get("role") or ("admin" if "admin" in email else "student")
+        # Least Privilege: Default role is strictly 'student'.
+        # Role elevation must only come from verified JWT claims or administrative assignment.
+        token_role = payload.get("role")
+        role = token_role if token_role in ("admin", "teacher", "faculty", "student") else "student"
         department = payload.get("department") or "Computer Science"
 
         user = User(
@@ -72,9 +75,17 @@ def get_optional_user(
 
 def require_role(*roles: str):
     """Dependency factory ensuring current user possesses at least one of the required roles."""
+    normalized_allowed = set()
+    for r in roles:
+        normalized_allowed.add(r)
+        if r == "teacher":
+            normalized_allowed.add("faculty")
+        elif r == "faculty":
+            normalized_allowed.add("teacher")
 
     def role_checker(current_user: User = Depends(get_current_user)) -> User:
-        if current_user.role not in roles:
+        user_role = current_user.role
+        if user_role not in normalized_allowed:
             raise PermissionDeniedException(
                 f"Role '{current_user.role}' lacks permission for this action. Required: {', '.join(roles)}"
             )

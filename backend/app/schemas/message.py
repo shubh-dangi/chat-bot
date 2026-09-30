@@ -14,11 +14,11 @@ class MessageResponse(BaseModel):
 
 
 class SendMessageRequest(BaseModel):
-    content: str
+    content: str = Field(..., min_length=1, max_length=10000, description="Message text (max 10,000 characters)")
 
 
 class EditMessageRequest(BaseModel):
-    new_content: str = Field(..., alias="newContent")
+    new_content: str = Field(..., alias="newContent", min_length=1, max_length=10000, description="Updated message text")
 
     model_config = ConfigDict(populate_by_name=True)
 

@@ -47,12 +47,12 @@ export function AppearanceSettings() {
               className={cn(
                 "p-4 rounded-xl border text-left flex flex-col justify-between transition-all duration-150 relative select-none cursor-pointer",
                 isSelected
-                  ? "border-text-primary bg-bg-elevated shadow-sm ring-1 ring-text-primary"
-                  : "border-border-default bg-bg-primary hover:border-border-strong hover:bg-interactive-hover"
+                  ? "border-brand bg-brand-surface/40 shadow-sm ring-1 ring-brand"
+                  : "border-border-default bg-bg-elevated hover:border-brand-border hover:bg-brand-surface/20"
               )}
             >
               {isSelected && (
-                <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-text-primary text-bg-primary flex items-center justify-center">
+                <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-brand text-brand-contrast flex items-center justify-center shadow-xs">
                   <Check className="w-3 h-3 stroke-[3]" />
                 </div>
               )}

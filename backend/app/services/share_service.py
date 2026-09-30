@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 import secrets
 from typing import Optional, Union
 import uuid
@@ -9,6 +9,7 @@ from app.models.chat import Conversation, Message, SharedChat
 from app.schemas.chat import ConversationResponse
 from app.schemas.message import MessageResponse
 from app.schemas.share import ShareLinkResponse, SharedConversationResponse
+from app.services.audit_service import AuditService
 from app.services.chat_service import format_iso, format_time_str, to_uuid
 
 
@@ -25,8 +26,10 @@ class ShareService:
         if conv.user_id != uid:
             raise PermissionDeniedException("You do not have permission to share this conversation.")
 
-        # Generate secure random token
-        token = f"s-{secrets.token_urlsafe(8)}"
+        # Generate cryptographically secure random token (256-bit entropy)
+        token = f"s-{secrets.token_urlsafe(32)}"
+        now = datetime.now(timezone.utc)
+        expires_at = now + timedelta(days=30)  # Standard 30-day expiration
 
         conv.is_shared = True
         conv.share_token = token
@@ -36,10 +39,21 @@ class ShareService:
             chat_id=conv.id,
             share_token=token,
             created_by=conv.user_id,
-            created_at=datetime.now(timezone.utc),
+            expires_at=expires_at,
+            created_at=now,
         )
         db.add(shared_chat)
         db.commit()
+
+        # Audit log share creation
+        AuditService.log_event(
+            db=db,
+            action="share_created",
+            resource_type="conversation",
+            resource_id=str(conv.id),
+            user_id=conv.user_id,
+            details={"expires_at": expires_at.isoformat()},
+        )
 
         share_url = f"{settings.FRONTEND_URL}/shared/{token}"
 
@@ -74,8 +88,18 @@ class ShareService:
 
         db.commit()
 
+        # Audit log share revocation
+        AuditService.log_event(
+            db=db,
+            action="share_revoked",
+            resource_type="conversation",
+            resource_id=str(conv.id),
+            user_id=conv.user_id,
+        )
+
     @staticmethod
     def get_shared_conversation(share_token: str, db: Session) -> SharedConversationResponse:
+        now = datetime.now(timezone.utc)
         shared_record = db.query(SharedChat).filter(
             SharedChat.share_token == share_token,
             SharedChat.revoked_at == None,
@@ -83,6 +107,10 @@ class ShareService:
 
         if not shared_record:
             raise EntityNotFoundException("Shared Chat", share_token)
+
+        # Check expiration date
+        if shared_record.expires_at and shared_record.expires_at < now:
+            raise EntityNotFoundException("Shared Chat", f"{share_token} (expired)")
 
         conv = db.query(Conversation).filter(Conversation.id == shared_record.chat_id).first()
         if not conv or not conv.is_shared:

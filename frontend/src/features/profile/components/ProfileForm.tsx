@@ -46,7 +46,7 @@ export function ProfileForm() {
         <div className="min-w-0">
           <h2 className="text-base font-semibold text-text-primary truncate">{user?.name}</h2>
           <p className="text-xs text-text-secondary truncate">{user?.email}</p>
-          <div className="mt-2 inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-bg-tertiary text-text-primary capitalize border border-border-subtle">
+          <div className="mt-2 inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-brand-surface text-brand-text capitalize border border-brand-border">
             {user?.role || "Student"}
           </div>
         </div>

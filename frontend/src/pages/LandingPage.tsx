@@ -105,7 +105,7 @@ export default function LandingPage() {
       {/* 1. Navbar */}
       <header className="h-16 border-b border-border-default px-4 sm:px-8 flex items-center justify-between sticky top-0 bg-bg-primary/95 backdrop-blur z-sticky transition-colors duration-fast">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-text-primary text-bg-primary flex items-center justify-center font-bold text-sm shadow-xs">
+          <div className="w-8 h-8 rounded-lg bg-brand text-brand-contrast flex items-center justify-center font-bold text-sm shadow-sm">
             CA
           </div>
           <div className="flex flex-col">
@@ -154,7 +154,7 @@ export default function LandingPage() {
             </Button>
           </Link>
           <Link to={ROUTES.CHAT}>
-            <Button variant="primary" size="sm" className="text-xs sm:text-sm gap-1.5 shadow-xs">
+            <Button variant="primary" size="sm" className="text-xs sm:text-sm gap-1.5 shadow-sm">
               <span>Launch App</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Button>
@@ -165,37 +165,37 @@ export default function LandingPage() {
       {/* 2. Hero Section */}
       <section className="py-16 sm:py-24 px-4 text-center max-w-4xl mx-auto space-y-6">
         <FadeIn delay={0}>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-border-default bg-bg-elevated text-xs font-medium text-text-secondary shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-status-success-text shrink-0" />
-            <span className="font-medium text-text-primary">Production-Grade Campus Knowledge System</span>
-            <span className="text-text-muted">•</span>
-            <span className="text-text-muted">v2.4 Grounded</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-brand-border bg-brand-surface text-xs font-medium text-brand-text shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-brand shrink-0" />
+            <span className="font-medium text-brand-text">Production-Grade Campus Knowledge System</span>
+            <span className="text-brand-border">•</span>
+            <span className="text-brand-text font-mono text-[11px]">v2.4 Grounded</span>
           </div>
         </FadeIn>
 
         <FadeIn delay={80}>
           <h1 className="text-3xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-text-primary leading-[1.15]">
             Instant academic answers. <br />
-            <span className="text-text-secondary">Verified by your institution.</span>
+            <span className="text-brand">Verified by your institution.</span>
           </h1>
         </FadeIn>
 
         <FadeIn delay={140}>
           <p className="text-sm sm:text-base text-text-secondary leading-relaxed max-w-2xl mx-auto">
-            Natural-language search and AI assistant for university syllabi, campus regulations, exam dates, and student records. Built with strict privacy controls, responsive streaming, and zero clutter.
+            Natural-language search and AI assistant for university syllabi, campus regulations, exam dates, and course guides. Built with strict privacy controls, responsive streaming, and zero clutter.
           </p>
         </FadeIn>
 
         <FadeIn delay={200} className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
           <Link to={ROUTES.CHAT} className="w-full sm:w-auto">
-            <Button variant="primary" size="lg" className="w-full sm:w-auto gap-2 text-sm shadow-xs">
+            <Button variant="primary" size="lg" className="w-full sm:w-auto gap-2 text-sm shadow-sm">
               <span>Start Free Conversation</span>
               <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
-          <Link to={ROUTES.STUDENTS} className="w-full sm:w-auto">
+          <Link to={ROUTES.SEARCH} className="w-full sm:w-auto">
             <Button variant="secondary" size="lg" className="w-full sm:w-auto text-sm">
-              Search Student Directory
+              Search Knowledge Base
             </Button>
           </Link>
         </FadeIn>
@@ -229,7 +229,7 @@ export default function LandingPage() {
                 {/* Mini Sidebar */}
                 <div className="w-56 bg-bg-secondary border-r border-border-default p-3 hidden sm:flex flex-col justify-between">
                   <div className="space-y-3">
-                    <div className="h-8 rounded-lg bg-text-primary text-bg-primary flex items-center justify-center text-xs font-semibold shadow-xs">
+                    <div className="h-8 rounded-lg bg-brand text-brand-contrast flex items-center justify-center text-xs font-semibold shadow-sm">
                       + New Chat
                     </div>
 
@@ -247,8 +247,8 @@ export default function LandingPage() {
                             onClick={() => setActiveScenario(scenario)}
                             className={`w-full text-left p-2 rounded-lg text-xs transition-all duration-fast flex flex-col ${
                               isSelected
-                                ? "bg-bg-elevated border border-border-default text-text-primary font-medium shadow-xs"
-                                : "text-text-secondary hover:text-text-primary hover:bg-interactive-hover"
+                                ? "bg-brand-surface border border-brand-border text-brand-text font-semibold shadow-xs"
+                                : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
                             }`}
                           >
                             <span className="truncate">{scenario.title}</span>
@@ -260,7 +260,7 @@ export default function LandingPage() {
                   </div>
 
                   <div className="text-[11px] text-text-muted border-t border-border-default pt-2.5 flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-full bg-bg-tertiary flex items-center justify-center text-[10px] font-bold">
+                    <div className="w-5 h-5 rounded-full bg-brand-surface border border-brand-border flex items-center justify-center text-[10px] font-bold text-brand-text">
                       JS
                     </div>
                     <span className="truncate font-medium text-text-secondary">Jane Student • CS Sem 5</span>
@@ -279,7 +279,7 @@ export default function LandingPage() {
                           onClick={() => setActiveScenario(s)}
                           className={`px-2.5 py-1 rounded-full text-[11px] border whitespace-nowrap ${
                             activeScenario.id === s.id
-                              ? "bg-text-primary text-bg-primary border-text-primary font-medium"
+                              ? "bg-brand text-brand-contrast border-brand font-medium shadow-xs"
                               : "bg-bg-secondary text-text-secondary border-border-default"
                           }`}
                         >
@@ -290,14 +290,14 @@ export default function LandingPage() {
 
                     {/* User message */}
                     <div className="flex justify-end animate-message-enter">
-                      <div className="bg-text-primary text-bg-primary p-3 rounded-2xl rounded-br-none text-xs sm:text-sm max-w-md shadow-xs leading-relaxed">
+                      <div className="bg-brand text-brand-contrast p-3 rounded-2xl rounded-br-none text-xs sm:text-sm max-w-md shadow-sm leading-relaxed">
                         {activeScenario.userQuery}
                       </div>
                     </div>
 
                     {/* Assistant response */}
                     <div className="flex justify-start gap-2.5 animate-message-enter">
-                      <div className="w-7 h-7 rounded-lg bg-bg-elevated border border-border-default flex items-center justify-center text-text-primary shrink-0 mt-0.5 shadow-xs">
+                      <div className="w-7 h-7 rounded-lg bg-brand-surface border border-brand-border flex items-center justify-center text-brand-text shrink-0 mt-0.5 shadow-xs">
                         <GraduationCap className="w-4 h-4" />
                       </div>
                       <div className="space-y-1.5 max-w-lg">
@@ -333,7 +333,7 @@ export default function LandingPage() {
                   <div className="pt-4 max-w-2xl mx-auto w-full">
                     <div className="h-11 px-3.5 rounded-xl border border-border-default bg-bg-elevated flex items-center justify-between text-xs text-text-muted shadow-xs">
                       <span className="truncate">Ask about attendance, courses, or college bylaws...</span>
-                      <div className="w-7 h-7 rounded-lg bg-text-primary text-bg-primary flex items-center justify-center">
+                      <div className="w-7 h-7 rounded-lg bg-brand text-brand-contrast flex items-center justify-center shadow-xs">
                         <Send className="w-3 h-3" />
                       </div>
                     </div>
@@ -479,20 +479,20 @@ export default function LandingPage() {
           </div>
 
           <div className="order-1 lg:order-2 space-y-4">
-            <Badge variant="secondary" size="md" className="font-semibold uppercase tracking-wider text-[10px]">
-              Directory Intelligence
+            <Badge variant="default" size="md" className="font-semibold uppercase tracking-wider text-[10px]">
+              Campus Intelligence
             </Badge>
             <h2 className="text-2xl sm:text-3xl font-semibold text-text-primary tracking-tight">
-              Privacy-first student directory & credential lookup.
+              Privacy-first academic records & credential lookup.
             </h2>
             <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
-              Verify student records across courses, semester years, and departments. Sensitive identifiers such as contact numbers and GPAs remain protected behind role-based confidentiality controls.
+              Access syllabus outlines, exam notices, and departmental guidelines. Sensitive personal identifiers remain strictly protected behind FERPA confidentiality controls.
             </p>
             <div className="pt-2">
-              <Link to={ROUTES.STUDENTS}>
+              <Link to={ROUTES.CHAT}>
                 <Button variant="secondary" size="md" className="gap-2">
-                  <Search className="w-4 h-4" />
-                  <span>Browse Student Records</span>
+                  <MessageSquare className="w-4 h-4 text-brand" />
+                  <span>Ask Knowledge Assistant</span>
                 </Button>
               </Link>
             </div>
@@ -629,7 +629,7 @@ export default function LandingPage() {
       <footer className="py-10 px-4 sm:px-8 border-t border-border-default bg-bg-primary text-xs text-text-muted select-none">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded bg-text-primary text-bg-primary flex items-center justify-center text-[10px] font-bold">
+            <div className="w-6 h-6 rounded bg-brand text-brand-contrast flex items-center justify-center text-[10px] font-bold shadow-xs">
               CA
             </div>
             <span className="font-semibold text-text-primary">College AI</span>
@@ -637,19 +637,16 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center gap-6">
-            <Link to={ROUTES.CHAT} className="hover:text-text-primary transition-colors">
-              Chat
+            <Link to={ROUTES.CHAT} className="hover:text-brand-text transition-colors">
+              Chat Assistant
             </Link>
-            <Link to={ROUTES.STUDENTS} className="hover:text-text-primary transition-colors">
-              Directory
+            <Link to={ROUTES.SEARCH} className="hover:text-brand-text transition-colors">
+              Knowledge Search
             </Link>
-            <Link to={ROUTES.SEARCH} className="hover:text-text-primary transition-colors">
-              Search
-            </Link>
-            <Link to={ROUTES.SETTINGS} className="hover:text-text-primary transition-colors">
+            <Link to={ROUTES.SETTINGS} className="hover:text-brand-text transition-colors">
               Settings
             </Link>
-            <Link to={ROUTES.LOGIN} className="hover:text-text-primary transition-colors">
+            <Link to={ROUTES.LOGIN} className="hover:text-brand-text transition-colors">
               Sign In
             </Link>
           </div>

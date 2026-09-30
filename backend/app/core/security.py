@@ -59,34 +59,19 @@ def create_access_token(
 
 def decode_access_token(token: str) -> Optional[Dict[str, Any]]:
     """
-    Decodes and validates a JWT token.
-    Compatible with Supabase Auth tokens and custom backend tokens.
+    Decodes and cryptographically validates a JWT token.
+    Enforces signature verification, algorithm restrictions, and expiration timestamps.
+    Never accepts unverified tokens or bypass mock tokens.
     """
     try:
-        # First attempt to verify with configured secret
         payload = jwt.decode(
             token,
             settings.JWT_SECRET,
             algorithms=[settings.JWT_ALGORITHM],
-            options={"verify_aud": False},
+            options={"verify_aud": False, "verify_exp": True},
         )
         return payload
     except JWTError as exc:
-        # In development/test mode, accept mock tokens gracefully
-        if settings.ENVIRONMENT in ("development", "test", "testing"):
-            try:
-                unverified = jwt.get_unverified_claims(token)
-                if unverified and "sub" in unverified:
-                    return unverified
-            except Exception:
-                pass
-            # Also handle simple token strings like mock-jwt-token-xxx
-            if token.startswith("mock-") or token.startswith("test-"):
-                return {
-                    "sub": "usr-admin-1",
-                    "email": "admin@college.edu",
-                    "role": "admin",
-                    "name": "Administrator SDX",
-                }
-        logger.debug(f"JWT verification failed: {exc}")
+        logger.debug(f"JWT verification rejected: {exc}")
         return None
+

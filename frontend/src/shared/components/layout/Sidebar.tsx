@@ -2,7 +2,6 @@ import { useState } from "react"
 import { NavLink } from "react-router-dom"
 import {
   MessageSquare,
-  GraduationCap,
   Search,
   Shield,
   Settings,
@@ -25,8 +24,7 @@ export function Sidebar({ className }: { className?: string }) {
 
   const navItems = [
     { label: "Chat Assistant", to: ROUTES.CHAT, icon: MessageSquare },
-    { label: "Students", to: ROUTES.STUDENTS, icon: GraduationCap },
-    { label: "Search", to: ROUTES.SEARCH, icon: Search },
+    { label: "Search Knowledge", to: ROUTES.SEARCH, icon: Search },
     ...(user?.role === "admin"
       ? [{ label: "Admin Console", to: ROUTES.ADMIN, icon: Shield }]
       : []),
@@ -72,7 +70,7 @@ export function Sidebar({ className }: { className?: string }) {
         )}>
           {!collapsed ? (
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-7 h-7 rounded-lg bg-text-primary text-bg-primary flex items-center justify-center font-bold text-xs shadow-xs shrink-0">
+              <div className="w-7 h-7 rounded-lg bg-brand text-brand-contrast flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
                 CA
               </div>
               <span className="font-semibold text-base tracking-tight text-text-primary truncate">
@@ -80,7 +78,7 @@ export function Sidebar({ className }: { className?: string }) {
               </span>
             </div>
           ) : (
-            <div className="w-7 h-7 rounded-lg bg-text-primary text-bg-primary flex items-center justify-center font-bold text-xs shadow-xs">
+            <div className="w-7 h-7 rounded-lg bg-brand text-brand-contrast flex items-center justify-center font-bold text-xs shadow-sm">
               CA
             </div>
           )}
@@ -112,15 +110,15 @@ export function Sidebar({ className }: { className?: string }) {
                     "relative flex items-center gap-2.5 rounded-lg text-xs sm:text-sm font-medium transition-all duration-fast select-none",
                     collapsed ? "justify-center p-2.5" : "px-3 py-2",
                     isActive
-                      ? "bg-bg-elevated text-text-primary font-semibold shadow-xs border border-border-default"
-                      : "text-text-secondary hover:text-text-primary hover:bg-interactive-hover"
+                      ? "bg-brand-surface text-brand-text font-semibold shadow-xs border border-brand-border"
+                      : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
                   )
                 }
               >
                 {({ isActive }) => (
                   <>
                     {isActive && (
-                      <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r bg-text-primary" />
+                      <span className="absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r bg-brand" />
                     )}
                     <Icon className="w-4 h-4 shrink-0" />
                     {!collapsed && <span className="truncate">{item.label}</span>}

@@ -41,6 +41,16 @@ def update_profile(
     db.commit()
     db.refresh(current_user)
 
+    from app.services.audit_service import AuditService
+    AuditService.log_event(
+        db=db,
+        action="profile_updated",
+        resource_type="profile",
+        resource_id=str(current_user.id),
+        user_id=current_user.id,
+        details={"updated_fields": list(update_data.keys())},
+    )
+
     return UserResponse(
         id=current_user.id,
         name=current_user.name,

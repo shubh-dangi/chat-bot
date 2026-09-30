@@ -15,15 +15,15 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary:
-        "bg-text-primary text-bg-primary hover:opacity-95 shadow-xs border border-transparent",
+        "bg-brand text-brand-contrast hover:bg-brand-hover active:bg-brand-active shadow-sm border border-transparent font-medium",
       secondary:
-        "bg-bg-elevated text-text-primary border border-border-default hover:border-border-strong hover:bg-interactive-hover shadow-xs",
+        "bg-bg-elevated text-text-primary border border-border-default hover:border-brand-border hover:bg-brand-surface shadow-xs",
       ghost:
-        "bg-transparent text-text-secondary hover:text-text-primary hover:bg-interactive-hover",
+        "bg-transparent text-text-secondary hover:text-brand-text hover:bg-brand-surface",
       outline:
-        "bg-bg-primary text-text-primary border border-border-default hover:bg-interactive-hover hover:border-border-strong shadow-xs",
+        "bg-bg-primary text-brand-text border border-brand-border hover:bg-brand-surface hover:border-brand-border-strong shadow-xs font-medium",
       danger:
-        "bg-status-error-border text-status-error-text bg-status-error-surface hover:border-status-error-text border shadow-xs",
+        "bg-status-error-surface text-status-error-text border border-status-error-border hover:border-status-error-text shadow-xs",
       "danger-ghost":
         "bg-transparent text-status-error-text hover:bg-status-error-surface",
     }

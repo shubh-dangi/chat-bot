@@ -131,7 +131,7 @@ export function MessageBubble({
     >
       {/* Assistant Avatar */}
       {!isUser && (
-        <div className="w-7 h-7 rounded-lg bg-bg-elevated border border-border-default flex items-center justify-center text-text-primary shrink-0 mt-0.5 shadow-xs">
+        <div className="w-7 h-7 rounded-lg bg-brand-surface border border-brand-border flex items-center justify-center text-brand-text shrink-0 mt-0.5 shadow-xs">
           <GraduationCap className="w-4 h-4" />
         </div>
       )}
@@ -139,12 +139,12 @@ export function MessageBubble({
       {/* Bubble Container */}
       <div className={cn("flex flex-col max-w-[88%] sm:max-w-[80%]", isUser ? "items-end" : "items-start")}>
         {isEditing ? (
-          <div className="w-full min-w-[280px] sm:min-w-[420px] p-3.5 rounded-xl border border-border-focus bg-bg-elevated space-y-3 shadow-md animate-page-enter">
+          <div className="w-full min-w-[280px] sm:min-w-[420px] p-3.5 rounded-xl border border-brand-border bg-bg-elevated space-y-3 shadow-md animate-page-enter">
             <div className="text-xs font-semibold text-text-secondary">Edit Message</div>
             <textarea
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
-              className="w-full text-xs sm:text-sm bg-bg-primary p-2.5 rounded-lg border border-border-default text-text-primary resize-none focus:outline-none focus:border-border-focus min-h-[80px]"
+              className="w-full text-xs sm:text-sm bg-bg-primary p-2.5 rounded-lg border border-border-default text-text-primary resize-none focus:outline-none focus:border-brand min-h-[80px]"
               autoFocus
             />
             <div className="flex items-center justify-end gap-2 pt-1 border-t border-border-default">
@@ -178,7 +178,7 @@ export function MessageBubble({
               className={cn(
                 "p-4 text-sm leading-relaxed transition-all shadow-xs",
                 isUser
-                  ? "bg-text-primary text-bg-primary rounded-2xl rounded-br-none border border-transparent font-normal select-text"
+                  ? "bg-brand text-brand-contrast rounded-2xl rounded-br-none border border-transparent font-normal select-text shadow-sm"
                   : "bg-bg-elevated text-text-primary border border-border-default rounded-2xl rounded-bl-none"
               )}
             >

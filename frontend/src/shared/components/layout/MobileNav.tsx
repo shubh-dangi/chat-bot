@@ -42,8 +42,7 @@ export function MobileNav() {
 
   const navItems = [
     { label: "Chat Assistant", to: ROUTES.CHAT, icon: MessageSquare },
-    { label: "Students", to: ROUTES.STUDENTS, icon: GraduationCap },
-    { label: "Search", to: ROUTES.SEARCH, icon: Search },
+    { label: "Search Knowledge", to: ROUTES.SEARCH, icon: Search },
     { label: "Profile", to: ROUTES.PROFILE, icon: UserIcon },
     { label: "Settings", to: ROUTES.SETTINGS, icon: Settings },
     ...(user?.role === "admin"
@@ -74,7 +73,9 @@ export function MobileNav() {
           {/* Header */}
           <div className="h-14 px-4 flex items-center justify-between border-b border-border-default">
             <div className="flex items-center gap-2.5">
-              <img src="/logo.svg" alt="College AI" className="w-6 h-6 rounded" />
+              <div className="w-6 h-6 rounded-md bg-brand text-brand-contrast flex items-center justify-center font-bold text-xs shadow-sm">
+                CA
+              </div>
               <span className="font-semibold text-base text-text-primary">College AI</span>
             </div>
             <button
@@ -99,8 +100,8 @@ export function MobileNav() {
                     cn(
                       "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
                       isActive
-                        ? "bg-interactive-selected text-text-primary font-semibold"
-                        : "text-text-secondary hover:text-text-primary hover:bg-interactive-hover"
+                        ? "bg-brand-surface text-brand-text font-semibold border-l-2 border-brand"
+                        : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
                     )
                   }
                 >

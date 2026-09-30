@@ -118,7 +118,7 @@ export function MessageComposer({
               className={cn(
                 "w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-fast select-none cursor-pointer",
                 hasText && !disabled
-                  ? "bg-text-primary text-bg-primary shadow-xs hover:opacity-90 active:scale-95 translate-y-0"
+                  ? "bg-brand text-brand-contrast shadow-sm hover:bg-brand-hover active:scale-95 translate-y-0"
                   : "bg-bg-tertiary text-text-disabled cursor-not-allowed opacity-50"
               )}
             >

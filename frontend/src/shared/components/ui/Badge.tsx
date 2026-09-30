@@ -18,7 +18,9 @@ export function Badge({
 
   const variants = {
     default:
-      "bg-bg-tertiary text-text-primary border-border-default",
+      "bg-brand-surface text-brand-text border-brand-border",
+    brand:
+      "bg-brand text-brand-contrast border-transparent",
     secondary:
       "bg-bg-secondary text-text-secondary border-border-subtle",
     outline:
