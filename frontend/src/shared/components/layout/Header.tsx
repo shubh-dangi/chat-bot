@@ -38,14 +38,16 @@ export function Header({ title, subtitle, actions, className }: HeaderProps) {
   return (
     <header
       className={cn(
-        "h-14 px-4 sm:px-6 shrink-0 bg-bg-primary border-b border-border-default flex items-center justify-between gap-4 select-none",
+        "h-14 px-3 sm:px-page-x shrink-0 bg-bg-primary border-b border-border-default",
+        "flex items-center justify-between gap-2 sm:gap-3 select-none",
+        "sticky top-0 z-sticky",
         className
       )}
     >
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
         <button
           onClick={toggleMobileNav}
-          className="lg:hidden p-1.5 rounded-md text-text-secondary hover:text-text-primary hover:bg-interactive-hover transition-colors"
+          className="tablet:hidden p-2 -ml-2 rounded-md text-text-secondary hover:text-text-primary hover:bg-interactive-hover transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0"
           aria-label="Toggle navigation drawer"
         >
           <Menu className="w-5 h-5" />
@@ -65,8 +67,8 @@ export function Header({ title, subtitle, actions, className }: HeaderProps) {
         )}
       </div>
 
-      <div className="flex items-center gap-2">
-        {actions}
+      <div className="flex items-center gap-1 sm:gap-2 shrink-0 min-w-0">
+        {actions && <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">{actions}</div>}
 
         <Tooltip content={themeLabel()}>
           <Button
@@ -74,7 +76,7 @@ export function Header({ title, subtitle, actions, className }: HeaderProps) {
             size="icon"
             onClick={cycleTheme}
             aria-label="Toggle visual theme"
-            className="w-8 h-8 rounded-md text-text-secondary hover:text-text-primary"
+            className="text-text-secondary hover:text-text-primary"
           >
             {themeIcon()}
           </Button>

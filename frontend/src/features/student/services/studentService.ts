@@ -1,3 +1,4 @@
+import { apiClient } from "@/shared/services/apiClient"
 import type { Student, StudentFilterParams } from "../types/student.types"
 
 export const MOCK_STUDENTS: Student[] = [
@@ -99,11 +100,44 @@ export const MOCK_STUDENTS: Student[] = [
   },
 ]
 
+function normalizeStudent(raw: any): Student {
+  return {
+    id: String(raw.id),
+    name: raw.name || raw.full_name || "Unknown Student",
+    rollNumber: raw.rollNumber || raw.roll_number || raw.student_id || "N/A",
+    email: raw.email || "student@college.edu",
+    phone: raw.phone || "+1 (555) 000-0000",
+    department: raw.department || "Computer Science",
+    course: raw.course || "BCA",
+    year: (raw.year as Student["year"]) || "Junior",
+    semester: Number(raw.semester) || 1,
+    gpa: Number(raw.gpa) || 3.5,
+    enrollmentStatus: (raw.enrollmentStatus || raw.enrollment_status || "Active") as Student["enrollmentStatus"],
+    avatarUrl: raw.avatarUrl || raw.avatar_url,
+    advisorName: raw.advisorName || raw.advisor_name,
+    joiningYear: Number(raw.joiningYear || raw.joining_year || raw.enrollment_year) || 2024,
+  }
+}
+
 export const studentService = {
   async getStudents(filters?: StudentFilterParams): Promise<Student[]> {
-    await new Promise((r) => setTimeout(r, 120))
-    let result = [...MOCK_STUDENTS]
+    try {
+      const params: Record<string, any> = { raw_list: true }
+      if (filters?.searchQuery) params.searchQuery = filters.searchQuery
+      if (filters?.department && filters.department !== "all") params.department = filters.department
+      if (filters?.year && filters.year !== "all") params.year = filters.year
+      if (filters?.status && filters.status !== "all") params.status = filters.status
 
+      const response = await apiClient.get<any[]>("/api/students", { params })
+      if (Array.isArray(response) && response.length > 0) {
+        return response.map(normalizeStudent)
+      }
+    } catch (err) {
+      console.warn("Backend /api/students query failed, using local mock data:", err)
+    }
+
+    // Local filter fallback
+    let result = [...MOCK_STUDENTS]
     if (filters?.searchQuery) {
       const q = filters.searchQuery.toLowerCase()
       result = result.filter(
@@ -131,7 +165,15 @@ export const studentService = {
   },
 
   async getStudentById(id: string): Promise<Student | null> {
-    await new Promise((r) => setTimeout(r, 80))
+    try {
+      const response = await apiClient.get<any>(`/api/students/${id}`)
+      if (response && (response.id || response.name)) {
+        return normalizeStudent(response)
+      }
+    } catch (err) {
+      console.warn(`Backend /api/students/${id} query failed, using local mock data:`, err)
+    }
+
     return MOCK_STUDENTS.find((s) => s.id === id) || null
   },
 }

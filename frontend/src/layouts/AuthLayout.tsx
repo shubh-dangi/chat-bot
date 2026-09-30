@@ -22,20 +22,20 @@ export function AuthLayout({
   }
 
   return (
-    <div className="min-h-screen w-screen flex flex-col justify-between bg-bg-secondary text-text-primary px-4 py-6 select-none animate-page-enter">
+    <div className="min-h-screen-dvh w-full max-w-full overflow-x-hidden bg-bg-secondary text-text-primary px-page-x py-4 sm:py-6 flex flex-col justify-between select-none animate-page-enter">
       {/* Top Header */}
-      <div className="w-full max-w-5xl mx-auto flex items-center justify-between">
+      <div className="w-full max-w-5xl mx-auto flex items-center justify-between gap-3 shrink-0">
         <Link
           to={ROUTES.HOME}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-text-secondary hover:text-text-primary transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-text-secondary hover:text-text-primary transition-colors min-h-[44px] px-1 -ml-1 rounded-md"
         >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to College AI</span>
+          <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
+          <span className="truncate">Back to College AI</span>
         </Link>
         <button
           type="button"
           onClick={cycleTheme}
-          className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-interactive-hover transition-colors"
+          className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-interactive-hover transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center shrink-0"
           aria-label="Toggle visual theme"
         >
           {theme === "dark" ? (
@@ -49,29 +49,33 @@ export function AuthLayout({
       </div>
 
       {/* Centered Auth Card */}
-      <div className="w-full max-w-[420px] mx-auto my-auto py-8">
-        <FadeIn delay={40} className="flex flex-col items-center mb-6 text-center">
+      <div className="w-full max-w-[min(100%,420px)] mx-auto my-auto py-6 sm:py-8">
+        <FadeIn delay={40} className="flex flex-col items-center mb-5 sm:mb-6 text-center">
           <Link to={ROUTES.HOME} className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-text-primary text-bg-primary flex items-center justify-center font-bold text-sm shadow-xs">
+            <div className="w-8 h-8 rounded-lg bg-text-primary text-bg-primary flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
               CA
             </div>
             <span className="font-semibold text-lg text-text-primary tracking-tight">
               College AI
             </span>
           </Link>
-          <h1 className="text-xl sm:text-2xl font-semibold text-text-primary tracking-tight">{title}</h1>
+          <h1 className="text-xl sm:text-2xl font-semibold text-text-primary tracking-tight text-balance break-words">
+            {title}
+          </h1>
           {subtitle && (
-            <p className="mt-1 text-xs text-text-secondary max-w-xs leading-relaxed">{subtitle}</p>
+            <p className="mt-1 text-xs text-text-secondary max-w-xs mx-auto leading-relaxed text-pretty break-words">
+              {subtitle}
+            </p>
           )}
         </FadeIn>
 
-        <FadeIn delay={100} className="bg-bg-elevated border border-border-default rounded-2xl shadow-md p-6 sm:p-8">
+        <FadeIn delay={100} className="bg-bg-elevated border border-border-default rounded-2xl shadow-md p-4 sm:p-6 lg:p-8">
           {children}
         </FadeIn>
       </div>
 
       {/* Footer copyright */}
-      <div className="text-center text-xs text-text-muted">
+      <div className="text-center text-[11px] sm:text-xs text-text-muted shrink-0 pb-[env(safe-area-inset-bottom)]">
         © 2026 College AI. Institutional Access System.
       </div>
     </div>

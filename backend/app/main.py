@@ -14,8 +14,10 @@ from app.core.exceptions import (
     validation_exception_handler,
 )
 from app.core.logging import get_logger, setup_logging
+from app.core.middleware import RequestSizeLimiterMiddleware, SecurityHeadersMiddleware
 from app.database.session import Base, SessionLocal, engine
 from app.models import Conversation, Document, Message, SharedChat, Student, User
+from app.api.routes.users import ensure_users_seeded
 from app.services.document_service import DocumentService
 from app.services.student_service import StudentService
 
@@ -35,8 +37,9 @@ async def lifespan(app: FastAPI):
         Base.metadata.create_all(bind=engine)
         logger.info("Database schemas verified and initialized.")
 
-        # Seed initial default student and document records if empty
+        # Seed initial default users, student, and document records if empty
         with SessionLocal() as db:
+            ensure_users_seeded(db)
             StudentService.ensure_seeded(db)
             DocumentService.ensure_seeded(db)
         logger.info("Default seed data verified.")
@@ -63,13 +66,19 @@ app.add_exception_handler(StarletteHTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, unhandled_exception_handler)
 
+# Enterprise Security Headers Middleware
+app.add_middleware(SecurityHeadersMiddleware)
+
+# Request Payload Size Limiting Middleware
+app.add_middleware(RequestSizeLimiterMiddleware)
+
 # Configure CORS Middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.BACKEND_CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
 )
 
 # Register API Router with /api prefix

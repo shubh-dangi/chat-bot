@@ -109,8 +109,12 @@ class ShareService:
             raise EntityNotFoundException("Shared Chat", share_token)
 
         # Check expiration date
-        if shared_record.expires_at and shared_record.expires_at < now:
-            raise EntityNotFoundException("Shared Chat", f"{share_token} (expired)")
+        if shared_record.expires_at:
+            exp = shared_record.expires_at
+            if exp.tzinfo is None:
+                exp = exp.replace(tzinfo=timezone.utc)
+            if exp < now:
+                raise EntityNotFoundException("Shared Chat", f"{share_token} (expired)")
 
         conv = db.query(Conversation).filter(Conversation.id == shared_record.chat_id).first()
         if not conv or not conv.is_shared:

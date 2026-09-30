@@ -11,7 +11,6 @@ import {
   CheckCircle2,
   ShieldCheck,
   BookOpen,
-  Search,
   FileText,
   Lock,
   Sparkles,
@@ -101,43 +100,43 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary flex flex-col justify-between select-none">
+    <div className="min-h-screen-dvh bg-bg-primary text-text-primary flex flex-col justify-between select-none">
       {/* 1. Navbar */}
-      <header className="h-16 border-b border-border-default px-4 sm:px-8 flex items-center justify-between sticky top-0 bg-bg-primary/95 backdrop-blur z-sticky transition-colors duration-fast">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-brand text-brand-contrast flex items-center justify-center font-bold text-sm shadow-sm">
+      <header className="min-h-16 py-2 border-b border-border-default px-page-x flex flex-wrap items-center justify-between gap-2 sm:gap-3 sticky top-0 bg-bg-primary/95 backdrop-blur z-sticky transition-colors duration-fast">
+        <Link to={ROUTES.HOME} className="flex items-center gap-2.5 sm:gap-3 min-w-0 shrink">
+          <div className="w-8 h-8 rounded-lg bg-brand text-brand-contrast flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
             CA
           </div>
-          <div className="flex flex-col">
-            <span className="font-semibold text-base sm:text-lg tracking-tight text-text-primary leading-tight">
+          <div className="flex flex-col min-w-0">
+            <span className="font-semibold text-base sm:text-lg tracking-tight text-text-primary leading-tight truncate">
               College AI
             </span>
-            <span className="text-[10px] text-text-muted hidden sm:inline">Institutional Intelligence</span>
+            <span className="text-[10px] text-text-muted hidden sm:inline truncate">Institutional Intelligence</span>
           </div>
-        </div>
+        </Link>
 
-        <nav className="hidden md:flex items-center gap-6 text-xs sm:text-sm text-text-secondary">
-          <a href="#preview" className="hover:text-text-primary transition-colors">
+        <nav className="hidden lg:flex items-center gap-5 xl:gap-6 text-xs sm:text-sm text-text-secondary">
+          <a href="#preview" className="hover:text-text-primary transition-colors whitespace-nowrap">
             Live Preview
           </a>
-          <a href="#capabilities" className="hover:text-text-primary transition-colors">
+          <a href="#capabilities" className="hover:text-text-primary transition-colors whitespace-nowrap">
             Capabilities
           </a>
-          <a href="#spotlight-chat" className="hover:text-text-primary transition-colors">
+          <a href="#spotlight-chat" className="hover:text-text-primary transition-colors whitespace-nowrap">
             Chat Assistant
           </a>
-          <a href="#security" className="hover:text-text-primary transition-colors">
-            Security & FERPA
+          <a href="#security" className="hover:text-text-primary transition-colors whitespace-nowrap">
+            Security &amp; FERPA
           </a>
-          <a href="#workflow" className="hover:text-text-primary transition-colors">
+          <a href="#workflow" className="hover:text-text-primary transition-colors whitespace-nowrap">
             How It Works
           </a>
         </nav>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
           <button
             onClick={cycleTheme}
-            className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-interactive-hover transition-colors"
+            className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-interactive-hover transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label="Toggle visual theme"
           >
             {theme === "dark" ? (
@@ -148,53 +147,55 @@ export default function LandingPage() {
               <Laptop className="w-4 h-4" />
             )}
           </button>
-          <Link to={ROUTES.LOGIN}>
-            <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
+          <Link to={ROUTES.LOGIN} className="hidden xs:block">
+            <Button variant="ghost" size="sm" className="text-xs sm:text-sm min-h-[40px]">
               Sign In
             </Button>
           </Link>
           <Link to={ROUTES.CHAT}>
-            <Button variant="primary" size="sm" className="text-xs sm:text-sm gap-1.5 shadow-sm">
+            <Button variant="primary" size="sm" className="text-xs sm:text-sm gap-1.5 shadow-sm min-h-[40px] whitespace-nowrap">
               <span>Launch App</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-3.5 h-3.5 shrink-0" />
             </Button>
           </Link>
         </div>
       </header>
 
       {/* 2. Hero Section */}
-      <section className="py-16 sm:py-24 px-4 text-center max-w-4xl mx-auto space-y-6">
+      <section className="py-12 sm:py-16 lg:py-24 px-page-x text-center max-w-4xl mx-auto space-y-5 sm:space-y-6">
         <FadeIn delay={0}>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-brand-border bg-brand-surface text-xs font-medium text-brand-text shadow-xs">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-brand-border bg-brand-surface text-[11px] sm:text-xs font-medium text-brand-text shadow-xs max-w-full flex-wrap justify-center">
             <span className="w-2 h-2 rounded-full bg-brand shrink-0" />
             <span className="font-medium text-brand-text">Production-Grade Campus Knowledge System</span>
-            <span className="text-brand-border">•</span>
-            <span className="text-brand-text font-mono text-[11px]">v2.4 Grounded</span>
+            <span className="text-brand-border hidden xs:inline">•</span>
+            <span className="text-brand-text font-mono text-[10px] sm:text-[11px]">v2.4 Grounded</span>
           </div>
         </FadeIn>
 
         <FadeIn delay={80}>
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-text-primary leading-[1.15]">
-            Instant academic answers. <br />
-            <span className="text-brand">Verified by your institution.</span>
+          <h1 className="text-[clamp(1.75rem,6.5vw,3.75rem)] font-semibold tracking-tight text-text-primary leading-[1.12] text-balance">
+            Instant academic answers.{" "}
+            <span className="text-brand block sm:inline">
+              Verified by your institution.
+            </span>
           </h1>
         </FadeIn>
 
         <FadeIn delay={140}>
-          <p className="text-sm sm:text-base text-text-secondary leading-relaxed max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-text-secondary leading-relaxed max-w-2xl mx-auto text-pretty">
             Natural-language search and AI assistant for university syllabi, campus regulations, exam dates, and course guides. Built with strict privacy controls, responsive streaming, and zero clutter.
           </p>
         </FadeIn>
 
-        <FadeIn delay={200} className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-          <Link to={ROUTES.CHAT} className="w-full sm:w-auto">
-            <Button variant="primary" size="lg" className="w-full sm:w-auto gap-2 text-sm shadow-sm">
+        <FadeIn delay={200} className="flex flex-col xs:flex-row items-stretch xs:items-center justify-center gap-3 pt-2">
+          <Link to={ROUTES.CHAT} className="w-full xs:w-auto">
+            <Button variant="primary" size="lg" className="w-full xs:w-auto gap-2 text-sm shadow-sm min-h-[52px]">
               <span>Start Free Conversation</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-4 h-4 shrink-0" />
             </Button>
           </Link>
-          <Link to={ROUTES.SEARCH} className="w-full sm:w-auto">
-            <Button variant="secondary" size="lg" className="w-full sm:w-auto text-sm">
+          <Link to={ROUTES.SEARCH} className="w-full xs:w-auto">
+            <Button variant="secondary" size="lg" className="w-full xs:w-auto text-sm min-h-[52px]">
               Search Knowledge Base
             </Button>
           </Link>
@@ -202,25 +203,26 @@ export default function LandingPage() {
       </section>
 
       {/* 3. Interactive Product Preview Box */}
-      <section id="preview" className="px-4 sm:px-8 max-w-5xl mx-auto w-full pb-20">
+      <section id="preview" className="px-page-x max-w-5xl mx-auto w-full pb-12 sm:pb-16 lg:pb-20">
         <FadeIn delay={260}>
-          <div className="rounded-2xl border border-border-default bg-bg-secondary p-2 sm:p-3 shadow-md">
+          <div className="rounded-2xl border border-border-default bg-bg-secondary p-1.5 sm:p-3 shadow-md">
             {/* Window bar */}
-            <div className="rounded-xl border border-border-default bg-bg-elevated overflow-hidden flex flex-col h-[520px] shadow-xs">
-              <div className="h-10 px-4 bg-bg-secondary border-b border-border-default flex items-center justify-between text-xs text-text-muted">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1.5">
+            <div className="rounded-xl border border-border-default bg-bg-elevated overflow-hidden flex flex-col h-[380px] xs:h-[440px] sm:h-[520px] shadow-xs">
+              <div className="h-10 px-3 sm:px-4 bg-bg-secondary border-b border-border-default flex items-center justify-between gap-2 text-xs text-text-muted">
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex items-center gap-1.5 shrink-0">
                     <div className="w-2.5 h-2.5 rounded-full bg-status-error-text/80" />
                     <div className="w-2.5 h-2.5 rounded-full bg-status-warning-text/80" />
                     <div className="w-2.5 h-2.5 rounded-full bg-status-success-text/80" />
                   </div>
-                  <span className="ml-2 font-mono text-[11px] text-text-secondary">
+                  <span className="ml-1 sm:ml-2 font-mono text-[10px] sm:text-[11px] text-text-secondary truncate">
                     college-ai.internal/workspace
                   </span>
                 </div>
-                <div className="flex items-center gap-1 text-[11px] text-text-secondary font-medium">
+                <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-text-secondary font-medium shrink-0">
                   <span className="w-1.5 h-1.5 rounded-full bg-status-success-text" />
-                  <span>Interactive Simulated Session</span>
+                  <span className="hidden sm:inline">Interactive Simulated Session</span>
+                  <span className="sm:hidden">Live</span>
                 </div>
               </div>
 
@@ -268,16 +270,16 @@ export default function LandingPage() {
                 </div>
 
                 {/* Chat conversation preview pane */}
-                <div className="flex-1 p-4 sm:p-6 flex flex-col justify-between bg-bg-primary overflow-y-auto">
-                  <div className="space-y-4 max-w-2xl mx-auto w-full">
+                <div className="flex-1 min-w-0 p-3 sm:p-6 flex flex-col justify-between bg-bg-primary overflow-y-auto">
+                  <div className="space-y-4 max-w-2xl mx-auto w-full min-w-0">
                     {/* Prompt Pill Switchers for Mobile */}
-                    <div className="sm:hidden flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+                    <div className="sm:hidden flex items-center gap-1.5 overflow-x-auto pb-1 text-xs -mx-1 px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                       {DEMO_SCENARIOS.map((s) => (
                         <button
                           key={s.id}
                           type="button"
                           onClick={() => setActiveScenario(s)}
-                          className={`px-2.5 py-1 rounded-full text-[11px] border whitespace-nowrap ${
+                          className={`px-2.5 py-1.5 rounded-full text-[11px] border whitespace-nowrap min-h-[36px] shrink-0 ${
                             activeScenario.id === s.id
                               ? "bg-brand text-brand-contrast border-brand font-medium shadow-xs"
                               : "bg-bg-secondary text-text-secondary border-border-default"
@@ -290,7 +292,7 @@ export default function LandingPage() {
 
                     {/* User message */}
                     <div className="flex justify-end animate-message-enter">
-                      <div className="bg-brand text-brand-contrast p-3 rounded-2xl rounded-br-none text-xs sm:text-sm max-w-md shadow-sm leading-relaxed">
+                      <div className="bg-brand text-brand-contrast p-3 rounded-2xl rounded-br-none text-xs sm:text-sm max-w-[85%] lg:max-w-md shadow-sm leading-relaxed break-words">
                         {activeScenario.userQuery}
                       </div>
                     </div>
@@ -300,22 +302,22 @@ export default function LandingPage() {
                       <div className="w-7 h-7 rounded-lg bg-brand-surface border border-brand-border flex items-center justify-center text-brand-text shrink-0 mt-0.5 shadow-xs">
                         <GraduationCap className="w-4 h-4" />
                       </div>
-                      <div className="space-y-1.5 max-w-lg">
+                      <div className="space-y-1.5 max-w-[calc(100%-2.5rem)] sm:max-w-lg min-w-0">
                         <div className="bg-bg-elevated text-text-primary border border-border-default p-3.5 rounded-2xl rounded-bl-none text-xs sm:text-sm leading-relaxed shadow-xs">
                           {isTyping && displayedText.length < 5 ? (
                             <TypingIndicator label="Referencing campus handbook" />
                           ) : (
-                            <div className="whitespace-pre-wrap">{displayedText}</div>
+                            <div className="whitespace-pre-wrap break-words">{displayedText}</div>
                           )}
                         </div>
 
                         {/* Actions in preview */}
                         <div className="flex items-center gap-2 px-1 text-[11px] text-text-muted">
-                          <span>Grounding: 2026 Handbook § 14</span>
+                          <span className="truncate">Grounding: 2026 Handbook § 14</span>
                           <button
                             type="button"
                             onClick={handleCopyDemo}
-                            className="inline-flex items-center gap-1 hover:text-text-primary transition-colors ml-auto"
+                            className="inline-flex items-center gap-1 hover:text-text-primary transition-colors ml-auto min-h-[36px] px-1 shrink-0"
                           >
                             {demoCopied ? (
                               <Check className="w-3 h-3 text-status-success-text" />
@@ -330,10 +332,10 @@ export default function LandingPage() {
                   </div>
 
                   {/* Simulated Composer in Preview */}
-                  <div className="pt-4 max-w-2xl mx-auto w-full">
-                    <div className="h-11 px-3.5 rounded-xl border border-border-default bg-bg-elevated flex items-center justify-between text-xs text-text-muted shadow-xs">
+                  <div className="pt-4 max-w-2xl mx-auto w-full min-w-0">
+                    <div className="h-11 px-3.5 rounded-xl border border-border-default bg-bg-elevated flex items-center justify-between gap-2 text-xs text-text-muted shadow-xs">
                       <span className="truncate">Ask about attendance, courses, or college bylaws...</span>
-                      <div className="w-7 h-7 rounded-lg bg-brand text-brand-contrast flex items-center justify-center shadow-xs">
+                      <div className="w-7 h-7 rounded-lg bg-brand text-brand-contrast flex items-center justify-center shadow-xs shrink-0">
                         <Send className="w-3 h-3" />
                       </div>
                     </div>
@@ -346,13 +348,13 @@ export default function LandingPage() {
       </section>
 
       {/* 4. Core Capabilities */}
-      <section id="capabilities" className="py-20 bg-bg-secondary border-y border-border-default px-4 sm:px-8">
+      <section id="capabilities" className="py-12 sm:py-16 lg:py-20 bg-bg-secondary border-y border-border-default px-page-x">
         <div className="max-w-5xl mx-auto space-y-12">
           <div className="text-center space-y-3 max-w-xl mx-auto">
             <Badge variant="secondary" size="md" className="font-semibold uppercase tracking-wider text-[10px]">
               Institutional Suite
             </Badge>
-            <h2 className="text-2xl sm:text-3xl font-semibold text-text-primary tracking-tight">
+            <h2 className="text-heading-2 font-semibold text-text-primary tracking-tight text-balance">
               Designed For High Academic Velocity
             </h2>
             <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
@@ -360,8 +362,8 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="p-6 rounded-xl border border-border-default bg-bg-elevated space-y-3 shadow-xs hover:border-border-strong hover:shadow-sm transition-all duration-normal">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            <div className="p-5 sm:p-6 rounded-xl border border-border-default bg-bg-elevated space-y-3 shadow-xs hover:border-border-strong hover:shadow-sm transition-all duration-normal">
               <div className="w-10 h-10 rounded-lg bg-bg-secondary border border-border-default flex items-center justify-center">
                 <MessageSquare className="w-5 h-5 text-text-primary" />
               </div>
@@ -395,13 +397,13 @@ export default function LandingPage() {
       </section>
 
       {/* 5. Chat Experience Spotlight */}
-      <section id="spotlight-chat" className="py-20 px-4 sm:px-8 max-w-5xl mx-auto space-y-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+      <section id="spotlight-chat" className="py-12 sm:py-16 lg:py-20 px-page-x max-w-5xl mx-auto space-y-8 sm:space-y-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 items-center">
           <div className="space-y-4">
             <Badge variant="secondary" size="md" className="font-semibold uppercase tracking-wider text-[10px]">
               Chat Experience
             </Badge>
-            <h2 className="text-2xl sm:text-3xl font-semibold text-text-primary tracking-tight">
+            <h2 className="text-heading-2 font-semibold text-text-primary tracking-tight text-balance">
               Fluid, fast, and structured for complex campus inquiries.
             </h2>
             <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
@@ -442,8 +444,8 @@ export default function LandingPage() {
       </section>
 
       {/* 6. Student Information Capability */}
-      <section className="py-20 bg-bg-secondary border-y border-border-default px-4 sm:px-8">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+      <section className="py-12 sm:py-16 lg:py-20 bg-bg-secondary border-y border-border-default px-page-x">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 items-center">
           <div className="order-2 lg:order-1 p-6 rounded-2xl border border-border-default bg-bg-elevated space-y-4 shadow-xs">
             <div className="flex items-center justify-between pb-3 border-b border-border-default">
               <div className="flex items-center gap-3">
@@ -482,7 +484,7 @@ export default function LandingPage() {
             <Badge variant="default" size="md" className="font-semibold uppercase tracking-wider text-[10px]">
               Campus Intelligence
             </Badge>
-            <h2 className="text-2xl sm:text-3xl font-semibold text-text-primary tracking-tight">
+            <h2 className="text-heading-2 font-semibold text-text-primary tracking-tight text-balance">
               Privacy-first academic records & credential lookup.
             </h2>
             <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
@@ -501,7 +503,7 @@ export default function LandingPage() {
       </section>
 
       {/* 7. College Knowledge / Documents */}
-      <section className="py-20 px-4 sm:px-8 max-w-5xl mx-auto space-y-12">
+      <section className="py-12 sm:py-16 lg:py-20 px-page-x max-w-5xl mx-auto space-y-8 sm:space-y-12">
         <div className="text-center space-y-3 max-w-xl mx-auto">
           <Badge variant="secondary" size="md" className="font-semibold uppercase tracking-wider text-[10px]">
             Knowledge Grounding
@@ -514,9 +516,9 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 rounded-xl border border-border-default bg-bg-elevated space-y-2 shadow-xs">
-            <BookOpen className="w-5 h-5 text-text-primary mb-1" />
+          <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(min(100%,16rem),1fr))]">
+            <div className="p-4 rounded-xl border border-border-default bg-bg-elevated space-y-2 shadow-xs">
+              <BookOpen className="w-5 h-5 text-text-primary mb-1" />
             <h4 className="text-sm font-semibold text-text-primary">Department Syllabi</h4>
             <p className="text-xs text-text-secondary">Official course requirements, prerequisites, and laboratory syllabi.</p>
           </div>
@@ -539,19 +541,19 @@ export default function LandingPage() {
       </section>
 
       {/* 8. Security & Access Control */}
-      <section id="security" className="py-20 bg-bg-secondary border-y border-border-default px-4 sm:px-8">
-        <div className="max-w-4xl mx-auto space-y-8 text-center">
+      <section id="security" className="py-12 sm:py-16 lg:py-20 bg-bg-secondary border-y border-border-default px-page-x">
+        <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8 text-center">
           <Badge variant="secondary" size="md" className="font-semibold uppercase tracking-wider text-[10px]">
-            Governance & Compliance
+            Governance &amp; Compliance
           </Badge>
-          <h2 className="text-2xl sm:text-3xl font-semibold text-text-primary tracking-tight">
+          <h2 className="text-heading-2 font-semibold text-text-primary tracking-tight text-balance">
             Institutional Privacy By Architecture
           </h2>
           <p className="text-xs sm:text-sm text-text-secondary max-w-xl mx-auto leading-relaxed">
             Data privacy is paramount. Role-based access ensures students, faculty members, and administrative staff only access authorized records.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left pt-4">
+          <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(min(100%,17rem),1fr))]">
             <div className="p-5 rounded-xl border border-border-default bg-bg-primary space-y-2">
               <div className="text-xs font-semibold text-text-primary">Role-Based Auth</div>
               <p className="text-xs text-text-secondary leading-relaxed">Separate permission tiers for Students, Faculty Advisors, and Campus Administrators.</p>
@@ -569,7 +571,7 @@ export default function LandingPage() {
       </section>
 
       {/* 9. How It Works */}
-      <section id="workflow" className="py-20 px-4 sm:px-8 max-w-5xl mx-auto space-y-12">
+      <section id="workflow" className="py-12 sm:py-16 lg:py-20 px-page-x max-w-5xl mx-auto space-y-8 sm:space-y-12">
         <div className="text-center space-y-3">
           <Badge variant="secondary" size="md" className="font-semibold uppercase tracking-wider text-[10px]">
             Workflow
@@ -580,7 +582,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(min(100%,15rem),1fr))]">
           <div className="p-5 rounded-xl border border-border-default bg-bg-elevated space-y-2 shadow-xs hover:border-border-strong transition-colors">
             <div className="text-sm font-semibold font-mono text-text-primary">01. Query</div>
             <p className="text-xs text-text-secondary leading-relaxed">Ask any question about courses, deadlines, or campus regulations in natural language.</p>
@@ -601,23 +603,23 @@ export default function LandingPage() {
       </section>
 
       {/* 10. CTA */}
-      <section className="py-20 px-4 text-center bg-bg-secondary border-t border-border-default space-y-5">
+      <section className="py-12 sm:py-16 lg:py-20 px-page-x text-center bg-bg-secondary border-t border-border-default space-y-5">
         <div className="max-w-xl mx-auto space-y-3">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-text-primary tracking-tight">
+          <h2 className="text-heading-2 font-semibold text-text-primary tracking-tight text-balance">
             Ready to experience College AI?
           </h2>
-          <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
+          <p className="text-xs sm:text-sm text-text-secondary leading-relaxed text-pretty">
             Access the institutional assistant immediately or sign in to save your personal discussion history.
           </p>
-          <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Link to={ROUTES.CHAT}>
-              <Button variant="primary" size="lg" className="w-full sm:w-auto shadow-xs gap-2">
+          <div className="pt-3 flex flex-col xs:flex-row items-stretch xs:items-center justify-center gap-3">
+            <Link to={ROUTES.CHAT} className="w-full xs:w-auto">
+              <Button variant="primary" size="lg" className="w-full xs:w-auto shadow-xs gap-2 min-h-[52px]">
                 <span>Launch Assistant Now</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 shrink-0" />
               </Button>
             </Link>
-            <Link to={ROUTES.LOGIN}>
-              <Button variant="secondary" size="lg" className="w-full sm:w-auto">
+            <Link to={ROUTES.LOGIN} className="w-full xs:w-auto">
+              <Button variant="secondary" size="lg" className="w-full xs:w-auto min-h-[52px]">
                 Sign In With College ID
               </Button>
             </Link>
@@ -626,27 +628,27 @@ export default function LandingPage() {
       </section>
 
       {/* 11. Footer */}
-      <footer className="py-10 px-4 sm:px-8 border-t border-border-default bg-bg-primary text-xs text-text-muted select-none">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded bg-brand text-brand-contrast flex items-center justify-center text-[10px] font-bold shadow-xs">
+      <footer className="py-8 sm:py-10 px-page-x border-t border-border-default bg-bg-primary text-xs text-text-muted select-none pb-[max(2rem,env(safe-area-inset-bottom))]">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-6">
+          <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap justify-center min-w-0">
+            <div className="w-6 h-6 rounded bg-brand text-brand-contrast flex items-center justify-center text-[10px] font-bold shadow-xs shrink-0">
               CA
             </div>
             <span className="font-semibold text-text-primary">College AI</span>
-            <span>• © 2026 Academic Intelligence System</span>
+            <span className="text-center sm:text-left">• © 2026 Academic Intelligence System</span>
           </div>
 
-          <div className="flex items-center gap-6">
-            <Link to={ROUTES.CHAT} className="hover:text-brand-text transition-colors">
+          <div className="flex items-center gap-4 sm:gap-6 flex-wrap justify-center">
+            <Link to={ROUTES.CHAT} className="hover:text-brand-text transition-colors min-h-[36px] flex items-center">
               Chat Assistant
             </Link>
-            <Link to={ROUTES.SEARCH} className="hover:text-brand-text transition-colors">
+            <Link to={ROUTES.SEARCH} className="hover:text-brand-text transition-colors min-h-[36px] flex items-center">
               Knowledge Search
             </Link>
-            <Link to={ROUTES.SETTINGS} className="hover:text-brand-text transition-colors">
+            <Link to={ROUTES.SETTINGS} className="hover:text-brand-text transition-colors min-h-[36px] flex items-center">
               Settings
             </Link>
-            <Link to={ROUTES.LOGIN} className="hover:text-brand-text transition-colors">
+            <Link to={ROUTES.LOGIN} className="hover:text-brand-text transition-colors min-h-[36px] flex items-center">
               Sign In
             </Link>
           </div>

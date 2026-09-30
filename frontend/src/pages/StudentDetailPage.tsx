@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useParams } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import { Header } from "@/shared/components/layout/Header"
 import { PageContainer } from "@/shared/components/layout/PageContainer"
 import { PageTransition } from "@/shared/components/motion/PageTransition"
@@ -12,6 +12,7 @@ import type { Student } from "@/features/student/types/student.types"
 
 export default function StudentDetailPage() {
   const { studentId } = useParams<{ studentId: string }>()
+  const navigate = useNavigate()
   const [student, setStudent] = useState<Student | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 

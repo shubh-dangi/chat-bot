@@ -65,18 +65,18 @@ export function ChatHeader({
 
   return (
     <>
-      <header className="h-14 px-4 shrink-0 bg-bg-primary border-b border-border-default flex items-center justify-between gap-3 select-none">
+      <header className="h-14 px-3 sm:px-4 shrink-0 bg-bg-primary border-b border-border-default flex items-center justify-between gap-3 select-none">
         <div className="flex items-center gap-2.5 min-w-0">
           <button
             onClick={onToggleSidebar || toggleMobileNav}
-            className="p-1.5 rounded-md text-text-secondary hover:text-text-primary hover:bg-interactive-hover lg:hidden"
+            className="p-1.5 rounded-md text-text-secondary hover:text-text-primary hover:bg-interactive-hover lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center"
             aria-label="Toggle chat sidebar"
           >
             <Menu className="w-5 h-5" />
           </button>
 
           {isEditing && conversation ? (
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-1 min-w-0">
               <input
                 type="text"
                 value={titleInput}
@@ -85,19 +85,19 @@ export function ChatHeader({
                   if (e.key === "Enter") handleSaveRename()
                   if (e.key === "Escape") setIsEditing(false)
                 }}
-                className="h-8 px-2 text-sm font-semibold rounded bg-bg-tertiary border border-border-focus text-text-primary focus:outline-none"
+                className="h-8 px-2 text-sm font-semibold rounded bg-bg-tertiary border border-border-focus text-text-primary focus:outline-none flex-1 min-w-0 truncate"
                 autoFocus
               />
               <button
                 onClick={handleSaveRename}
-                className="p-1 rounded text-text-muted hover:text-text-primary"
+                className="p-1 rounded text-text-muted hover:text-text-primary min-w-[40px] min-h-[40px] flex items-center justify-center shrink-0"
                 aria-label="Confirm rename"
               >
                 <Check className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setIsEditing(false)}
-                className="p-1 rounded text-text-muted hover:text-text-primary"
+                className="p-1 rounded text-text-muted hover:text-text-primary min-w-[40px] min-h-[40px] flex items-center justify-center shrink-0"
                 aria-label="Cancel rename"
               >
                 <X className="w-4 h-4" />
@@ -125,7 +125,7 @@ export function ChatHeader({
               variant="secondary"
               size="sm"
               onClick={onOpenShare}
-              className="text-xs h-8 gap-1.5"
+              className="text-xs h-8 gap-1.5 min-w-[44px]"
             >
               <Share2 className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Share</span>
@@ -135,7 +135,7 @@ export function ChatHeader({
               align="right"
               trigger={
                 <button
-                  className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-interactive-hover transition-colors"
+                  className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-interactive-hover transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                   aria-label="More options"
                 >
                   <MoreVertical className="w-4 h-4" />
@@ -159,7 +159,7 @@ export function ChatHeader({
             Are you sure you want to delete this conversation? This action cannot be reversed.
           </p>
           <div className="flex items-center justify-end gap-2 pt-2 border-t border-border-default">
-            <Button variant="ghost" size="sm" onClick={() => setShowDeleteModal(false)}>
+            <Button variant="ghost" size="sm" onClick={() => setShowDeleteModal(false)} className="min-h-[40px]">
               Cancel
             </Button>
             <Button
@@ -167,6 +167,7 @@ export function ChatHeader({
               size="sm"
               onClick={handleDeleteConfirm}
               isLoading={isDeleting}
+              className="min-h-[40px]"
             >
               Delete
             </Button>

@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Any, Dict, Optional
 import uuid
 from sqlalchemy import Column, DateTime, ForeignKey, JSON, String, Text
 from sqlalchemy.orm import relationship
@@ -26,3 +27,27 @@ class AuditLog(Base):
 
     # Relationships
     user = relationship("Profile", back_populates="audit_logs")
+
+    @property
+    def entity_type(self) -> str:
+        return self.resource_type
+
+    @entity_type.setter
+    def entity_type(self, val: str):
+        self.resource_type = val
+
+    @property
+    def entity_id(self) -> Optional[str]:
+        return self.resource_id
+
+    @entity_id.setter
+    def entity_id(self, val: Optional[str]):
+        self.resource_id = val
+
+    @property
+    def event_metadata(self) -> Dict[str, Any]:
+        return self.details
+
+    @event_metadata.setter
+    def event_metadata(self, val: Dict[str, Any]):
+        self.details = val

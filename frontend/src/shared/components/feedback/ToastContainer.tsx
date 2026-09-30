@@ -25,13 +25,19 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <ToastContext.Provider value={{ showToast, success, error, info, warning }}>
       {children}
-      {/* Toast container overlay positioned at bottom-right on desktop, bottom-center on mobile */}
+      {/* Desktop: bottom-right. Mobile: full-width sheet above the composer / safe area. */}
       <div
-        className="fixed bottom-4 right-4 sm:right-6 z-toast flex flex-col gap-2 pointer-events-none max-w-sm w-[calc(100vw-2rem)]"
+        className="fixed z-toast flex flex-col gap-2 pointer-events-none
+                   inset-x-0 bottom-0 px-3
+                   pb-[max(0.75rem,env(safe-area-inset-bottom))]
+                   items-stretch
+                   sm:inset-x-auto sm:bottom-4 sm:right-4 sm:right-6 sm:left-auto sm:items-end sm:pb-0
+                   sm:max-w-sm sm:w-[min(24rem,calc(100vw-2rem))]"
         aria-live="polite"
+        aria-atomic="false"
       >
         {toasts.map((toast) => (
-          <div key={toast.id} className="pointer-events-auto">
+          <div key={toast.id} className="pointer-events-auto w-full min-w-0">
             <Toast toast={toast} onDismiss={dismiss} />
           </div>
         ))}

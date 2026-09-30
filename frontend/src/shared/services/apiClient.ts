@@ -2,7 +2,7 @@ import axios, { type AxiosInstance, type AxiosRequestConfig } from "axios"
 import { tokenService } from "./tokenService"
 import { parseApiError } from "./errorHandler"
 
-const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || "http://localhost:8000"
+const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || ""
 
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,

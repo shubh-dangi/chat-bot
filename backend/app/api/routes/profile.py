@@ -63,3 +63,32 @@ def update_profile(
         created_at=current_user.created_at.isoformat() if current_user.created_at else None,
         last_active="Just now",
     )
+
+
+@router.delete("", status_code=204, summary="Delete own user account")
+def delete_own_account(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Allows an authenticated user to delete their account with audit logging and lockout protection."""
+    from app.core.exceptions import ValidationException
+    if current_user.role == "admin":
+        active_admin_count = db.query(User).filter(User.role == "admin", User.is_active == True).count()
+        if active_admin_count <= 1:
+            raise ValidationException("Cannot delete the only active administrator account.")
+
+    user_id = str(current_user.id)
+    user_email = current_user.email
+    db.delete(current_user)
+    db.commit()
+
+    from app.services.audit_service import AuditService
+    AuditService.log_event(
+        db=db,
+        action="account_deleted",
+        resource_type="user",
+        resource_id=user_id,
+        user_id=None,
+        details={"email": user_email},
+    )
+    return None

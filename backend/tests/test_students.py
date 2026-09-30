@@ -1,6 +1,10 @@
-def test_list_and_filter_students(client):
-    # Test default pre-seeded students list
-    res = client.get("/api/students")
+def test_list_and_filter_students(client, admin_headers):
+    # Unauthenticated access must be rejected
+    unauth_res = client.get("/api/students")
+    assert unauth_res.status_code == 401
+
+    # Authorized admin/staff listing
+    res = client.get("/api/students", headers=admin_headers)
     assert res.status_code == 200
     data = res.json()
     assert "items" in data
@@ -8,20 +12,25 @@ def test_list_and_filter_students(client):
     assert len(data["items"]) >= 6
 
     # Test filtering by searchQuery
-    res_search = client.get("/api/students?searchQuery=Jane")
+    res_search = client.get("/api/students?searchQuery=Jane", headers=admin_headers)
     assert res_search.status_code == 200
     items = res_search.json()["items"]
     assert any("Jane" in s["name"] for s in items)
 
     # Test filtering by department
-    res_dept = client.get("/api/students?department=Computer Science")
+    res_dept = client.get("/api/students?department=Computer Science", headers=admin_headers)
     assert res_dept.status_code == 200
     dept_items = res_dept.json()["items"]
     assert all(s["department"] == "Computer Science" for s in dept_items)
 
 
-def test_get_student_detail(client):
-    res = client.get("/api/students/stu-101")
+def test_get_student_detail(client, admin_headers):
+    # Unauthenticated lookup must be rejected
+    unauth_res = client.get("/api/students/stu-101")
+    assert unauth_res.status_code == 401
+
+    # Authorized staff/admin lookup succeeds
+    res = client.get("/api/students/stu-101", headers=admin_headers)
     assert res.status_code == 200
     data = res.json()
     assert data["id"] == "stu-101"

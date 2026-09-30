@@ -15,7 +15,8 @@ os.environ["ENVIRONMENT"] = "testing"
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
 
 from app.api.deps import get_db
-from app.core.security import create_access_token
+from app.api.routes.users import ensure_users_seeded
+from app.core.security import create_access_token, hash_password
 from app.database.session import Base
 from app.main import app
 from app.models import Profile, User, Student, Document
@@ -35,6 +36,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_
 def setup_test_db():
     Base.metadata.create_all(bind=test_engine)
     with TestingSessionLocal() as db:
+        ensure_users_seeded(db)
         StudentService.ensure_seeded(db)
         DocumentService.ensure_seeded(db)
     yield
@@ -70,7 +72,7 @@ def client(db_session):
 
 @pytest.fixture
 def test_user(db_session):
-    user = db_session.query(User).filter(User.id == "usr-test-student").first()
+    user = db_session.query(User).filter(User.email == "student@college.edu").first()
     if not user:
         user = User(
             id="usr-test-student",
@@ -78,17 +80,21 @@ def test_user(db_session):
             name="Alex Student",
             role="student",
             department="Computer Science",
+            hashed_password=hash_password("password123"),
             is_active=True,
         )
         db_session.add(user)
         db_session.commit()
         db_session.refresh(user)
+    elif not user.hashed_password:
+        user.hashed_password = hash_password("password123")
+        db_session.commit()
     return user
 
 
 @pytest.fixture
 def admin_user(db_session):
-    user = db_session.query(User).filter(User.id == "usr-test-admin").first()
+    user = db_session.query(User).filter(User.email == "admin@college.edu").first()
     if not user:
         user = User(
             id="usr-test-admin",
@@ -96,11 +102,15 @@ def admin_user(db_session):
             name="Dr. Administrator",
             role="admin",
             department="Administration",
+            hashed_password=hash_password("password123"),
             is_active=True,
         )
         db_session.add(user)
         db_session.commit()
         db_session.refresh(user)
+    elif not user.hashed_password:
+        user.hashed_password = hash_password("password123")
+        db_session.commit()
     return user
 
 
@@ -115,7 +125,7 @@ def auth_headers(test_user):
 
 @pytest.fixture
 def teacher_user(db_session):
-    user = db_session.query(User).filter(User.id == "usr-test-teacher").first()
+    user = db_session.query(User).filter(User.email == "teacher@college.edu").first()
     if not user:
         user = User(
             id="usr-test-teacher",
@@ -123,11 +133,15 @@ def teacher_user(db_session):
             name="Prof. Sharma",
             role="teacher",
             department="Computer Science",
+            hashed_password=hash_password("password123"),
             is_active=True,
         )
         db_session.add(user)
         db_session.commit()
         db_session.refresh(user)
+    elif not user.hashed_password:
+        user.hashed_password = hash_password("password123")
+        db_session.commit()
     return user
 
 
@@ -142,7 +156,7 @@ def teacher_headers(teacher_user):
 
 @pytest.fixture
 def other_student_user(db_session):
-    user = db_session.query(User).filter(User.id == "usr-test-other").first()
+    user = db_session.query(User).filter(User.email == "other@college.edu").first()
     if not user:
         user = User(
             id="usr-test-other",
@@ -150,11 +164,15 @@ def other_student_user(db_session):
             name="Other Student",
             role="student",
             department="Mathematics",
+            hashed_password=hash_password("password123"),
             is_active=True,
         )
         db_session.add(user)
         db_session.commit()
         db_session.refresh(user)
+    elif not user.hashed_password:
+        user.hashed_password = hash_password("password123")
+        db_session.commit()
     return user
 
 

@@ -2,7 +2,6 @@ import {
   GraduationCap,
   Calendar,
   BookOpen,
-  UserSearch,
   FileText,
   ShieldCheck,
   ArrowUpRight,

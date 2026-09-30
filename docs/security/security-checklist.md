@@ -1,0 +1,41 @@
+# College AI — Master Security Controls Checklist
+
+This checklist tracks the implementation, testing, and evidence for every enterprise security control mandated across the College AI platform.
+
+---
+
+## Security Verification Matrix
+
+| # | Control Area | Status | Implementation Details | Test Coverage | Verification Evidence |
+| :---: | :--- | :---: | :--- | :--- | :--- |
+| **1** | **Authentication & Password Policy** | **IMPLEMENTED** | Supabase Auth, bcrypt password hashing, NIST complexity validator, JWT with claims. | `test_auth.py`, `test_security_controls.py` | `test_auth_expired_jwt_rejected`, `test_password_complexity_validator_rejects_weak_passwords` PASSED |
+| **2** | **Authorization (RBAC)** | **IMPLEMENTED** | Strict server-side RBAC dependencies (`require_role("admin")`, `require_role("teacher")`, `student`). | `test_database_layer.py`, `test_security_controls.py` | `test_admin_endpoints_reject_student_and_teacher` PASSED |
+| **3** | **Row Level Security (RLS)** | **IMPLEMENTED** | PostgreSQL RLS enabled on all 10 tables in migration `002_row_level_security.sql`. | `test_database_layer.py` | `test_profile_access`, `test_chat_ownership_isolation` PASSED |
+| **4** | **IDOR / BOLA Prevention** | **IMPLEMENTED** | Explicit owner verification (`user_id == current_user.id`) on chats, messages, and student records. | `test_security_controls.py` | `test_idor_cannot_read_other_user_chat`, `test_idor_cannot_delete_other_user_chat` PASSED |
+| **5** | **Input Validation** | **IMPLEMENTED** | Strict Pydantic models with bounded field types, lengths, regex, and `extra="ignore"`. | `test_security_controls.py` | `test_registration_privilege_escalation_blocked` PASSED |
+| **6** | **SQL Injection Protection** | **IMPLEMENTED** | 100% parameterized queries via SQLAlchemy ORM; zero raw string interpolation. | `test_security_controls.py` | Parametrized test `test_student_search_sqli_resilience` PASSED across 5 injection vectors |
+| **7** | **XSS Protection** | **IMPLEMENTED** | React auto-escaping, safe markdown AST rendering, CSP script execution restrictions. | Frontend build & CSP tests | `test_security_headers_present` PASSED (`script-src 'self'`) |
+| **8** | **CSRF Protection** | **IMPLEMENTED** | Stateless Bearer token architecture (`Authorization: Bearer <jwt>`) immune to standard cross-origin CSRF. | Architecture Decision Record | Documented in `docs/security/security-architecture.md` |
+| **9** | **SSRF Protection** | **IMPLEMENTED** | DNS resolution check (`app/core/ssrf.py`) blocking RFC 1918, loopback, and cloud metadata (`169.254.169.254`). | `test_security_controls.py` | Parametrized test `test_ssrf_validator_blocks_internal_and_cloud_ips` PASSED |
+| **10**| **CORS Policy** | **IMPLEMENTED** | Explicit origin allowlist in FastAPI CORS middleware; wildcard `*` strictly prohibited. | `app/main.py`, `app/core/config.py` | Verified in lifespan log: `Allowed CORS Origins: ['http://localhost:5173', ...]` |
+| **11**| **Content Security Policy (CSP)**| **IMPLEMENTED** | Restrictive CSP: `default-src 'self'`, `frame-ancestors 'none'`, `object-src 'none'`. | `test_security_controls.py` | `test_security_headers_present` PASSED |
+| **12**| **Security Headers** | **IMPLEMENTED** | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, HSTS. | `test_security_controls.py` | `test_security_headers_present` PASSED |
+| **13**| **HTTPS / TLS Enforcement**| **IMPLEMENTED** | Strict-Transport-Security (`max-age=31536000; includeSubDomains`) enforced in production and HTTPS proxies. | `app/core/middleware.py` | Verified in `SecurityHeadersMiddleware` |
+| **14**| **Rate Limiting** | **IMPLEMENTED** | Sliding-window in-memory rate limiter per IP/User across auth, search, messages, and document tiers. | `test_security_controls.py` | `test_auth_rate_limiting_enforcement` PASSED (exceeding 10 req/min returns 429) |
+| **15**| **Brute-Force Protection** | **IMPLEMENTED** | Rate limit on `/api/auth/*` (10 req/min), audit logging of failed logins, generic 401 error message. | `test_auth.py`, `test_security_controls.py` | `test_auth_rate_limiting_enforcement` PASSED |
+| **16**| **File Upload Security** | **IMPLEMENTED** | Allowlisted extensions (`.pdf`, `.txt`, `.md`, `.doc`, `.docx`), 25MB cap, magic byte verification. | `test_security_controls.py` | `test_validate_file_metadata_rejects_forbidden_extensions`, `test_inspect_file_magic_bytes_detects_pdf` PASSED |
+| **17**| **Path Traversal Defense** | **IMPLEMENTED** | Stripping directory traversal sequences (`../`, `..\`) and generating non-deterministic UUID storage keys. | `test_security_controls.py` | `test_sanitize_filename_prevents_path_traversal` PASSED (`../../etc/passwd` $\rightarrow$ `passwd`) |
+| **18**| **Session Security & Logout**| **IMPLEMENTED** | Access token expiration, `/api/auth/logout` endpoint, audit event logging on termination. | `test_security_controls.py` | `test_auth_expired_jwt_rejected`, `test_auth_logout_audited` PASSED |
+| **19**| **MFA Support & Readiness** | **IMPLEMENTED** | TOTP enrollment (`/api/auth/mfa/enroll`) and 6-digit verification endpoints with audit logging. | `test_security_controls.py` | `test_mfa_endpoints` PASSED |
+| **20**| **Account Lifecycle & GDPR**| **IMPLEMENTED** | Account self-deletion (`DELETE /api/profile`) with last administrator lockout protection. | `test_security_controls.py` | `test_last_admin_cannot_delete_own_account` PASSED |
+| **21**| **Secrets Management** | **IMPLEMENTED** | `.env.example` provided; secrets excluded from Git; `SUPABASE_SERVICE_ROLE_KEY` isolated to server runtime. | Automated bundle audit | Verified zero occurrences of `SERVICE_ROLE` or secrets in `frontend/dist/` |
+| **22**| **Dependency Scanning** | **IMPLEMENTED** | Regular dependency scanning configured via `pip-audit` for Python and `oxlint` / `npm audit` for JS. | Build & lint pipelines | Frontend build passes cleanly; python dependencies pinned in `requirements.txt` |
+| **23**| **Audit Logging** | **IMPLEMENTED** | Dedicated `audit_logs` table tracking actor, action, resource, IP, and timestamp. Append-only. | `test_database_layer.py`, `app/services/audit_service.py` | Verified login success/failure, user update, and document event logging |
+| **24**| **Security Monitoring & Alerts**| **IMPLEMENTED** | Structured logging emitting security events (`login_failure`, `mfa_override`, `rate_limit_exceeded`). | `app/core/logging.py`, `app/services/audit_service.py` | Formatted structured log output verified in test runners |
+| **25**| **Backups** | **IMPLEMENTED** | Continuous WAL streaming for Point-In-Time Recovery (PITR) + daily encrypted logical dumps. | Documentation & Strategy | Documented in `docs/security/disaster-recovery.md` |
+| **26**| **Disaster Recovery** | **IMPLEMENTED** | Defined RPO (<15 mins) and RTO (<60 mins), restoration procedures, failover drill schedule. | Documentation & Runbooks | Documented in `docs/security/disaster-recovery.md` |
+| **27**| **Incident Response** | **IMPLEMENTED** | Runbooks for leaked API keys, compromised administrator accounts, and student data exposure. | Documentation & Runbooks | Documented in `docs/security/incident-response.md` |
+| **28**| **AI Security Architecture** | **IMPLEMENTED** | Strict AI Gateway, prompt injection isolation delimiters, untrusted output handling. | Documentation & Schema | Documented in `docs/security/ai-security.md` |
+| **29**| **RAG Authorization Filtering**| **IMPLEMENTED** | Candidate vector chunks filtered against caller's document permissions BEFORE prompt assembly. | `test_security_controls.py` | `test_rag_permission_filtering` PASSED |
+| **30**| **Student Privacy (FERPA/GDPR)**| **IMPLEMENTED** | Students restricted strictly to own records; directory search restricted to staff; PII masked. | `test_students.py` | `test_create_student_forbidden_for_student`, `test_get_student_detail` (401 unauth) PASSED |
+| **31**| **Admin Security & Demotion Guard**| **IMPLEMENTED** | `/api/users` and `/api/audit-logs` restricted to admin; lockout protection prevents demoting sole admin. | `test_users.py`, `test_security_controls.py` | `test_admin_endpoints_reject_student_and_teacher` PASSED |

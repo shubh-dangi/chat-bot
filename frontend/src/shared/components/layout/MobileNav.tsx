@@ -1,35 +1,79 @@
-import * as React from "react"
-import { NavLink } from "react-router-dom"
+import React, { useState, useRef, useEffect } from "react"
+import { useNavigate, useLocation, NavLink } from "react-router-dom"
 import {
   X,
+  Plus,
   MessageSquare,
-  GraduationCap,
   Search,
+  GraduationCap,
   Shield,
   Settings,
-  User as UserIcon,
   LogOut,
+  Sun,
+  Moon,
+  Laptop,
+  LayoutDashboard,
+  Users,
+  UserCheck,
+  FileText,
+  ArrowLeft,
 } from "lucide-react"
 import { useUiStore } from "@/stores/uiStore"
 import { useAuthStore } from "@/stores/authStore"
+import { useConversations } from "@/features/chat/hooks/useConversations"
+import { ConversationSearch } from "@/features/chat/components/ConversationSearch"
+import { ConversationList } from "@/features/chat/components/ConversationList"
+import { ShareDialog } from "@/features/chat/components/ShareDialog"
+import { Button } from "@/shared/components/ui/Button"
 import { Avatar } from "@/shared/components/ui/Avatar"
+import { useTheme } from "@/shared/hooks/useTheme"
 import { ROUTES } from "@/shared/config/routes"
 import { cn } from "@/shared/utils/cn"
+import type { Conversation } from "@/features/chat/types/conversation.types"
 
 export function MobileNav() {
+  const navigate = useNavigate()
+  const location = useLocation()
   const { mobileNavOpen, setMobileNavOpen } = useUiStore()
   const { user, logout } = useAuthStore()
+  const { theme, setTheme } = useTheme()
+  const [shareTarget, setShareTarget] = useState<Conversation | null>(null)
+  const drawerRef = useRef<HTMLDivElement>(null)
+  const previousActiveElement = useRef<HTMLElement | null>(null)
 
-  React.useEffect(() => {
+  const {
+    conversations,
+    searchQuery,
+    setSearchQuery,
+    createNewChat,
+    renameChat,
+    deleteChat,
+    refresh,
+  } = useConversations()
+
+  const activeId = location.pathname.startsWith("/chat/")
+    ? location.pathname.replace("/chat/", "")
+    : null
+
+  const isAdminRoute = location.pathname.startsWith("/admin")
+
+  // Handle keyboard navigation and focus management
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMobileNavOpen(false)
+      if (e.key === "Escape") {
+        setMobileNavOpen(false)
+      }
     }
 
     if (mobileNavOpen) {
+      previousActiveElement.current = document.activeElement as HTMLElement
       document.addEventListener("keydown", handleKeyDown)
       document.body.style.overflow = "hidden"
+      setTimeout(() => drawerRef.current?.focus(), 0)
     } else {
+      document.removeEventListener("keydown", handleKeyDown)
       document.body.style.overflow = ""
+      previousActiveElement.current?.focus()
     }
 
     return () => {
@@ -38,114 +82,353 @@ export function MobileNav() {
     }
   }, [mobileNavOpen, setMobileNavOpen])
 
-  if (!mobileNavOpen) return null
-
-  const navItems = [
-    { label: "Chat Assistant", to: ROUTES.CHAT, icon: MessageSquare },
-    { label: "Search Knowledge", to: ROUTES.SEARCH, icon: Search },
-    { label: "Profile", to: ROUTES.PROFILE, icon: UserIcon },
-    { label: "Settings", to: ROUTES.SETTINGS, icon: Settings },
-    ...(user?.role === "admin"
-      ? [{ label: "Admin Console", to: ROUTES.ADMIN, icon: Shield }]
-      : []),
-  ]
-
   const handleNavClick = () => {
     setMobileNavOpen(false)
   }
 
+  if (!mobileNavOpen) return null
+
+  const handleNewChat = async () => {
+    const newConv = await createNewChat()
+    setMobileNavOpen(false)
+    navigate(ROUTES.CHAT_CONVERSATION(newConv.id))
+  }
+
+  const cycleTheme = () => {
+    if (theme === "light") setTheme("dark")
+    else if (theme === "dark") setTheme("system")
+    else setTheme("light")
+  }
+
   return (
-    <div className="fixed inset-0 z-drawer lg:hidden select-none" role="dialog" aria-modal="true">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-bg-overlay transition-opacity duration-200"
-        onClick={() => setMobileNavOpen(false)}
-        aria-hidden="true"
-      />
+    <>
+      <div className="fixed inset-0 z-drawer lg:hidden select-none" role="dialog" aria-modal="true" aria-label="Navigation menu">
+        {/* Backdrop */}
+        <div
+          className="fixed inset-0 bg-bg-overlay transition-opacity duration-200"
+          onClick={() => setMobileNavOpen(false)}
+          aria-hidden="true"
+        />
 
-      {/* Drawer */}
-      <div
-        className={cn(
-          "fixed top-0 bottom-0 left-0 w-[280px] bg-bg-secondary border-r border-border-default shadow-xl flex flex-col justify-between transition-transform duration-200 ease-out z-10 animate-in slide-in-from-left"
-        )}
-      >
-        <div className="flex flex-col flex-1 min-h-0">
+        {/* Drawer */}
+        <div
+          ref={drawerRef}
+          tabIndex={-1}
+          className={cn(
+            "fixed top-0 bottom-0 left-0 w-[300px] max-w-[85vw] bg-bg-secondary border-r border-border-default shadow-xl flex flex-col justify-between transition-transform duration-200 ease-out z-10",
+            "animate-in slide-in-from-left",
+            "h-[100dvh]"
+          )}
+        >
           {/* Header */}
-          <div className="h-14 px-4 flex items-center justify-between border-b border-border-default">
-            <div className="flex items-center gap-2.5">
-              <div className="w-6 h-6 rounded-md bg-brand text-brand-contrast flex items-center justify-center font-bold text-xs shadow-sm">
-                CA
+          <div className="flex flex-col flex-1 min-h-0">
+            <div className="h-14 px-4 flex items-center justify-between border-b border-border-default shrink-0">
+              <div
+                className="flex items-center gap-2.5 cursor-pointer"
+                onClick={() => {
+                  setMobileNavOpen(false)
+                  navigate(ROUTES.CHAT)
+                }}
+              >
+                <div className="w-7 h-7 rounded-lg bg-brand text-brand-contrast flex items-center justify-center font-bold text-xs shadow-sm">
+                  CA
+                </div>
+                <div className="min-w-0">
+                  <span className="font-semibold text-sm tracking-tight text-text-primary block truncate">
+                    College AI
+                  </span>
+                  <span className="text-[10px] text-text-muted block truncate -mt-0.5">
+                    {isAdminRoute ? "Admin Console" : "Campus Assistant"}
+                  </span>
+                </div>
               </div>
-              <span className="font-semibold text-base text-text-primary">College AI</span>
+              <button
+                onClick={() => setMobileNavOpen(false)}
+                className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-interactive-hover min-w-[44px] min-h-[44px] flex items-center justify-center"
+                aria-label="Close navigation"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
-            <button
-              onClick={() => setMobileNavOpen(false)}
-              className="p-1 rounded-md text-text-muted hover:text-text-primary hover:bg-interactive-hover"
-              aria-label="Close navigation"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
 
-          {/* Nav items */}
-          <nav className="p-3 space-y-1 overflow-y-auto flex-1">
-            {navItems.map((item) => {
-              const Icon = item.icon
-              return (
+            {/* If inside Admin Area on Mobile, show admin nav tabs */}
+            {isAdminRoute ? (
+              <div className="p-3 border-b border-border-default space-y-1 shrink-0">
+                <div className="text-[10px] uppercase font-bold tracking-wider text-text-muted px-2 mb-1">
+                  Admin Navigation
+                </div>
                 <NavLink
-                  key={item.to}
-                  to={item.to}
+                  to={ROUTES.ADMIN}
+                  end
                   onClick={handleNavClick}
                   className={({ isActive }) =>
                     cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
+                      "flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors select-none min-h-[44px]",
                       isActive
-                        ? "bg-brand-surface text-brand-text font-semibold border-l-2 border-brand"
+                        ? "bg-brand-surface text-brand-text font-semibold border border-brand-border"
                         : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
                     )
                   }
                 >
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span>{item.label}</span>
+                  <LayoutDashboard className="w-4 h-4 shrink-0" />
+                  <span>Overview</span>
                 </NavLink>
-              )
-            })}
-          </nav>
-        </div>
+                <NavLink
+                  to={ROUTES.ADMIN_USERS}
+                  onClick={handleNavClick}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors select-none min-h-[44px]",
+                      isActive
+                        ? "bg-brand-surface text-brand-text font-semibold border border-brand-border"
+                        : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
+                    )
+                  }
+                >
+                  <Users className="w-4 h-4 shrink-0" />
+                  <span>Users</span>
+                </NavLink>
+                <NavLink
+                  to={ROUTES.ADMIN_STUDENTS}
+                  onClick={handleNavClick}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors select-none min-h-[44px]",
+                      isActive
+                        ? "bg-brand-surface text-brand-text font-semibold border border-brand-border"
+                        : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
+                    )
+                  }
+                >
+                  <UserCheck className="w-4 h-4 shrink-0" />
+                  <span>Students</span>
+                </NavLink>
+                <NavLink
+                  to={ROUTES.ADMIN_DOCUMENTS}
+                  onClick={handleNavClick}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors select-none min-h-[44px]",
+                      isActive
+                        ? "bg-brand-surface text-brand-text font-semibold border border-brand-border"
+                        : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
+                    )
+                  }
+                >
+                  <FileText className="w-4 h-4 shrink-0" />
+                  <span>Documents</span>
+                </NavLink>
+                <NavLink
+                  to={ROUTES.CHAT}
+                  onClick={handleNavClick}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium text-text-secondary hover:text-brand-text hover:bg-brand-surface transition-colors min-h-[44px]"
+                >
+                  <ArrowLeft className="w-4 h-4 shrink-0" />
+                  <span>Return to Student App</span>
+                </NavLink>
+              </div>
+            ) : (
+              <>
+                {/* Main Nav Links */}
+                <div className="p-3 border-b border-border-default space-y-1 shrink-0">
+                  <NavLink
+                    to={ROUTES.CHAT}
+                    end
+                    onClick={handleNavClick}
+                    className={({ isActive }) =>
+                      cn(
+                        "flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors select-none min-h-[44px]",
+                        isActive
+                          ? "bg-brand-surface text-brand-text font-semibold border border-brand-border"
+                          : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
+                      )
+                    }
+                  >
+                    <MessageSquare className="w-4 h-4 shrink-0" />
+                    <span>Chat Assistant</span>
+                  </NavLink>
 
-        {/* User bar at bottom */}
-        <div className="p-4 border-t border-border-default bg-bg-primary">
-          {user ? (
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <Avatar src={user.avatarUrl} fallback={user.name} size="sm" />
-                <div className="min-w-0">
-                  <div className="text-xs font-semibold text-text-primary truncate">{user.name}</div>
-                  <div className="text-[11px] text-text-muted truncate capitalize">{user.role}</div>
+                  <NavLink
+                    to={ROUTES.SEARCH}
+                    onClick={handleNavClick}
+                    className={({ isActive }) =>
+                      cn(
+                        "flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors select-none min-h-[44px]",
+                        isActive
+                          ? "bg-brand-surface text-brand-text font-semibold border border-brand-border"
+                          : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
+                      )
+                    }
+                  >
+                    <Search className="w-4 h-4 shrink-0" />
+                    <span>Search Knowledge</span>
+                  </NavLink>
+
+                  <NavLink
+                    to={ROUTES.STUDENTS}
+                    onClick={handleNavClick}
+                    className={({ isActive }) =>
+                      cn(
+                        "flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors select-none min-h-[44px]",
+                        isActive
+                          ? "bg-brand-surface text-brand-text font-semibold border border-brand-border"
+                          : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
+                      )
+                    }
+                  >
+                    <GraduationCap className="w-4 h-4 shrink-0" />
+                    <span>Student Directory</span>
+                  </NavLink>
+                </div>
+
+                {/* New Chat & In-Sidebar Chat Search */}
+                <div className="p-3 border-b border-border-default space-y-2.5 shrink-0">
+                  <Button
+                    variant="primary"
+                    size="md"
+                    onClick={handleNewChat}
+                    className="w-full justify-center gap-2 shadow-sm font-medium min-h-[44px]"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>New Chat</span>
+                  </Button>
+
+                  <ConversationSearch
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                  />
+                </div>
+
+                {/* Scrollable Conversation List */}
+                <div className="flex-1 overflow-y-auto p-2.5 space-y-1">
+                  {conversations.length === 0 ? (
+                    <div className="text-center py-8 px-3 text-xs text-text-muted space-y-1.5">
+                      <MessageSquare className="w-6 h-6 mx-auto text-brand opacity-40 mb-2" />
+                      {searchQuery ? (
+                        <div>No chats match &quot;{searchQuery}&quot;</div>
+                      ) : (
+                        <div>No conversation history yet. Start a new chat above!</div>
+                      )}
+                    </div>
+                  ) : (
+                    <div onClick={handleNavClick}>
+                      <ConversationList
+                        conversations={conversations}
+                        activeId={activeId}
+                        onRename={renameChat}
+                        onDelete={deleteChat}
+                        onOpenShare={(conv) => setShareTarget(conv)}
+                      />
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* Navigation shortcuts (Settings, Admin) */}
+            <div className="p-2.5 border-t border-border-default space-y-1 shrink-0">
+              <NavLink
+                to={ROUTES.SETTINGS}
+                onClick={handleNavClick}
+                className={({ isActive }) =>
+                  cn(
+                    "flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors select-none min-h-[44px]",
+                    isActive
+                      ? "bg-brand-surface text-brand-text font-semibold border border-brand-border"
+                      : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
+                  )
+                }
+              >
+                <Settings className="w-4 h-4 shrink-0" />
+                <span>Settings</span>
+              </NavLink>
+
+              {user?.role === "admin" && (
+                <NavLink
+                  to={ROUTES.ADMIN}
+                  onClick={handleNavClick}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors select-none min-h-[44px]",
+                      isActive
+                        ? "bg-brand-surface text-brand-text font-semibold border border-brand-border"
+                        : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
+                    )
+                  }
+                >
+                  <Shield className="w-4 h-4 shrink-0" />
+                  <span>Admin Console</span>
+                </NavLink>
+              )}
+            </div>
+          </div>
+
+          {/* User Profile Bar at Bottom */}
+          <div className="p-3 border-t border-border-default bg-bg-primary shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            {user ? (
+              <div className="flex items-center justify-between gap-2">
+                <div
+                  className="flex items-center gap-2.5 min-w-0 cursor-pointer flex-1"
+                  onClick={() => {
+                    setMobileNavOpen(false)
+                    navigate(ROUTES.PROFILE)
+                  }}
+                >
+                  <Avatar src={user.avatarUrl} fallback={user.name} size="sm" />
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold text-text-primary truncate">{user.name}</div>
+                    <div className="text-[10px] text-text-muted truncate capitalize">{user.role}</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={cycleTheme}
+                    className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-interactive-hover min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    aria-label="Toggle visual theme"
+                  >
+                    {theme === "dark" ? (
+                      <Moon className="w-4 h-4 text-brand" />
+                    ) : theme === "light" ? (
+                      <Sun className="w-4 h-4 text-amber-500" />
+                    ) : (
+                      <Laptop className="w-4 h-4" />
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      logout()
+                      setMobileNavOpen(false)
+                    }}
+                    className="p-1.5 text-text-muted hover:text-status-error-text rounded hover:bg-interactive-hover min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    aria-label="Sign out"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  logout()
-                  setMobileNavOpen(false)
-                }}
-                className="p-1.5 text-text-muted hover:text-red-500 rounded hover:bg-interactive-hover"
-                aria-label="Sign out"
+            ) : (
+              <NavLink
+                to={ROUTES.LOGIN}
+                onClick={() => setMobileNavOpen(false)}
+                className="block text-center py-2.5 text-xs font-medium text-brand-text bg-brand-surface border border-brand-border rounded-md hover:bg-brand-surface-strong min-h-[44px] flex items-center justify-center"
               >
-                <LogOut className="w-4 h-4" />
-              </button>
-            </div>
-          ) : (
-            <NavLink
-              to={ROUTES.LOGIN}
-              onClick={handleNavClick}
-              className="block text-center py-2 text-xs font-medium border border-border-default rounded-md hover:bg-interactive-hover"
-            >
-              Sign In
-            </NavLink>
-          )}
+                Sign In
+              </NavLink>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Share Dialog */}
+      <ShareDialog
+        open={Boolean(shareTarget)}
+        onClose={() => setShareTarget(null)}
+        conversation={shareTarget}
+        onConversationUpdated={() => refresh()}
+      />
+    </>
   )
 }

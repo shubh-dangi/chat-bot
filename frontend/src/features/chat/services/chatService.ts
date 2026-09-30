@@ -1,7 +1,9 @@
+import { apiClient } from "@/shared/services/apiClient"
+import { tokenService } from "@/shared/services/tokenService"
+import { storage } from "@/shared/utils/storage"
 import type { Conversation } from "../types/conversation.types"
 import type { Message } from "../types/message.types"
 import { INITIAL_CONVERSATIONS, INITIAL_MESSAGES } from "./mockChatData"
-import { storage } from "@/shared/utils/storage"
 
 const CONV_STORAGE_KEY = "college_ai_conversations"
 const MSG_STORAGE_KEY = "college_ai_messages"
@@ -14,29 +16,102 @@ function loadStoredMessages(): Record<string, Message[]> {
   return storage.get<Record<string, Message[]>>(MSG_STORAGE_KEY, INITIAL_MESSAGES)
 }
 
-let conversations = loadStoredConversations()
-let messagesMap = loadStoredMessages()
+let localConversations = loadStoredConversations()
+let localMessagesMap = loadStoredMessages()
 
-function persist() {
-  storage.set(CONV_STORAGE_KEY, conversations)
-  storage.set(MSG_STORAGE_KEY, messagesMap)
+function persistLocal() {
+  storage.set(CONV_STORAGE_KEY, localConversations)
+  storage.set(MSG_STORAGE_KEY, localMessagesMap)
+}
+
+function normalizeConversation(raw: any): Conversation {
+  return {
+    id: String(raw.id),
+    title: raw.title || "New Conversation",
+    createdAt: raw.createdAt || raw.created_at || new Date().toISOString(),
+    updatedAt: raw.updatedAt || raw.updated_at || new Date().toISOString(),
+    lastMessagePreview: raw.lastMessagePreview || raw.last_message_preview,
+    shareToken: raw.shareToken || raw.share_token,
+    isShared: Boolean(raw.isShared ?? raw.is_shared),
+  }
+}
+
+function normalizeMessage(raw: any, fallbackConvId: string): Message {
+  let timeStr = raw.timestamp
+  if (!timeStr && raw.created_at) {
+    try {
+      timeStr = new Date(raw.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    } catch {
+      timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    }
+  }
+
+  return {
+    id: String(raw.id || "msg-" + Date.now()),
+    conversationId: String(raw.conversationId || raw.conversation_id || fallbackConvId),
+    sender: (raw.sender || raw.role || "user") as Message["sender"],
+    content: raw.content || "",
+    timestamp: timeStr || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+    status: (raw.status as Message["status"]) || "sent",
+  }
 }
 
 export const chatService = {
   async getConversations(): Promise<Conversation[]> {
-    await new Promise((r) => setTimeout(r, 100))
-    return [...conversations].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    if (tokenService.hasToken()) {
+      try {
+        const rawList = await apiClient.get<any[]>("/api/chats")
+        if (Array.isArray(rawList)) {
+          const list = rawList.map(normalizeConversation)
+          // Keep local mirror updated
+          localConversations = list
+          persistLocal()
+          return list
+        }
+      } catch (err) {
+        console.warn("Using offline conversations cache:", err)
+      }
+    }
+    return [...localConversations].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
   },
 
   async getConversation(id: string): Promise<Conversation | null> {
-    return conversations.find((c) => c.id === id) || null
+    if (tokenService.hasToken()) {
+      try {
+        const raw = await apiClient.get<any>(`/api/chats/${id}`)
+        if (raw && raw.id) {
+          return normalizeConversation(raw)
+        }
+      } catch (err) {
+        console.warn(`Falling back to local cache for chat ${id}:`, err)
+      }
+    }
+    return localConversations.find((c) => c.id === id) || null
   },
 
   async createConversation(initialMessage?: string): Promise<{ conversation: Conversation; initialMessage?: Message }> {
+    const title = initialMessage
+      ? initialMessage.slice(0, 36) + (initialMessage.length > 36 ? "..." : "")
+      : "New Conversation"
+
+    if (tokenService.hasToken()) {
+      try {
+        const raw = await apiClient.post<any>("/api/chats", {
+          title,
+          initial_message: initialMessage,
+        })
+        const conv = normalizeConversation(raw)
+        localConversations = [conv, ...localConversations]
+        localMessagesMap[conv.id] = []
+        persistLocal()
+        return { conversation: conv }
+      } catch (err) {
+        console.warn("Creating conversation via local fallback:", err)
+      }
+    }
+
     const id = "conv-" + Date.now()
     const now = new Date().toISOString()
-    const title = initialMessage ? initialMessage.slice(0, 36) + (initialMessage.length > 36 ? "..." : "") : "New Conversation"
-
     const newConv: Conversation = {
       id,
       title,
@@ -45,31 +120,63 @@ export const chatService = {
       lastMessagePreview: initialMessage || undefined,
     }
 
-    conversations = [newConv, ...conversations]
-    messagesMap[id] = []
-    persist()
+    localConversations = [newConv, ...localConversations]
+    localMessagesMap[id] = []
+    persistLocal()
 
     return { conversation: newConv }
   },
 
   async renameConversation(id: string, newTitle: string): Promise<Conversation> {
-    const conv = conversations.find((c) => c.id === id)
+    const cleanTitle = newTitle.trim()
+    if (tokenService.hasToken()) {
+      try {
+        const raw = await apiClient.patch<any>(`/api/chats/${id}`, { title: cleanTitle })
+        const conv = normalizeConversation(raw)
+        localConversations = localConversations.map((c) => (c.id === id ? conv : c))
+        persistLocal()
+        return conv
+      } catch (err) {
+        console.warn("Renaming conversation via local fallback:", err)
+      }
+    }
+
+    const conv = localConversations.find((c) => c.id === id)
     if (!conv) throw new Error("Conversation not found")
-    conv.title = newTitle.trim() || conv.title
+    conv.title = cleanTitle || conv.title
     conv.updatedAt = new Date().toISOString()
-    persist()
+    persistLocal()
     return { ...conv }
   },
 
   async deleteConversation(id: string): Promise<void> {
-    conversations = conversations.filter((c) => c.id !== id)
-    delete messagesMap[id]
-    persist()
+    if (tokenService.hasToken()) {
+      try {
+        await apiClient.delete(`/api/chats/${id}`)
+      } catch (err) {
+        console.warn("Deleting conversation via local fallback:", err)
+      }
+    }
+    localConversations = localConversations.filter((c) => c.id !== id)
+    delete localMessagesMap[id]
+    persistLocal()
   },
 
   async getMessages(conversationId: string): Promise<Message[]> {
-    await new Promise((r) => setTimeout(r, 80))
-    return messagesMap[conversationId] || []
+    if (tokenService.hasToken()) {
+      try {
+        const rawList = await apiClient.get<any[]>(`/api/chats/${conversationId}/messages`)
+        if (Array.isArray(rawList)) {
+          const mapped = rawList.map((m) => normalizeMessage(m, conversationId))
+          localMessagesMap[conversationId] = mapped
+          persistLocal()
+          return mapped
+        }
+      } catch (err) {
+        console.warn("Using offline messages cache:", err)
+      }
+    }
+    return localMessagesMap[conversationId] || []
   },
 
   async sendMessage(
@@ -77,6 +184,34 @@ export const chatService = {
     content: string,
     _onToken?: (token: string) => void
   ): Promise<{ userMessage: Message; assistantMessage: Message }> {
+    if (tokenService.hasToken()) {
+      try {
+        const data = await apiClient.post<any>(`/api/chats/${conversationId}/messages`, { content })
+        const rawUser = data.userMessage || data.user_message
+        const rawAssistant = data.assistantMessage || data.assistant_message
+
+        const userMessage = normalizeMessage(rawUser, conversationId)
+        const assistantMessage = normalizeMessage(rawAssistant, conversationId)
+
+        if (!localMessagesMap[conversationId]) {
+          localMessagesMap[conversationId] = []
+        }
+        localMessagesMap[conversationId].push(userMessage, assistantMessage)
+
+        const conv = localConversations.find((c) => c.id === conversationId)
+        if (conv) {
+          conv.updatedAt = new Date().toISOString()
+          conv.lastMessagePreview = content.slice(0, 60)
+        }
+        persistLocal()
+
+        return { userMessage, assistantMessage }
+      } catch (err) {
+        console.warn("Backend chat message failed, falling back to simulated generation:", err)
+      }
+    }
+
+    // Local fallback simulation
     const userMsgId = "msg-" + Date.now()
     const now = new Date()
     const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
@@ -90,13 +225,12 @@ export const chatService = {
       status: "sent",
     }
 
-    if (!messagesMap[conversationId]) {
-      messagesMap[conversationId] = []
+    if (!localMessagesMap[conversationId]) {
+      localMessagesMap[conversationId] = []
     }
-    messagesMap[conversationId].push(userMessage)
+    localMessagesMap[conversationId].push(userMessage)
 
-    // Update conversation recency & title if it's the first message
-    const conv = conversations.find((c) => c.id === conversationId)
+    const conv = localConversations.find((c) => c.id === conversationId)
     if (conv) {
       conv.updatedAt = now.toISOString()
       conv.lastMessagePreview = content.slice(0, 60)
@@ -104,9 +238,8 @@ export const chatService = {
         conv.title = content.slice(0, 32) + (content.length > 32 ? "..." : "")
       }
     }
-    persist()
+    persistLocal()
 
-    // Generate responsive simulated reply
     await new Promise((r) => setTimeout(r, 450))
 
     const sampleResponses = [
@@ -126,53 +259,101 @@ export const chatService = {
       status: "sent",
     }
 
-    messagesMap[conversationId].push(assistantMessage)
-    persist()
+    localMessagesMap[conversationId].push(assistantMessage)
+    persistLocal()
 
     return { userMessage, assistantMessage }
   },
 
   async editMessage(conversationId: string, messageId: string, newContent: string): Promise<Message[]> {
-    const list = messagesMap[conversationId] || []
+    if (tokenService.hasToken()) {
+      try {
+        const rawList = await apiClient.put<any[]>(`/api/chats/${conversationId}/messages/${messageId}`, {
+          new_content: newContent,
+        })
+        if (Array.isArray(rawList)) {
+          const mapped = rawList.map((m) => normalizeMessage(m, conversationId))
+          localMessagesMap[conversationId] = mapped
+          persistLocal()
+          return mapped
+        }
+      } catch (err) {
+        console.warn("Backend edit message fallback:", err)
+      }
+    }
+
+    const list = localMessagesMap[conversationId] || []
     const index = list.findIndex((m) => m.id === messageId)
     if (index === -1) return list
 
-    // Update the message content
     list[index].content = newContent
+    localMessagesMap[conversationId] = list.slice(0, index + 1)
+    persistLocal()
 
-    // Truncate following messages to simulate re-branching from this edit
-    messagesMap[conversationId] = list.slice(0, index + 1)
-    persist()
-
-    // Trigger fresh assistant response
     await this.sendMessage(conversationId, newContent)
-    return messagesMap[conversationId]
+    return localMessagesMap[conversationId]
   },
 
   async createShareLink(conversationId: string): Promise<string> {
-    const conv = conversations.find((c) => c.id === conversationId)
+    if (tokenService.hasToken()) {
+      try {
+        const data = await apiClient.post<any>(`/api/chats/${conversationId}/share`)
+        const token = data.shareToken || data.share_token
+        if (token) {
+          const conv = localConversations.find((c) => c.id === conversationId)
+          if (conv) {
+            conv.isShared = true
+            conv.shareToken = token
+            persistLocal()
+          }
+          return token
+        }
+      } catch (err) {
+        console.warn("Backend create share link fallback:", err)
+      }
+    }
+
+    const conv = localConversations.find((c) => c.id === conversationId)
     if (!conv) throw new Error("Conversation not found")
     const token = "s-" + Math.random().toString(36).slice(2, 8)
     conv.isShared = true
     conv.shareToken = token
-    persist()
+    persistLocal()
     return token
   },
 
   async revokeShareLink(conversationId: string): Promise<void> {
-    const conv = conversations.find((c) => c.id === conversationId)
+    if (tokenService.hasToken()) {
+      try {
+        await apiClient.delete(`/api/chats/${conversationId}/share`)
+      } catch (err) {
+        console.warn("Backend revoke share fallback:", err)
+      }
+    }
+    const conv = localConversations.find((c) => c.id === conversationId)
     if (!conv) return
     conv.isShared = false
     conv.shareToken = undefined
-    persist()
+    persistLocal()
   },
 
   async getSharedConversation(shareToken: string): Promise<{ conversation: Conversation; messages: Message[] } | null> {
-    const conv = conversations.find((c) => c.shareToken === shareToken && c.isShared)
+    try {
+      const data = await apiClient.get<any>(`/api/shared/${shareToken}`)
+      if (data && data.conversation) {
+        const conv = normalizeConversation(data.conversation)
+        const msgs = (data.messages || []).map((m: any) => normalizeMessage(m, conv.id))
+        return { conversation: conv, messages: msgs }
+      }
+    } catch (err) {
+      console.warn("Fetching shared chat via API failed, checking local store:", err)
+    }
+
+    const conv = localConversations.find((c) => c.shareToken === shareToken && c.isShared)
     if (!conv) return null
     return {
       conversation: conv,
-      messages: messagesMap[conv.id] || [],
+      messages: localMessagesMap[conv.id] || [],
     }
   },
 }

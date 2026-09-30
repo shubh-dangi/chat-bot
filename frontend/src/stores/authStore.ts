@@ -15,7 +15,7 @@ export const DEFAULT_DEMO_USER: User = {
 }
 
 type Listener = () => void
-let currentUser: User | null = storage.get<User | null>(STORAGE_KEYS.USER, DEFAULT_DEMO_USER)
+let currentUser: User | null = storage.get<User | null>(STORAGE_KEYS.USER, null)
 const listeners = new Set<Listener>()
 
 export const authStore = {

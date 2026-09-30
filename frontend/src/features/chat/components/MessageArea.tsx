@@ -43,7 +43,7 @@ export function MessageArea({
 
   if (messages.length === 0) {
     return (
-      <div className="flex-1 flex flex-col justify-center overflow-y-auto">
+      <div className="flex-1 flex flex-col justify-center overflow-y-auto p-4">
         <EmptyChat onSelectPrompt={onSelectPrompt || (() => {})} />
       </div>
     )
@@ -53,7 +53,7 @@ export function MessageArea({
     <div
       ref={containerRef}
       onScroll={handleScroll}
-      className="relative flex-1 overflow-y-auto px-3 sm:px-6 py-6"
+      className="relative flex-1 overflow-y-auto px-3 sm:px-4 lg:px-6 py-4"
     >
       <div className="max-w-3xl mx-auto space-y-4">
         {messages.map((message) => (
@@ -73,12 +73,12 @@ export function MessageArea({
       </div>
 
       {showScrollBottom && (
-        <div className="sticky bottom-4 flex justify-center pointer-events-none">
+        <div className="sticky bottom-4 flex justify-center pointer-events-none pb-2">
           <Button
             variant="secondary"
             size="sm"
             onClick={() => scrollToBottom("smooth")}
-            className="pointer-events-auto gap-1.5 shadow-md bg-bg-elevated border border-border-default rounded-full text-xs py-1.5 px-3"
+            className="pointer-events-auto gap-1.5 shadow-md bg-bg-elevated border border-border-default rounded-full text-xs py-1.5 px-3 min-h-[44px]"
           >
             <ArrowDown className="w-3.5 h-3.5" />
             <span>New messages below</span>

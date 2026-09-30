@@ -74,7 +74,7 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
         <button
           type="button"
           onClick={() => copy(code)}
-          className="flex items-center gap-1.5 px-2 py-0.5 rounded text-text-secondary hover:text-text-primary hover:bg-interactive-hover transition-colors"
+          className="flex items-center gap-1.5 px-2 py-0.5 rounded text-text-secondary hover:text-text-primary hover:bg-interactive-hover transition-colors min-h-[44px]"
           aria-label="Copy code block"
         >
           {copied ? (
@@ -131,15 +131,15 @@ export function MessageBubble({
     >
       {/* Assistant Avatar */}
       {!isUser && (
-        <div className="w-7 h-7 rounded-lg bg-brand-surface border border-brand-border flex items-center justify-center text-brand-text shrink-0 mt-0.5 shadow-xs">
+        <div className="w-7 h-7 rounded-lg bg-brand-surface border border-brand-border flex items-center justify-center text-brand-text shrink-0 mt-0.5 shadow-xs flex-shrink-0">
           <GraduationCap className="w-4 h-4" />
         </div>
       )}
 
       {/* Bubble Container */}
-      <div className={cn("flex flex-col max-w-[88%] sm:max-w-[80%]", isUser ? "items-end" : "items-start")}>
+      <div className={cn("flex flex-col max-w-[94%] sm:max-w-[82%] lg:max-w-[75%]", isUser ? "items-end" : "items-start")}>
         {isEditing ? (
-          <div className="w-full min-w-[280px] sm:min-w-[420px] p-3.5 rounded-xl border border-brand-border bg-bg-elevated space-y-3 shadow-md animate-page-enter">
+          <div className="w-full min-w-0 sm:min-w-[300px] max-w-full p-3 sm:p-3.5 rounded-xl border border-brand-border bg-bg-elevated space-y-3 shadow-md animate-page-enter">
             <div className="text-xs font-semibold text-text-secondary">Edit Message</div>
             <textarea
               value={editText}
@@ -155,6 +155,7 @@ export function MessageBubble({
                   setEditText(message.content)
                   setIsEditing(false)
                 }}
+                className="min-h-[40px]"
               >
                 Cancel
               </Button>
@@ -163,6 +164,7 @@ export function MessageBubble({
                 size="sm"
                 onClick={handleSaveEdit}
                 isLoading={isSaving}
+                className="min-h-[40px]"
               >
                 Save & Resend
               </Button>
@@ -176,14 +178,14 @@ export function MessageBubble({
           <>
             <div
               className={cn(
-                "p-4 text-sm leading-relaxed transition-all shadow-xs",
+                "p-3 sm:p-4 text-sm leading-relaxed transition-all shadow-xs",
                 isUser
                   ? "bg-brand text-brand-contrast rounded-2xl rounded-br-none border border-transparent font-normal select-text shadow-sm"
                   : "bg-bg-elevated text-text-primary border border-border-default rounded-2xl rounded-bl-none"
               )}
             >
               {isUser ? (
-                <div className="whitespace-pre-wrap">{message.content}</div>
+                <div className="whitespace-pre-wrap break-words">{message.content}</div>
               ) : (
                 <>
                   <FormattedMessageContent content={message.content} />
