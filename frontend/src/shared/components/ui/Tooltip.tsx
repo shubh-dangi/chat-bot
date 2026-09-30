@@ -6,6 +6,7 @@ export interface TooltipProps {
   children: React.ReactNode
   side?: "top" | "bottom" | "left" | "right"
   delay?: number
+  disabled?: boolean
 }
 
 export function Tooltip({
@@ -13,11 +14,13 @@ export function Tooltip({
   children,
   side = "top",
   delay = 300,
+  disabled = false,
 }: TooltipProps) {
   const [visible, setVisible] = React.useState(false)
   const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const show = () => {
+    if (disabled) return
     timerRef.current = setTimeout(() => {
       setVisible(true)
     }, delay)
@@ -44,7 +47,7 @@ export function Tooltip({
       onBlur={hide}
     >
       {children}
-      {visible && (
+      {visible && !disabled && (
         <div
           role="tooltip"
           className={cn(
