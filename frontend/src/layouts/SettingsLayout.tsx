@@ -3,6 +3,8 @@ import { useSearchParams } from "react-router-dom"
 import { Palette, User, ShieldCheck, Sliders } from "lucide-react"
 import { Header } from "@/shared/components/layout/Header"
 import { PageContainer } from "@/shared/components/layout/PageContainer"
+import { PageTransition } from "@/shared/components/motion/PageTransition"
+import { FadeIn } from "@/shared/components/motion/FadeIn"
 import { Tabs, type TabItem } from "@/shared/components/ui/Tabs"
 
 export interface SettingsLayoutProps {
@@ -25,14 +27,18 @@ export function SettingsLayout({ children }: SettingsLayoutProps) {
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-y-auto">
-      <Header title="Settings" subtitle="Manage your account preferences and theme settings" />
-      <PageContainer className="max-w-3xl">
-        <div className="mb-6">
-          <Tabs tabs={tabs} activeTab={activeTab} onChange={handleTabChange} />
-        </div>
-        <div className="mt-6">{children(activeTab)}</div>
-      </PageContainer>
-    </div>
+    <PageTransition>
+      <div className="flex-1 flex flex-col h-full overflow-y-auto">
+        <Header title="Settings" subtitle="Manage your account preferences and theme settings" />
+        <PageContainer className="max-w-3xl">
+          <div className="mb-6">
+            <Tabs tabs={tabs} activeTab={activeTab} onChange={handleTabChange} />
+          </div>
+          <FadeIn key={activeTab} delay={0} className="mt-6">
+            {children(activeTab)}
+          </FadeIn>
+        </PageContainer>
+      </div>
+    </PageTransition>
   )
 }

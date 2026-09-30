@@ -85,7 +85,7 @@ export function ConversationItem({
 
   if (isEditing) {
     return (
-      <div className="flex items-center gap-1.5 px-2 py-1 bg-bg-tertiary rounded-md border border-border-focus">
+      <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-bg-elevated rounded-lg border border-border-focus shadow-xs animate-page-enter">
         <input
           ref={inputRef}
           value={titleInput}
@@ -95,18 +95,20 @@ export function ConversationItem({
           className="flex-1 min-w-0 bg-transparent text-xs text-text-primary focus:outline-none"
         />
         <button
+          type="button"
           onClick={handleSaveRename}
-          className="p-1 text-text-muted hover:text-text-primary rounded"
+          className="p-1 text-text-muted hover:text-text-primary rounded hover:bg-interactive-hover"
           aria-label="Save title"
         >
-          <Check className="w-3.5 h-3.5" />
+          <Check className="w-3.5 h-3.5 text-status-success-text" />
         </button>
         <button
+          type="button"
           onClick={() => {
             setTitleInput(conversation.title)
             setIsEditing(false)
           }}
-          className="p-1 text-text-muted hover:text-text-primary rounded"
+          className="p-1 text-text-muted hover:text-text-primary rounded hover:bg-interactive-hover"
           aria-label="Cancel editing"
         >
           <X className="w-3.5 h-3.5" />
@@ -120,14 +122,19 @@ export function ConversationItem({
       <div
         onClick={() => navigate(ROUTES.CHAT_CONVERSATION(conversation.id))}
         className={cn(
-          "group relative flex items-center justify-between px-2.5 py-2 rounded-md text-xs transition-colors duration-100 cursor-pointer select-none",
+          "group relative flex items-center justify-between px-3 py-2.5 rounded-lg text-xs transition-all duration-fast cursor-pointer select-none",
           isActive
-            ? "bg-interactive-selected text-text-primary font-medium"
+            ? "bg-interactive-selected text-text-primary font-medium shadow-xs"
             : "text-text-secondary hover:text-text-primary hover:bg-interactive-hover"
         )}
       >
+        {/* Left active marker */}
+        {isActive && (
+          <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-text-primary" />
+        )}
+
         <div className="min-w-0 flex-1 pr-2">
-          <div className="truncate font-medium">{conversation.title}</div>
+          <div className="truncate font-medium leading-snug">{conversation.title}</div>
           {conversation.lastMessagePreview && (
             <div className="text-[11px] text-text-muted truncate mt-0.5 opacity-80">
               {conversation.lastMessagePreview}
@@ -135,12 +142,16 @@ export function ConversationItem({
           )}
         </div>
 
-        <div className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-fast shrink-0 flex items-center gap-0.5"
+          onClick={(e) => e.stopPropagation()}
+        >
           <DropdownMenu
             align="right"
             trigger={
               <button
-                className="p-1 rounded text-text-muted hover:text-text-primary hover:bg-interactive-hover transition-colors"
+                type="button"
+                className="p-1 rounded-md text-text-muted hover:text-text-primary hover:bg-interactive-hover transition-colors"
                 aria-label="Conversation options"
               >
                 <MoreHorizontal className="w-3.5 h-3.5" />
@@ -164,7 +175,7 @@ export function ConversationItem({
               <AlertTriangle className="w-4 h-4" />
             </div>
             <p className="text-xs text-text-secondary leading-relaxed">
-              Are you sure you want to delete <span className="font-semibold text-text-primary">&quot;{conversation.title}&quot;</span>? This action cannot be undone.
+              Are you sure you want to delete <span className="font-semibold text-text-primary">&quot;{conversation.title}&quot;</span>? This will permanently remove the message history.
             </p>
           </div>
           <div className="flex items-center justify-end gap-2 pt-2 border-t border-border-default">
@@ -177,7 +188,7 @@ export function ConversationItem({
               onClick={handleDeleteConfirm}
               isLoading={isDeleting}
             >
-              Delete Chat
+              Delete Conversation
             </Button>
           </div>
         </div>

@@ -82,10 +82,21 @@ export default {
         xl: "var(--shadow-xl)",
       },
       transitionDuration: {
-        fast: "100ms",
-        normal: "150ms",
-        slow: "200ms",
-        slower: "300ms",
+        fast: "var(--duration-fast, 140ms)",
+        normal: "var(--duration-normal, 220ms)",
+        slow: "var(--duration-slow, 350ms)",
+      },
+      transitionTimingFunction: {
+        "out-smooth": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "in-out-smooth": "cubic-bezier(0.65, 0, 0.35, 1)",
+        "spring": "cubic-bezier(0.175, 0.885, 0.32, 1.1)",
+      },
+      animation: {
+        "page-enter": "pageEntrance var(--duration-normal) cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "message-enter": "messageEntrance var(--duration-normal) cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "dialog-enter": "dialogEntrance var(--duration-normal) cubic-bezier(0.16, 1, 0.3, 1) forwards",
+        "solid-pulse": "solidPulse 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "cursor-blink": "cursorBlink 550ms step-end infinite",
       },
       zIndex: {
         dropdown: "1000",

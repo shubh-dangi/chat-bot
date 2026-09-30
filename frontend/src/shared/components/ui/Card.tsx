@@ -3,14 +3,16 @@ import { cn } from "@/shared/utils/cn"
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   elevated?: boolean
+  interactive?: boolean
 }
 
-export function Card({ className, elevated = false, ...props }: CardProps) {
+export function Card({ className, elevated = false, interactive = false, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-lg border border-border-default transition-colors",
-        elevated ? "bg-bg-elevated shadow-sm" : "bg-bg-primary",
+        "rounded-lg border border-border-default transition-all duration-normal",
+        elevated ? "bg-bg-elevated shadow-xs" : "bg-bg-primary",
+        interactive && "hover:border-border-strong hover:shadow-sm hover:-translate-y-[1px] cursor-pointer",
         className
       )}
       {...props}

@@ -61,7 +61,7 @@ export function Dialog({
       {/* Modal Surface */}
       <div
         className={cn(
-          "relative w-full z-10 rounded-xl bg-bg-elevated border border-border-default shadow-lg p-6 overflow-hidden animate-in fade-in zoom-in-95 duration-200",
+          "relative w-full z-10 rounded-xl bg-bg-elevated border border-border-default shadow-lg p-6 overflow-hidden animate-dialog-enter",
           maxWidths[maxWidth],
           className
         )}

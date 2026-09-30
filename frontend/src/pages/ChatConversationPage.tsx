@@ -28,6 +28,7 @@ export default function ChatConversationPage({
     sendMessage,
     editMessage,
     regenerateResponse,
+    stopStreaming,
   } = useChatMessages(chatId || null)
 
   useEffect(() => {
@@ -83,6 +84,7 @@ export default function ChatConversationPage({
         <MessageComposer
           onSend={handleSend}
           isGenerating={isSending}
+          onStop={stopStreaming}
           initialValue={composerSeed}
         />
 

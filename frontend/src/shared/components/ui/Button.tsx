@@ -11,21 +11,21 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", isLoading = false, disabled, children, ...props }, ref) => {
     const baseStyles =
-      "inline-flex items-center justify-center font-medium transition-colors select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-focus-ring)] disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98] duration-100 rounded-md"
+      "inline-flex items-center justify-center font-medium select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive-ring focus-visible:ring-offset-1 disabled:opacity-50 disabled:pointer-events-none hover:-translate-y-[1px] active:translate-y-0 active:scale-[0.98] transition-all duration-fast rounded-md"
 
     const variants = {
       primary:
-        "bg-neutral-800 text-neutral-0 hover:bg-neutral-700 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-100 shadow-xs",
+        "bg-text-primary text-bg-primary hover:opacity-95 shadow-xs border border-transparent",
       secondary:
-        "bg-transparent text-text-primary border border-border-default hover:bg-interactive-hover hover:border-border-strong",
+        "bg-bg-elevated text-text-primary border border-border-default hover:border-border-strong hover:bg-interactive-hover shadow-xs",
       ghost:
         "bg-transparent text-text-secondary hover:text-text-primary hover:bg-interactive-hover",
       outline:
-        "bg-bg-primary text-text-primary border border-border-default hover:bg-interactive-hover",
+        "bg-bg-primary text-text-primary border border-border-default hover:bg-interactive-hover hover:border-border-strong shadow-xs",
       danger:
-        "bg-red-500 text-white hover:bg-red-600 shadow-xs",
+        "bg-status-error-border text-status-error-text bg-status-error-surface hover:border-status-error-text border shadow-xs",
       "danger-ghost":
-        "bg-transparent text-red-500 hover:bg-red-50 dark:hover:bg-neutral-800",
+        "bg-transparent text-status-error-text hover:bg-status-error-surface",
     }
 
     const sizes = {

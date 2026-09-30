@@ -1,6 +1,6 @@
 export type MessageSender = "user" | "assistant"
 
-export type MessageStatus = "sent" | "streaming" | "error"
+export type MessageStatus = "thinking" | "streaming" | "sent" | "error"
 
 export interface Message {
   id: string

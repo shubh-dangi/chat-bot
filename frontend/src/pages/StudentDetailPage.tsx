@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useParams } from "react-router-dom"
 import { Header } from "@/shared/components/layout/Header"
 import { PageContainer } from "@/shared/components/layout/PageContainer"
+import { PageTransition } from "@/shared/components/motion/PageTransition"
 import { StudentDetailPanel } from "@/features/student/components/StudentDetailPanel"
 import { LoadingState } from "@/shared/components/feedback/LoadingState"
 import { ErrorState } from "@/shared/components/feedback/ErrorState"
@@ -30,25 +31,27 @@ export default function StudentDetailPage() {
   }, [studentId])
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-y-auto">
-      <Header
-        title="Student Profile"
-        subtitle={student ? `${student.name} (${student.rollNumber})` : "Student Details"}
-      />
+    <PageTransition>
+      <div className="flex-1 flex flex-col h-full overflow-y-auto">
+        <Header
+          title="Student Profile"
+          subtitle={student ? `${student.name} (${student.rollNumber})` : "Student Details"}
+        />
 
-      <PageContainer>
-        {isLoading ? (
-          <LoadingState type="page" />
-        ) : !student ? (
-          <ErrorState
-            title="Student Not Found"
-            message="No student record matches this identifier. Please verify the roll number."
-            onGoHome={() => (window.location.href = ROUTES.STUDENTS)}
-          />
-        ) : (
-          <StudentDetailPanel student={student} />
-        )}
-      </PageContainer>
-    </div>
+        <PageContainer>
+          {isLoading ? (
+            <LoadingState type="page" />
+          ) : !student ? (
+            <ErrorState
+              title="Student Not Found"
+              message="No student record matches this identifier. Please verify the roll number."
+              onGoHome={() => (window.location.href = ROUTES.STUDENTS)}
+            />
+          ) : (
+            <StudentDetailPanel student={student} />
+          )}
+        </PageContainer>
+      </div>
+    </PageTransition>
   )
 }

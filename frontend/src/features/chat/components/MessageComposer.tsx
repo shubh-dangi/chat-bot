@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react"
-import { ArrowUp, Square } from "lucide-react"
+import { ArrowUp, Square, Paperclip, Sparkles } from "lucide-react"
 import { Button } from "@/shared/components/ui/Button"
+import { Tooltip } from "@/shared/components/ui/Tooltip"
 import { cn } from "@/shared/utils/cn"
 
 export interface MessageComposerProps {
@@ -17,7 +18,7 @@ export function MessageComposer({
   disabled = false,
   isGenerating = false,
   onStop,
-  placeholder = "Ask anything about courses, exams, policies, or student details...",
+  placeholder = "Message College AI... (Ask about syllabus, regulations, or student records)",
   initialValue = "",
 }: MessageComposerProps) {
   const [text, setText] = useState(initialValue)
@@ -54,9 +55,12 @@ export function MessageComposer({
     }
   }
 
+  const hasText = text.trim().length > 0
+
   return (
     <div className="w-full max-w-3xl mx-auto px-4 pb-4 sm:pb-6 select-none">
-      <div className="relative rounded-2xl bg-bg-elevated border border-border-default shadow-sm transition-all focus-within:border-border-focus focus-within:ring-1 focus-within:ring-border-focus overflow-hidden">
+      <div className="relative rounded-2xl bg-bg-elevated border border-border-default shadow-xs hover:border-border-strong focus-within:border-border-focus focus-within:ring-2 focus-within:ring-interactive-ring focus-within:shadow-sm transition-all duration-normal overflow-hidden">
+        {/* Text Input Area */}
         <textarea
           ref={textareaRef}
           rows={1}
@@ -69,47 +73,74 @@ export function MessageComposer({
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           className={cn(
-            "w-full resize-none bg-transparent py-3.5 pl-4 pr-12 text-sm text-text-primary placeholder:text-text-muted focus:outline-none max-h-[180px] leading-relaxed",
+            "w-full resize-none bg-transparent pt-3.5 pb-12 pl-4 pr-12 text-sm text-text-primary placeholder:text-text-muted focus:outline-none max-h-[180px] leading-relaxed",
             disabled && "cursor-not-allowed opacity-60"
           )}
         />
 
-        <div className="absolute right-2.5 bottom-2.5 flex items-center">
+        {/* Bottom Toolbar inside Composer */}
+        <div className="absolute left-3 bottom-2.5 flex items-center gap-1.5">
+          <Tooltip content="Attach academic document or syllabus reference">
+            <button
+              type="button"
+              disabled={disabled}
+              className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-interactive-hover transition-colors disabled:opacity-40"
+              aria-label="Attach document"
+            >
+              <Paperclip className="w-4 h-4" />
+            </button>
+          </Tooltip>
+          <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-text-muted px-1.5 py-0.5 rounded bg-bg-secondary border border-border-subtle">
+            <Sparkles className="w-2.5 h-2.5 text-amber-500" />
+            <span>Campus AI Grounded</span>
+          </span>
+        </div>
+
+        {/* Send / Stop Action Button */}
+        <div className="absolute right-3 bottom-2.5 flex items-center">
           {isGenerating ? (
             <Button
               type="button"
               size="icon"
               variant="secondary"
               onClick={onStop}
-              aria-label="Stop response generation"
-              className="w-8 h-8 rounded-xl bg-bg-secondary text-text-primary border border-border-default"
+              aria-label="Stop generation"
+              className="w-8 h-8 rounded-xl bg-bg-secondary text-text-primary border border-border-default shadow-xs hover:bg-interactive-hover active:scale-95"
             >
               <Square className="w-3.5 h-3.5 fill-current" />
             </Button>
           ) : (
-            <Button
+            <button
               type="button"
-              size="icon"
-              variant="primary"
-              disabled={!text.trim() || disabled}
+              disabled={!hasText || disabled}
               onClick={handleSend}
               aria-label="Send message"
               className={cn(
-                "w-8 h-8 rounded-xl transition-all duration-100",
-                text.trim()
-                  ? "opacity-100 scale-100"
-                  : "opacity-40 pointer-events-none scale-95"
+                "w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-fast select-none cursor-pointer",
+                hasText && !disabled
+                  ? "bg-text-primary text-bg-primary shadow-xs hover:opacity-90 active:scale-95 translate-y-0"
+                  : "bg-bg-tertiary text-text-disabled cursor-not-allowed opacity-50"
               )}
             >
               <ArrowUp className="w-4 h-4 stroke-[2.5]" />
-            </Button>
+            </button>
           )}
         </div>
       </div>
 
+      {/* Helper Footer */}
       <div className="flex items-center justify-between text-[11px] text-text-muted mt-2 px-1">
-        <span>Press <kbd className="font-mono px-1 py-0.5 rounded bg-bg-tertiary border border-border-subtle">Enter</kbd> to send, <kbd className="font-mono px-1 py-0.5 rounded bg-bg-tertiary border border-border-subtle">Shift + Enter</kbd> for new line</span>
-        <span>College AI Model v1</span>
+        <div className="flex items-center gap-2">
+          <span>
+            Use <kbd className="font-mono px-1 py-0.5 rounded bg-bg-secondary border border-border-subtle text-[10px]">Enter</kbd> to send, <kbd className="font-mono px-1 py-0.5 rounded bg-bg-secondary border border-border-subtle text-[10px]">Shift + Enter</kbd> for line breaks
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          {text.length > 0 && (
+            <span className="font-mono text-[10px]">{text.length} chars</span>
+          )}
+          <span className="hidden sm:inline">College AI v2.4 • Production</span>
+        </div>
       </div>
     </div>
   )

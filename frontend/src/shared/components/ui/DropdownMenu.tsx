@@ -27,6 +27,15 @@ export function DropdownMenu({
   const [open, setOpen] = React.useState(false)
   const ref = useClickOutside<HTMLDivElement>(() => setOpen(false), open)
 
+  React.useEffect(() => {
+    if (!open) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false)
+    }
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
+  }, [open])
+
   return (
     <div className="relative inline-block text-left" ref={ref}>
       <div onClick={() => setOpen((prev) => !prev)} className="cursor-pointer">
@@ -37,7 +46,7 @@ export function DropdownMenu({
         <div
           role="menu"
           className={cn(
-            "absolute z-dropdown mt-1.5 min-w-[160px] rounded-md bg-bg-elevated border border-border-default shadow-md p-1 duration-150 animate-in fade-in slide-in-from-top-1",
+            "absolute z-dropdown mt-1.5 min-w-[160px] rounded-lg bg-bg-elevated border border-border-default shadow-md p-1 duration-fast animate-page-enter",
             align === "right" ? "right-0" : "left-0",
             className
           )}
@@ -58,9 +67,9 @@ export function DropdownMenu({
                   item.onClick?.()
                 }}
                 className={cn(
-                  "w-full flex items-center gap-2.5 px-3 py-1.5 text-sm rounded text-left transition-colors select-none",
+                  "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs sm:text-sm rounded text-left transition-colors select-none",
                   item.danger
-                    ? "text-red-500 hover:bg-red-50 dark:hover:bg-neutral-800"
+                    ? "text-status-error-text hover:bg-status-error-surface"
                     : "text-text-primary hover:bg-interactive-hover",
                   item.disabled && "opacity-50 pointer-events-none"
                 )}

@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom"
 import { SharedChatView } from "@/features/share/components/SharedChatView"
 import { InvalidShareState } from "@/features/share/components/InvalidShareState"
 import { LoadingState } from "@/shared/components/feedback/LoadingState"
+import { PageTransition } from "@/shared/components/motion/PageTransition"
 import { chatService } from "@/features/chat/services/chatService"
 import type { Conversation } from "@/features/chat/types/conversation.types"
 import type { Message } from "@/features/chat/types/message.types"
@@ -42,5 +43,9 @@ export default function SharedChatPage() {
     return <InvalidShareState />
   }
 
-  return <SharedChatView conversation={data.conversation} messages={data.messages} />
+  return (
+    <PageTransition>
+      <SharedChatView conversation={data.conversation} messages={data.messages} />
+    </PageTransition>
+  )
 }

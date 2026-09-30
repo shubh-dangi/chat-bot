@@ -23,6 +23,7 @@ import AdminStudentsPage from "@/pages/AdminStudentsPage"
 import AdminDocumentsPage from "@/pages/AdminDocumentsPage"
 
 import NotFoundPage from "@/pages/NotFoundPage"
+import UnauthorizedPage from "@/pages/UnauthorizedPage"
 import ErrorPage from "@/pages/ErrorPage"
 
 export const router = createBrowserRouter([
@@ -112,6 +113,11 @@ export const router = createBrowserRouter([
         element: <AdminDocumentsPage />,
       },
     ],
+  },
+
+  {
+    path: "/unauthorized",
+    element: <UnauthorizedPage />,
   },
 
   // 404 Catch-All

@@ -30,4 +30,5 @@ export const ROUTES = {
   ADMIN_USERS: "/admin/users",
   ADMIN_STUDENTS: "/admin/students",
   ADMIN_DOCUMENTS: "/admin/documents",
+  UNAUTHORIZED: "/unauthorized",
 } as const
