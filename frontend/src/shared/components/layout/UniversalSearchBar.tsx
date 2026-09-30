@@ -1,6 +1,7 @@
 import * as React from "react"
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom"
 import { Search, X } from "lucide-react"
+import { useUiStore } from "@/stores/uiStore"
 import { ROUTES } from "@/shared/config/routes"
 import { cn } from "@/shared/utils/cn"
 
@@ -17,18 +18,15 @@ export function UniversalSearchBar({
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const inputRef = React.useRef<HTMLInputElement>(null)
+  const { searchQuery, setSearchQuery } = useUiStore()
 
-  // The only search surface left is the conversation list, so the query lives in
-  // /chat?q= and the sidebar's list filter reads it from there.
-  const initialQ = location.pathname === ROUTES.CHAT ? searchParams.get("q") || "" : ""
-  const [query, setQuery] = React.useState(initialQ)
-
-  // Synchronize if URL search param changes
+  // Synchronize if URL search param changes on load
   React.useEffect(() => {
-    if (location.pathname === ROUTES.CHAT) {
-      setQuery(searchParams.get("q") || "")
+    const qParam = searchParams.get("q")
+    if (qParam !== null && qParam !== searchQuery) {
+      setSearchQuery(qParam)
     }
-  }, [location.pathname, searchParams])
+  }, [searchParams])
 
   // Global Ctrl+K / Cmd+K shortcut to focus universal search
   React.useEffect(() => {
@@ -43,21 +41,20 @@ export function UniversalSearchBar({
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [])
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const trimmed = query.trim()
-    if (trimmed) {
+    const trimmed = searchQuery.trim()
+    if (trimmed && !location.pathname.startsWith("/chat")) {
       navigate(`${ROUTES.CHAT}?q=${encodeURIComponent(trimmed)}`)
-    } else {
-      navigate(ROUTES.CHAT)
     }
   }
 
   const handleClear = () => {
-    setQuery("")
-    if (location.pathname === ROUTES.CHAT) {
-      navigate(ROUTES.CHAT)
-    }
+    setSearchQuery("")
     inputRef.current?.focus()
   }
 
@@ -77,8 +74,8 @@ export function UniversalSearchBar({
       <input
         ref={inputRef}
         type="search"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        value={searchQuery}
+        onChange={handleChange}
         placeholder={placeholder}
         aria-label="Search your chats"
         className={cn(
@@ -91,7 +88,7 @@ export function UniversalSearchBar({
       />
 
       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
-        {query ? (
+        {searchQuery ? (
           <button
             type="button"
             onClick={handleClear}

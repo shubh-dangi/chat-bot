@@ -3,11 +3,13 @@ import { useState, useEffect } from "react"
 interface UiState {
   mobileNavOpen: boolean
   sidebarCollapsed: boolean
+  searchQuery: string
 }
 
 let state: UiState = {
   mobileNavOpen: false,
-  sidebarCollapsed: false,
+  sidebarCollapsed: typeof window !== "undefined" ? localStorage.getItem("sidebar_collapsed") === "true" : false,
+  searchQuery: "",
 }
 
 type Listener = () => void
@@ -34,6 +36,20 @@ export const uiStore = {
 
   setSidebarCollapsed(collapsed: boolean) {
     state.sidebarCollapsed = collapsed
+    try {
+      localStorage.setItem("sidebar_collapsed", String(collapsed))
+    } catch {
+      // safe fallback
+    }
+    notify()
+  },
+
+  toggleSidebar() {
+    this.setSidebarCollapsed(!state.sidebarCollapsed)
+  },
+
+  setSearchQuery(q: string) {
+    state.searchQuery = q
     notify()
   },
 
@@ -59,5 +75,7 @@ export function useUiStore() {
     setMobileNavOpen: uiStore.setMobileNavOpen,
     toggleMobileNav: uiStore.toggleMobileNav,
     setSidebarCollapsed: uiStore.setSidebarCollapsed,
+    toggleSidebar: uiStore.toggleSidebar.bind(uiStore),
+    setSearchQuery: uiStore.setSearchQuery,
   }
 }

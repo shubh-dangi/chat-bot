@@ -1,7 +1,12 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react"
 import { describe, it, expect, vi } from "vitest"
 import { MessageBubble } from "./MessageBubble"
+import { ToastProvider } from "@/shared/components/feedback/ToastContainer"
 import type { Message } from "../types/message.types"
+
+function renderWithToast(ui: React.ReactElement) {
+  return render(<ToastProvider>{ui}</ToastProvider>)
+}
 
 describe("Chat — MessageBubble", () => {
   const userMessage: Message = {
@@ -23,24 +28,24 @@ describe("Chat — MessageBubble", () => {
   }
 
   it("renders user message with text content and timestamp", () => {
-    render(<MessageBubble message={userMessage} />)
+    renderWithToast(<MessageBubble message={userMessage} />)
     expect(screen.getByText("What is the fee submission deadline?")).toBeInTheDocument()
     expect(screen.getByText("10:30 AM")).toBeInTheDocument()
   })
 
   it("renders assistant message with formatted markdown bold tag", () => {
-    render(<MessageBubble message={assistantMessage} />)
+    renderWithToast(<MessageBubble message={assistantMessage} />)
     expect(screen.getByText("November 15, 2026")).toBeInTheDocument()
     expect(screen.getByText("November 15, 2026").tagName).toBe("STRONG")
   })
 
-  it("renders typing indicator when assistant message has status 'sending' and empty content", () => {
+  it("renders typing indicator when assistant message has status 'thinking'", () => {
     const streamingMessage: Message = {
       ...assistantMessage,
       content: "",
-      status: "sending",
+      status: "thinking",
     }
-    render(<MessageBubble message={streamingMessage} />)
+    renderWithToast(<MessageBubble message={streamingMessage} />)
     expect(screen.getByRole("status")).toBeInTheDocument()
   })
 
@@ -49,13 +54,13 @@ describe("Chat — MessageBubble", () => {
       ...assistantMessage,
       content: "Here is your code:\n```python\nprint('Hello College')\n```",
     }
-    render(<MessageBubble message={codeMessage} />)
+    renderWithToast(<MessageBubble message={codeMessage} />)
     expect(screen.getByText(/print\('Hello College'\)/)).toBeInTheDocument()
   })
 
   it("allows editing user messages and calls onEdit", async () => {
     const handleEdit = vi.fn().mockResolvedValue(true)
-    render(<MessageBubble message={userMessage} onEdit={handleEdit} />)
+    renderWithToast(<MessageBubble message={userMessage} onEdit={handleEdit} />)
 
     // Click edit button
     const editBtn = screen.getByRole("button", { name: /edit message/i })
@@ -76,7 +81,7 @@ describe("Chat — MessageBubble", () => {
 
   it("cancels edit mode without calling onEdit", () => {
     const handleEdit = vi.fn()
-    render(<MessageBubble message={userMessage} onEdit={handleEdit} />)
+    renderWithToast(<MessageBubble message={userMessage} onEdit={handleEdit} />)
 
     fireEvent.click(screen.getByRole("button", { name: /edit message/i }))
     const cancelBtn = screen.getByRole("button", { name: /cancel/i })

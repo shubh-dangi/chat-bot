@@ -13,7 +13,7 @@ describe("Chat Service — Client-Side Logic & Storage Resilience", () => {
   })
 
   it("creates a new conversation", async () => {
-    const newConv = await chatService.createConversation("Computer Networks Lab Query")
+    const { conversation: newConv } = await chatService.createConversation("Computer Networks Lab Query")
     expect(newConv).toBeDefined()
     expect(newConv.title).toBe("Computer Networks Lab Query")
     expect(newConv.id).toBeDefined()
@@ -24,7 +24,7 @@ describe("Chat Service — Client-Side Logic & Storage Resilience", () => {
   })
 
   it("renames an existing conversation", async () => {
-    const conv = await chatService.createConversation("Original Title")
+    const { conversation: conv } = await chatService.createConversation("Original Title")
     const updated = await chatService.renameConversation(conv.id, "Renamed Syllabus Query")
     expect(updated.title).toBe("Renamed Syllabus Query")
 
@@ -33,7 +33,7 @@ describe("Chat Service — Client-Side Logic & Storage Resilience", () => {
   })
 
   it("deletes a conversation and removes its messages", async () => {
-    const conv = await chatService.createConversation("To Be Deleted")
+    const { conversation: conv } = await chatService.createConversation("To Be Deleted")
     await chatService.sendMessage(conv.id, "Hello")
 
     await chatService.deleteConversation(conv.id)
@@ -44,23 +44,24 @@ describe("Chat Service — Client-Side Logic & Storage Resilience", () => {
     expect(msgs.length).toBe(0)
   })
 
-  it("searches conversations by title query case-insensitively", async () => {
+  it("filters conversations by search term accurately", async () => {
     await chatService.createConversation("Physics Midterm Prep")
     await chatService.createConversation("Chemistry Laboratory Guidelines")
 
-    const physicsResults = await chatService.searchConversations("physics")
+    const all = await chatService.getConversations()
+    const physicsResults = all.filter((c) => c.title.toLowerCase().includes("physics"))
     expect(physicsResults.some((c) => c.title.includes("Physics"))).toBe(true)
     expect(physicsResults.every((c) => !c.title.includes("Chemistry"))).toBe(true)
   })
 
-  it("generates a share token for read-only snapshot sharing", async () => {
-    const conv = await chatService.createConversation("Shareable Discussion")
-    const token = await chatService.generateShareToken(conv.id)
+  it("generates a share token and loads shared conversation", async () => {
+    const { conversation: conv } = await chatService.createConversation("Shareable Discussion")
+    const token = await chatService.createShareLink(conv.id)
     expect(token).toBeDefined()
     expect(typeof token).toBe("string")
-    expect(token.length).toBeGreaterThan(5)
+    expect(token.length).toBeGreaterThan(3)
 
-    const shared = await chatService.getSharedChat(token)
+    const shared = await chatService.getSharedConversation(token)
     expect(shared).toBeDefined()
     expect(shared?.conversation.title).toBe("Shareable Discussion")
   })

@@ -1,4 +1,4 @@
-import { NavLink, Outlet, Link } from "react-router-dom"
+import { NavLink, Outlet, Link, Navigate, useLocation } from "react-router-dom"
 import {
   LayoutDashboard,
   Users,
@@ -11,8 +11,20 @@ import { MobileNav } from "@/shared/components/layout/MobileNav"
 import { BrandLogo } from "@/shared/components/ui/Logo"
 import { ROUTES } from "@/shared/config/routes"
 import { cn } from "@/shared/utils/cn"
+import { useAuthStore } from "@/stores/authStore"
 
 export function AdminLayout() {
+  const { user } = useAuthStore()
+  const location = useLocation()
+
+  if (!user) {
+    const redirectUrl = encodeURIComponent(location.pathname + location.search)
+    return <Navigate to={`${ROUTES.LOGIN}?redirect=${redirectUrl}`} replace />
+  }
+
+  if (user.role !== "admin") {
+    return <Navigate to={ROUTES.UNAUTHORIZED} replace />
+  }
   const adminNav = [
     { label: "Overview", to: ROUTES.ADMIN, icon: LayoutDashboard, end: true },
     { label: "Users", to: ROUTES.ADMIN_USERS, icon: Users },

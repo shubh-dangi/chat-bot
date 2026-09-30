@@ -66,14 +66,17 @@ export function BrandLogo({
       )}
       onClick={onClick}
     >
-      <Logo size={size} className={onClick ? "group-hover:scale-105 transition-transform" : undefined} />
+      <Logo
+        size={size}
+        className={onClick ? "group-hover:scale-105 transition-transform" : undefined}
+      />
       {!compact && (
-        <div className="flex flex-col min-w-0 leading-tight">
-          <span className="font-semibold text-sm sm:text-base tracking-tight text-text-primary truncate">
+        <div className="flex flex-col justify-center min-w-0 leading-none">
+          <span className="font-bold text-sm tracking-tight text-text-primary group-hover:text-brand-text transition-colors truncate">
             College AI
           </span>
           {subtitle && (
-            <span className="text-[10px] text-text-muted truncate -mt-0.5">
+            <span className="text-[11px] font-medium text-text-muted truncate mt-0.5 tracking-normal">
               {subtitle}
             </span>
           )}

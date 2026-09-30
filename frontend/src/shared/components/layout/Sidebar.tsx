@@ -15,8 +15,8 @@ import {
   Laptop,
 } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore"
+import { useUiStore } from "@/stores/uiStore"
 import { useConversations } from "@/features/chat/hooks/useConversations"
-import { ConversationSearch } from "@/features/chat/components/ConversationSearch"
 import { ConversationList } from "@/features/chat/components/ConversationList"
 import { ShareDialog } from "@/features/chat/components/ShareDialog"
 import { Button } from "@/shared/components/ui/Button"
@@ -24,32 +24,29 @@ import { Avatar } from "@/shared/components/ui/Avatar"
 import { DropdownMenu } from "@/shared/components/ui/DropdownMenu"
 import { Tooltip } from "@/shared/components/ui/Tooltip"
 import { BrandLogo } from "@/shared/components/ui/Logo"
-import { useMediaQuery } from "@/shared/hooks/useMediaQuery"
 import { useTheme } from "@/shared/hooks/useTheme"
 import { ROUTES } from "@/shared/config/routes"
 import { cn } from "@/shared/utils/cn"
 import type { Conversation } from "@/features/chat/types/conversation.types"
-
-// Matches the `tablet` .. `desktop` range declared in tailwind.config.js.
-const TABLET_COMPACT_QUERY = "(min-width: 640px) and (max-width: 1023.98px)"
 
 export function Sidebar({ className, compact = false }: { className?: string; compact?: boolean }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout } = useAuthStore()
   const { theme, setTheme } = useTheme()
-  const [collapsed, setCollapsed] = useState(false)
+  const { sidebarCollapsed, toggleSidebar } = useUiStore()
   const [shareTarget, setShareTarget] = useState<Conversation | null>(null)
 
   const {
     conversations,
     searchQuery,
-    setSearchQuery,
     createNewChat,
     renameChat,
     deleteChat,
     refresh,
   } = useConversations()
+
+  const isMini = compact || sidebarCollapsed
 
   // Determine active conversation id from URL
   const activeId = location.pathname.startsWith("/chat/")
@@ -91,11 +88,6 @@ export function Sidebar({ className, compact = false }: { className?: string; co
     },
   ]
 
-  // Hook runs unconditionally; the `compact` prop only forces the rail on.
-  const isTabletRange = useMediaQuery(TABLET_COMPACT_QUERY)
-  const isTabletCompact = compact || isTabletRange
-  const isMini = collapsed || isTabletCompact
-
   return (
     <>
       <aside
@@ -107,91 +99,60 @@ export function Sidebar({ className, compact = false }: { className?: string; co
       >
         {/* Top Section */}
         <div className="flex flex-col flex-1 min-h-0">
-          {/* Header Brand */}
-          <div
-            className={cn(
-              "h-14 flex items-center border-b border-border-default transition-all duration-normal shrink-0",
-              isMini ? "justify-center px-2" : "justify-between px-4"
-            )}
-          >
-            {!isMini ? (
+          {/* Header Brand & Collapse Toggle */}
+          {!isMini ? (
+            <div className="h-14 px-3.5 flex items-center justify-between border-b border-border-default shrink-0">
               <BrandLogo
-                size="sm"
+                size="md"
                 subtitle="Campus Assistant"
                 onClick={() => navigate(ROUTES.CHAT)}
               />
-            ) : (
-              <BrandLogo
-                size="sm"
-                compact
-                onClick={() => navigate(ROUTES.CHAT)}
-              />
-            )}
-
-            {!isTabletCompact && (
-              <button
-                type="button"
-                onClick={() => setCollapsed(!collapsed)}
-                className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-interactive-hover transition-colors"
-                aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-                title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-              >
-                {collapsed ? (
-                  <PanelLeftOpen className="w-4 h-4" />
-                ) : (
+              <Tooltip content="Collapse sidebar" side="right">
+                <button
+                  type="button"
+                  onClick={toggleSidebar}
+                  className="p-1.5 rounded-lg text-text-muted hover:text-text-primary hover:bg-interactive-hover transition-colors shrink-0"
+                  aria-label="Collapse sidebar"
+                  title="Collapse sidebar"
+                >
                   <PanelLeftClose className="w-4 h-4" />
-                )}
-              </button>
-            )}
-          </div>
-
-          {/* Primary Quick Nav Links */}
-          <div className={cn("p-2 border-b border-border-default space-y-1 shrink-0", isMini && "flex flex-col items-center px-2")}>
-            <NavLink
-              to={ROUTES.CHAT}
-              end
-              className={({ isActive }) =>
-                cn(
-                  "flex items-center gap-2.5 rounded-lg text-xs font-medium transition-colors select-none",
-                  isMini ? "justify-center p-2.5 w-10 h-10" : "px-3 py-2 w-full",
-                  isActive
-                    ? "bg-brand-surface text-brand-text font-semibold border border-brand-border"
-                    : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
-                )
-              }
-            >
-              <Tooltip content="Chat Assistant" side="right">
-                <MessageSquare className="w-4 h-4 shrink-0" />
+                </button>
               </Tooltip>
-            </NavLink>
-          </div>
+            </div>
+          ) : (
+            <div className="h-14 flex items-center justify-center border-b border-border-default px-2 shrink-0">
+              <Tooltip content="Expand sidebar" side="right">
+                <button
+                  type="button"
+                  onClick={toggleSidebar}
+                  className="w-10 h-10 rounded-lg flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-interactive-hover transition-colors"
+                  aria-label="Expand sidebar"
+                  title="Expand sidebar"
+                >
+                  <PanelLeftOpen className="w-5 h-5" />
+                </button>
+              </Tooltip>
+            </div>
+          )}
 
-          {/* New Chat Button & Chat Search Bar */}
+          {/* New Chat Button */}
           <div className={cn("p-3 border-b border-border-default shrink-0", isMini && "px-2 py-3 flex justify-center")}>
             {!isMini ? (
-              <div className="space-y-2.5">
-                <Button
-                  variant="primary"
-                  size="md"
-                  onClick={handleNewChat}
-                  className="w-full justify-center gap-2 shadow-sm font-medium"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>New Chat</span>
-                </Button>
-
-                {/* In-Sidebar Chat Search Input */}
-                <ConversationSearch
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                />
-              </div>
+              <Button
+                variant="primary"
+                size="md"
+                onClick={handleNewChat}
+                className="w-full justify-center gap-2 shadow-xs font-medium"
+              >
+                <Plus className="w-4 h-4" />
+                <span>New Chat</span>
+              </Button>
             ) : (
               <Tooltip content="New Chat" side="right">
                 <button
                   type="button"
                   onClick={handleNewChat}
-                  className="w-10 h-10 rounded-xl bg-brand text-brand-contrast flex items-center justify-center shadow-sm hover:bg-brand-hover active:scale-95 transition-all"
+                  className="w-10 h-10 rounded-xl bg-brand text-brand-contrast flex items-center justify-center shadow-xs hover:bg-brand-hover active:scale-95 transition-all"
                   aria-label="Start new chat"
                 >
                   <Plus className="w-5 h-5" />
@@ -200,43 +161,64 @@ export function Sidebar({ className, compact = false }: { className?: string; co
             )}
           </div>
 
-          {/* Middle: Scrollable Chat History */}
+          {/* Middle: Recent Chats List */}
           {!isMini ? (
-            <div className="flex-1 min-h-0 min-w-0 overflow-y-auto overscroll-contain p-2.5 space-y-1">
-              {conversations.length === 0 ? (
-                <div className="text-center py-8 px-3 text-xs text-text-muted space-y-1.5">
-                  <MessageSquare className="w-6 h-6 mx-auto text-brand opacity-40 mb-2" />
-                  {searchQuery ? (
-                    <div>No chats match &quot;{searchQuery}&quot;</div>
-                  ) : (
-                    <div>No conversation history yet. Start a new chat above!</div>
-                  )}
-                </div>
-              ) : (
-                <ConversationList
-                  conversations={conversations}
-                  activeId={activeId}
-                  onRename={renameChat}
-                  onDelete={deleteChat}
-                  onOpenShare={(conv) => setShareTarget(conv)}
-                />
-              )}
+            <div className="flex-1 min-h-0 min-w-0 flex flex-col">
+              <div className="px-3 pt-3 pb-1 flex items-center justify-between text-[11px] font-semibold tracking-wider text-text-muted uppercase select-none shrink-0">
+                <span>Recent</span>
+                {searchQuery && (
+                  <span className="text-[10px] font-normal lowercase tracking-normal text-brand truncate max-w-[120px]">
+                    &quot;{searchQuery}&quot;
+                  </span>
+                )}
+              </div>
+
+              <div className="flex-1 min-h-0 min-w-0 overflow-y-auto overscroll-contain p-2 space-y-1">
+                {conversations.length === 0 ? (
+                  <div className="text-center py-8 px-3 text-xs text-text-muted space-y-1.5">
+                    <MessageSquare className="w-6 h-6 mx-auto text-brand opacity-40 mb-2" />
+                    {searchQuery ? (
+                      <div>No chats match &quot;{searchQuery}&quot;</div>
+                    ) : (
+                      <div>No conversation history yet. Start a new chat above!</div>
+                    )}
+                  </div>
+                ) : (
+                  <ConversationList
+                    conversations={conversations}
+                    activeId={activeId}
+                    onRename={renameChat}
+                    onDelete={deleteChat}
+                    onOpenShare={(conv) => setShareTarget(conv)}
+                  />
+                )}
+              </div>
             </div>
           ) : (
-            <div className="flex-1 min-h-0 min-w-0 overflow-y-auto overscroll-contain p-2 flex flex-col items-center gap-2">
-              <Tooltip content="All Chats" side="right">
-                <button
-                  type="button"
-                  onClick={() => navigate(ROUTES.CHAT)}
-                  className={cn(
-                    "p-2.5 rounded-lg text-text-secondary hover:text-brand-text hover:bg-brand-surface transition-colors",
-                    location.pathname.startsWith("/chat") && "bg-brand-surface text-brand-text font-semibold"
-                  )}
-                  aria-label="View chats"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                </button>
-              </Tooltip>
+            <div className="flex-1 min-h-0 min-w-0 overflow-y-auto overscroll-contain p-2 flex flex-col items-center gap-1.5">
+              {conversations.slice(0, 15).map((conv) => (
+                <Tooltip key={conv.id} content={conv.title} side="right">
+                  <button
+                    type="button"
+                    onClick={() => navigate(ROUTES.CHAT_CONVERSATION(conv.id))}
+                    className={cn(
+                      "w-10 h-10 rounded-lg flex items-center justify-center transition-colors text-text-secondary hover:text-brand-text hover:bg-brand-surface",
+                      conv.id === activeId && "bg-brand-surface text-brand-text font-semibold border border-brand-border"
+                    )}
+                    aria-label={conv.title}
+                  >
+                    <MessageSquare className="w-4 h-4 shrink-0" />
+                  </button>
+                </Tooltip>
+              ))}
+
+              {conversations.length === 0 && (
+                <Tooltip content="No recent chats" side="right">
+                  <div className="p-2 text-text-muted">
+                    <MessageSquare className="w-4 h-4 opacity-40" />
+                  </div>
+                </Tooltip>
+              )}
             </div>
           )}
 

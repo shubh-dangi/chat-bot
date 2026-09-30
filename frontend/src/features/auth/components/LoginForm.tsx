@@ -1,5 +1,5 @@
-import React, { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import React, { useState, useEffect } from "react"
+import { Link, useNavigate, useSearchParams } from "react-router-dom"
 import { Button } from "@/shared/components/ui/Button"
 import { Input } from "@/shared/components/ui/Input"
 import { authService } from "../services/authService"
@@ -9,8 +9,18 @@ import { ROUTES } from "@/shared/config/routes"
 
 export function LoginForm() {
   const navigate = useNavigate()
-  const { setUser } = useAuthStore()
+  const [searchParams] = useSearchParams()
+  const { user, setUser } = useAuthStore()
   const { success, error: toastError } = useToast()
+
+  const redirectTarget = searchParams.get("redirect") || ROUTES.CHAT
+  const targetPath = redirectTarget.startsWith("/") ? redirectTarget : ROUTES.CHAT
+
+  useEffect(() => {
+    if (user) {
+      navigate(targetPath, { replace: true })
+    }
+  }, [user, navigate, targetPath])
 
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -46,9 +56,26 @@ export function LoginForm() {
       const res = await authService.login({ email, password })
       setUser(res.user, res.token)
       success(`Welcome back, ${res.user.name}`)
-      navigate(ROUTES.CHAT)
+      navigate(targetPath, { replace: true })
     } catch {
       const msg = "Invalid email or password. Please try again."
+      setErrors({ general: msg })
+      toastError(msg)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDemoLogin = async (demoEmail: string) => {
+    setLoading(true)
+    setErrors({})
+    try {
+      const res = await authService.login({ email: demoEmail, password: "password123" })
+      setUser(res.user, res.token)
+      success(`Signed in as ${res.user.name} (${res.user.role})`)
+      navigate(targetPath, { replace: true })
+    } catch {
+      const msg = "Demo login failed. Please try again."
       setErrors({ general: msg })
       toastError(msg)
     } finally {
@@ -107,6 +134,36 @@ export function LoginForm() {
       <Button type="submit" variant="primary" size="md" className="w-full mt-2" isLoading={loading}>
         Sign In
       </Button>
+
+      <div className="pt-2">
+        <div className="relative flex py-2 items-center">
+          <div className="flex-grow border-t border-border-default"></div>
+          <span className="flex-shrink mx-2 text-[10px] text-text-muted uppercase tracking-wider font-semibold">Or instant demo sign-in</span>
+          <div className="flex-grow border-t border-border-default"></div>
+        </div>
+        <div className="grid grid-cols-2 gap-2 mt-1">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => handleDemoLogin("student@college.edu")}
+            disabled={loading}
+            className="text-xs justify-center"
+          >
+            Demo Student
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => handleDemoLogin("admin@college.edu")}
+            disabled={loading}
+            className="text-xs justify-center"
+          >
+            Demo Admin
+          </Button>
+        </div>
+      </div>
 
       <div className="text-center pt-3 border-t border-border-default text-xs text-text-secondary">
         Don&apos;t have an account?{" "}

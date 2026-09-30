@@ -19,7 +19,6 @@ import {
 import { useUiStore } from "@/stores/uiStore"
 import { useAuthStore } from "@/stores/authStore"
 import { useConversations } from "@/features/chat/hooks/useConversations"
-import { ConversationSearch } from "@/features/chat/components/ConversationSearch"
 import { ConversationList } from "@/features/chat/components/ConversationList"
 import { ShareDialog } from "@/features/chat/components/ShareDialog"
 import { Button } from "@/shared/components/ui/Button"
@@ -220,28 +219,8 @@ export function MobileNav() {
               </div>
             ) : (
               <>
-                {/* Main Nav Links */}
-                <div className="p-3 border-b border-border-default space-y-1 shrink-0">
-                  <NavLink
-                    to={ROUTES.CHAT}
-                    end
-                    onClick={handleNavClick}
-                    className={({ isActive }) =>
-                      cn(
-                        "flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors select-none min-h-[44px]",
-                        isActive
-                          ? "bg-brand-surface text-brand-text font-semibold border border-brand-border"
-                          : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
-                      )
-                    }
-                  >
-                    <MessageSquare className="w-4 h-4 shrink-0" />
-                    <span>Chat Assistant</span>
-                  </NavLink>
-                </div>
-
-                {/* New Chat & In-Sidebar Chat Search */}
-                <div className="p-3 border-b border-border-default space-y-2.5 shrink-0">
+                {/* New Chat Button */}
+                <div className="p-3 border-b border-border-default shrink-0">
                   <Button
                     variant="primary"
                     size="md"
@@ -251,11 +230,16 @@ export function MobileNav() {
                     <Plus className="w-4 h-4" />
                     <span>New Chat</span>
                   </Button>
+                </div>
 
-                  <ConversationSearch
-                    value={searchQuery}
-                    onChange={setSearchQuery}
-                  />
+                {/* Recent Chats Section */}
+                <div className="px-3 pt-3 pb-1 flex items-center justify-between text-[11px] font-semibold tracking-wider text-text-muted uppercase select-none shrink-0">
+                  <span>Recent</span>
+                  {searchQuery && (
+                    <span className="text-[10px] font-normal lowercase tracking-normal text-brand truncate max-w-[120px]">
+                      &quot;{searchQuery}&quot;
+                    </span>
+                  )}
                 </div>
 
                 {/* Scrollable Conversation List */}

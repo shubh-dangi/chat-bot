@@ -1,8 +1,19 @@
-import { Outlet } from "react-router-dom"
+import { Outlet, Navigate, useLocation } from "react-router-dom"
+import { useAuthStore } from "@/stores/authStore"
 import { Sidebar } from "@/shared/components/layout/Sidebar"
 import { MobileNav } from "@/shared/components/layout/MobileNav"
+import { ROUTES } from "@/shared/config/routes"
 
 export function RootLayout() {
+  const { user } = useAuthStore()
+  const location = useLocation()
+
+  // Protect all child shell routes — unauthenticated users redirected to login
+  if (!user) {
+    const redirectUrl = encodeURIComponent(location.pathname + location.search)
+    return <Navigate to={`${ROUTES.LOGIN}?redirect=${redirectUrl}`} replace />
+  }
+
   // The shell uses a definite height (not min-height) so the `h-full` scroll
   // containers in the page layouts resolve against a real containing block
   // instead of collapsing to content height.
