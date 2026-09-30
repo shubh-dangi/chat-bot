@@ -1,0 +1,251 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Raw Neutral Palette */
+  --neutral-0: #ffffff;
+  --neutral-50: #fafafa;
+  --neutral-100: #f5f5f5;
+  --neutral-150: #efefef;
+  --neutral-200: #e5e5e5;
+  --neutral-300: #d4d4d4;
+  --neutral-400: #a3a3a3;
+  --neutral-500: #737373;
+  --neutral-600: #525252;
+  --neutral-700: #404040;
+  --neutral-800: #262626;
+  --neutral-900: #171717;
+  --neutral-950: #0a0a0a;
+  --neutral-1000: #000000;
+
+  /* Raw Semantic Palette */
+  --green-50: #f0fdf4;
+  --green-500: #22c55e;
+  --green-700: #15803d;
+  --yellow-50: #fefce8;
+  --yellow-500: #eab308;
+  --yellow-700: #a16207;
+  --red-50: #fef2f2;
+  --red-500: #ef4444;
+  --red-700: #b91c1c;
+  --blue-50: #eff6ff;
+  --blue-500: #3b82f6;
+  --blue-700: #1d4ed8;
+
+  /* Typography */
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
+
+  /* Radius Tokens */
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  /* Easing */
+  --ease-none: linear;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Light Theme Semantic Mappings (Default) */
+  --color-bg-primary: var(--neutral-0);
+  --color-bg-secondary: var(--neutral-50);
+  --color-bg-tertiary: var(--neutral-100);
+  --color-bg-elevated: var(--neutral-0);
+  --color-bg-inverse: var(--neutral-900);
+  --color-bg-overlay: rgba(23, 23, 23, 0.8);
+  --color-bg-skeleton: var(--neutral-150);
+
+  --color-text-primary: var(--neutral-800);
+  --color-text-secondary: var(--neutral-600);
+  --color-text-muted: var(--neutral-400);
+  --color-text-inverse: var(--neutral-0);
+  --color-text-disabled: var(--neutral-300);
+
+  --color-border-default: var(--neutral-200);
+  --color-border-strong: var(--neutral-300);
+  --color-border-subtle: var(--neutral-150);
+  --color-border-focus: var(--neutral-800);
+  --color-border-error: var(--red-500);
+
+  --color-hover-bg: var(--neutral-50);
+  --color-hover-bg-strong: var(--neutral-100);
+  --color-active-bg: var(--neutral-150);
+  --color-selected-bg: var(--neutral-100);
+  --color-selected-bg-strong: var(--neutral-200);
+  --color-focus-ring: rgba(38, 38, 38, 0.35);
+
+  --color-input-bg: var(--neutral-0);
+  --color-input-border: var(--neutral-200);
+  --color-input-border-focus: var(--neutral-800);
+  --color-input-placeholder: var(--neutral-400);
+  --color-input-disabled-bg: var(--neutral-50);
+
+  --color-success-surface: var(--green-50);
+  --color-success-text: var(--green-700);
+  --color-success-border: rgba(34, 197, 94, 0.3);
+  --color-warning-surface: var(--yellow-50);
+  --color-warning-text: var(--yellow-700);
+  --color-warning-border: rgba(234, 179, 8, 0.3);
+  --color-error-surface: var(--red-50);
+  --color-error-text: var(--red-700);
+  --color-error-border: rgba(239, 68, 68, 0.3);
+  --color-info-surface: var(--blue-50);
+  --color-info-text: var(--blue-700);
+  --color-info-border: rgba(59, 130, 246, 0.3);
+
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+}
+
+/* Dark Theme Semantic Mappings */
+html[data-theme="dark"],
+html.dark {
+  --color-bg-primary: var(--neutral-950);
+  --color-bg-secondary: var(--neutral-900);
+  --color-bg-tertiary: var(--neutral-800);
+  --color-bg-elevated: var(--neutral-900);
+  --color-bg-inverse: var(--neutral-0);
+  --color-bg-overlay: rgba(10, 10, 10, 0.85);
+  --color-bg-skeleton: var(--neutral-800);
+
+  --color-text-primary: var(--neutral-50);
+  --color-text-secondary: var(--neutral-400);
+  --color-text-muted: var(--neutral-500);
+  --color-text-inverse: var(--neutral-900);
+  --color-text-disabled: var(--neutral-600);
+
+  --color-border-default: var(--neutral-700);
+  --color-border-strong: var(--neutral-600);
+  --color-border-subtle: var(--neutral-800);
+  --color-border-focus: var(--neutral-100);
+  --color-border-error: var(--red-500);
+
+  --color-hover-bg: var(--neutral-800);
+  --color-hover-bg-strong: var(--neutral-700);
+  --color-active-bg: var(--neutral-700);
+  --color-selected-bg: var(--neutral-800);
+  --color-selected-bg-strong: var(--neutral-700);
+  --color-focus-ring: rgba(245, 245, 245, 0.4);
+
+  --color-input-bg: var(--neutral-900);
+  --color-input-border: var(--neutral-700);
+  --color-input-border-focus: var(--neutral-100);
+  --color-input-placeholder: var(--neutral-500);
+  --color-input-disabled-bg: var(--neutral-900);
+
+  --color-success-surface: var(--neutral-900);
+  --color-success-text: var(--green-500);
+  --color-success-border: rgba(34, 197, 94, 0.3);
+  --color-warning-surface: var(--neutral-900);
+  --color-warning-text: var(--yellow-500);
+  --color-warning-border: rgba(234, 179, 8, 0.3);
+  --color-error-surface: var(--neutral-900);
+  --color-error-text: var(--red-500);
+  --color-error-border: rgba(239, 68, 68, 0.3);
+  --color-info-surface: var(--neutral-900);
+  --color-info-text: var(--blue-500);
+  --color-info-border: rgba(59, 130, 246, 0.3);
+
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+}
+
+/* Global Reset & Base */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 200ms cubic-bezier(0.65, 0, 0.35, 1),
+              color 200ms cubic-bezier(0.65, 0, 0.35, 1),
+              border-color 200ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+* {
+  box-sizing: border-box;
+  border-color: var(--color-border-default);
+}
+
+/* Accessibility: Visible Focus */
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Shimmer Skeleton Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-skeleton) 0%,
+    var(--color-hover-bg) 50%,
+    var(--color-bg-skeleton) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+/* Streaming Blinking Cursor */
+@keyframes cursorBlink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-cursor-blink {
+  animation: cursorBlink 530ms step-end infinite;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-default);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-strong);
+}
+
+/* Reduced Motion Override */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
