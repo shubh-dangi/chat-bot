@@ -1,5 +1,5 @@
 export interface LegalDoc {
-  id: "privacy" | "terms" | "cookies" | "security" | "accessibility" | "about" | "contact"
+  id: "privacy" | "terms" | "cookies" | "security" | "accessibility" | "about" | "contact" | "data-policy"
   title: string
   subtitle: string
   lastUpdated: string
@@ -245,4 +245,49 @@ export const LEGAL_DOCUMENTS: Record<string, LegalDoc> = {
       },
     ],
   },
+  "data-policy": {
+    id: "data-policy",
+    title: "Institutional Data Governance Policy",
+    subtitle: "Standards for academic data handling, storage isolation, retention schedules, and masking.",
+    lastUpdated: "September 2026",
+    sections: [
+      {
+        heading: "1. Data Classification Framework",
+        content: [
+          "Tier 1 (Public Institutional Data): General college catalog, published departmental syllabi, public academic calendars, and approved circulars.",
+          "Tier 2 (Internal Campus Data): Departmental scheduling rosters, lecture notes, campus facility regulations, and non-sensitive operational notices.",
+          "Tier 3 (Confidential Education Records): Individual student grade point averages, internal examination scores, advisor case notes, and protected personal contact details.",
+        ],
+      },
+      {
+        heading: "2. Zero-Retention AI Grounding",
+        content: [
+          "User queries and institutional documents processed during search or conversational sessions are never retained by third-party model providers or utilized to train external machine learning foundation models.",
+          "Contextual embeddings generated for document retrieval are isolated within university database partitions utilizing PostgreSQL Row-Level Security.",
+        ],
+      },
+      {
+        heading: "3. Automated Masking & PII Protection",
+        content: [
+          "Query results containing student personal telephone numbers, home addresses, or confidential grade point averages are automatically masked before presentation on client interfaces unless accessed by an authorized advisor or registrar.",
+          "Audit logging is strictly enforced for every retrieval query touching confidential student records.",
+        ],
+      },
+      {
+        heading: "4. Data Retention & Purging Schedules",
+        content: [
+          "User chat histories: Persisted until explicitly deleted by the authenticated user or upon account deactivation.",
+          "Temporary session tokens: Expired automatically after the configured institutional idle timeout.",
+          "Administrative audit logs: Retained for a rolling 365-day compliance cycle before archival.",
+        ],
+      },
+      {
+        heading: "5. Data Inquiries & Data Protection Contact",
+        content: [
+          "For formal data access requests or questions concerning campus data governance, contact the Campus Data Protection Officer at privacy-officer@collegeai.internal.",
+        ],
+      },
+    ],
+  },
 }
+

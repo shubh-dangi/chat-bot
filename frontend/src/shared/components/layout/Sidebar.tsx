@@ -2,8 +2,6 @@ import { useState } from "react"
 import { useNavigate, useLocation, NavLink } from "react-router-dom"
 import {
   MessageSquare,
-  Search,
-  GraduationCap,
   Plus,
   Shield,
   Settings,
@@ -173,54 +171,6 @@ export function Sidebar({ className, compact = false }: { className?: string; co
                 </>
               )}
             </NavLink>
-
-            <NavLink
-              to={ROUTES.SEARCH}
-              className={({ isActive }) =>
-                cn(
-                  "flex items-center gap-2.5 rounded-lg text-xs font-medium transition-colors select-none",
-                  isMini ? "justify-center p-2.5 w-10 h-10" : "px-3 py-2 w-full",
-                  isActive
-                    ? "bg-brand-surface text-brand-text font-semibold border border-brand-border"
-                    : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
-                )
-              }
-            >
-              {isMini ? (
-                <Tooltip content="Search Knowledge" side="right">
-                  <Search className="w-4 h-4 shrink-0" />
-                </Tooltip>
-              ) : (
-                <>
-                  <Search className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Search Knowledge</span>
-                </>
-              )}
-            </NavLink>
-
-            <NavLink
-              to={ROUTES.STUDENTS}
-              className={({ isActive }) =>
-                cn(
-                  "flex items-center gap-2.5 rounded-lg text-xs font-medium transition-colors select-none",
-                  isMini ? "justify-center p-2.5 w-10 h-10" : "px-3 py-2 w-full",
-                  isActive
-                    ? "bg-brand-surface text-brand-text font-semibold border border-brand-border"
-                    : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
-                )
-              }
-            >
-              {isMini ? (
-                <Tooltip content="Student Directory" side="right">
-                  <GraduationCap className="w-4 h-4 shrink-0" />
-                </Tooltip>
-              ) : (
-                <>
-                  <GraduationCap className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Student Directory</span>
-                </>
-              )}
-            </NavLink>
           </div>
 
           {/* New Chat Button & Chat Search Bar */}
@@ -259,7 +209,7 @@ export function Sidebar({ className, compact = false }: { className?: string; co
 
           {/* Middle: Scrollable Chat History */}
           {!isMini ? (
-            <div className="flex-1 overflow-y-auto p-2.5 space-y-1">
+            <div className="flex-1 min-h-0 min-w-0 overflow-y-auto overscroll-contain p-2.5 space-y-1">
               {conversations.length === 0 ? (
                 <div className="text-center py-8 px-3 text-xs text-text-muted space-y-1.5">
                   <MessageSquare className="w-6 h-6 mx-auto text-brand opacity-40 mb-2" />
@@ -280,7 +230,7 @@ export function Sidebar({ className, compact = false }: { className?: string; co
               )}
             </div>
           ) : (
-            <div className="flex-1 overflow-y-auto p-2 flex flex-col items-center gap-2">
+            <div className="flex-1 min-h-0 min-w-0 overflow-y-auto overscroll-contain p-2 flex flex-col items-center gap-2">
               <Tooltip content="All Chats" side="right">
                 <button
                   type="button"
@@ -400,9 +350,9 @@ export function Sidebar({ className, compact = false }: { className?: string; co
                     aria-label="Toggle theme"
                   >
                     {theme === "dark" ? (
-                      <Moon className="w-3.5 h-3.5 text-brand" />
+                      <Moon className="w-3.5 h-3.5" />
                     ) : theme === "light" ? (
-                      <Sun className="w-3.5 h-3.5 text-amber-500" />
+                      <Sun className="w-3.5 h-3.5" />
                     ) : (
                       <Laptop className="w-3.5 h-3.5" />
                     )}

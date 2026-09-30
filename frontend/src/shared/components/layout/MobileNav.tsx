@@ -4,8 +4,6 @@ import {
   X,
   Plus,
   MessageSquare,
-  Search,
-  GraduationCap,
   Shield,
   Settings,
   LogOut,
@@ -240,38 +238,6 @@ export function MobileNav() {
                     <MessageSquare className="w-4 h-4 shrink-0" />
                     <span>Chat Assistant</span>
                   </NavLink>
-
-                  <NavLink
-                    to={ROUTES.SEARCH}
-                    onClick={handleNavClick}
-                    className={({ isActive }) =>
-                      cn(
-                        "flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors select-none min-h-[44px]",
-                        isActive
-                          ? "bg-brand-surface text-brand-text font-semibold border border-brand-border"
-                          : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
-                      )
-                    }
-                  >
-                    <Search className="w-4 h-4 shrink-0" />
-                    <span>Search Knowledge</span>
-                  </NavLink>
-
-                  <NavLink
-                    to={ROUTES.STUDENTS}
-                    onClick={handleNavClick}
-                    className={({ isActive }) =>
-                      cn(
-                        "flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-colors select-none min-h-[44px]",
-                        isActive
-                          ? "bg-brand-surface text-brand-text font-semibold border border-brand-border"
-                          : "text-text-secondary hover:text-brand-text hover:bg-brand-surface"
-                      )
-                    }
-                  >
-                    <GraduationCap className="w-4 h-4 shrink-0" />
-                    <span>Student Directory</span>
-                  </NavLink>
                 </div>
 
                 {/* New Chat & In-Sidebar Chat Search */}
@@ -293,7 +259,7 @@ export function MobileNav() {
                 </div>
 
                 {/* Scrollable Conversation List */}
-                <div className="flex-1 overflow-y-auto p-2.5 space-y-1">
+                <div className="flex-1 min-h-0 min-w-0 overflow-y-auto overscroll-contain p-2.5 space-y-1">
                   {conversations.length === 0 ? (
                     <div className="text-center py-8 px-3 text-xs text-text-muted space-y-1.5">
                       <MessageSquare className="w-6 h-6 mx-auto text-brand opacity-40 mb-2" />
@@ -382,9 +348,9 @@ export function MobileNav() {
                     aria-label="Toggle visual theme"
                   >
                     {theme === "dark" ? (
-                      <Moon className="w-4 h-4 text-brand" />
+                      <Moon className="w-4 h-4" />
                     ) : theme === "light" ? (
-                      <Sun className="w-4 h-4 text-amber-500" />
+                      <Sun className="w-4 h-4" />
                     ) : (
                       <Laptop className="w-4 h-4" />
                     )}

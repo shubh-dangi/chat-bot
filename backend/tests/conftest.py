@@ -19,8 +19,7 @@ from app.api.routes.users import ensure_users_seeded
 from app.core.security import create_access_token, hash_password
 from app.database.session import Base
 from app.main import app
-from app.models import Profile, User, Student, Document
-from app.services.student_service import StudentService
+from app.models import Profile, User, Document
 from app.services.document_service import DocumentService
 
 # In-memory SQLite engine for fast, isolated tests
@@ -37,7 +36,6 @@ def setup_test_db():
     Base.metadata.create_all(bind=test_engine)
     with TestingSessionLocal() as db:
         ensure_users_seeded(db)
-        StudentService.ensure_seeded(db)
         DocumentService.ensure_seeded(db)
     yield
     Base.metadata.drop_all(bind=test_engine)

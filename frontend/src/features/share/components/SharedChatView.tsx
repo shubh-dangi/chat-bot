@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { GraduationCap, ArrowRight } from "lucide-react"
 import { Button } from "@/shared/components/ui/Button"
+import { Logo } from "@/shared/components/ui/Logo"
 import { MessageBubble } from "@/features/chat/components/MessageBubble"
 import { ROUTES } from "@/shared/config/routes"
 import type { Conversation } from "@/features/chat/types/conversation.types"
@@ -14,12 +15,12 @@ export function SharedChatView({
   messages: Message[]
 }) {
   return (
-    <div className="min-h-screen w-full flex flex-col bg-bg-primary text-text-primary select-none">
+    <div className="min-h-screen-dvh w-full max-w-full flex flex-col bg-bg-primary text-text-primary select-none">
       {/* Top Read-Only Bar */}
       <header className="h-14 px-4 sm:px-8 border-b border-border-default bg-bg-secondary flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2.5">
-          <img src="/logo.svg" alt="College AI" className="w-6 h-6 rounded" />
-          <span className="font-semibold text-sm tracking-tight text-text-primary">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <Logo size="xs" />
+          <span className="font-semibold text-sm tracking-tight text-text-primary truncate">
             College AI
           </span>
           <span className="text-xs text-text-muted hidden sm:inline">• Shared Snapshot</span>

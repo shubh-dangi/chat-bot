@@ -10,20 +10,20 @@ export function AppearanceSettings() {
     {
       id: "light",
       label: "Light",
-      description: "Clean, high-contrast light theme with neutral-0 surfaces.",
-      icon: <Sun className="w-5 h-5 text-amber-500" />,
+      description: "Clean, high-contrast monochrome light theme with white and grayscale surfaces.",
+      icon: <Sun className="w-5 h-5 text-text-primary" />,
     },
     {
       id: "dark",
       label: "Dark",
-      description: "Restrained, eye-friendly neutral-950 surfaces for long sessions.",
-      icon: <Moon className="w-5 h-5 text-blue-400" />,
+      description: "Deep, restrained true-black and dark grayscale surfaces for long sessions.",
+      icon: <Moon className="w-5 h-5 text-text-primary" />,
     },
     {
       id: "system",
       label: "System",
       description: "Automatically matches your operating system appearance preference.",
-      icon: <Laptop className="w-5 h-5 text-text-secondary" />,
+      icon: <Laptop className="w-5 h-5 text-text-primary" />,
     },
   ]
 

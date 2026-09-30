@@ -33,7 +33,7 @@ export default function SharedChatPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-6 bg-bg-primary">
+      <div className="min-h-screen-dvh w-full max-w-full flex items-center justify-center px-page-x py-fluid-6 bg-bg-primary">
         <LoadingState type="chat" />
       </div>
     )

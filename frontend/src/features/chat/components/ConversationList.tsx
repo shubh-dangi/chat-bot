@@ -40,13 +40,13 @@ export function ConversationList({
   }, [conversations])
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 min-w-0">
       {ORDERED_GROUPS.map((group) => {
         const items = grouped[group]
         if (!items || items.length === 0) return null
 
         return (
-          <div key={group} className="space-y-1">
+          <div key={group} className="space-y-1 min-w-0">
             <div className="px-2.5 py-1 text-[11px] font-semibold tracking-wider text-text-muted uppercase select-none">
               {group}
             </div>

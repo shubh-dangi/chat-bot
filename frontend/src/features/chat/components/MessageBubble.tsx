@@ -17,48 +17,174 @@ export interface MessageBubbleProps {
 
 /**
  * Lightweight pure Markdown renderer:
- * Handles code fences (```lang ... ```), bold, lists, and headings cleanly.
+ * Handles code fences (```lang ... ```), headings, bold/italic/strikethrough,
+ * inline code, ordered and unordered lists, and paragraphs.
  */
+const INLINE_PATTERN = /(`[^`\n]+`)|(\*\*[^*\n]+\*\*)|(__[^_\n]+__)|(~~[^~\n]+~~)/g
+const HEADING_PATTERN = /^(#{1,4})\s+(.*)$/
+const BULLET_PATTERN = /^[-*+]\s+(.*)$/
+const ORDERED_PATTERN = /^\d+[.)]\s+(.*)$/
+
+/** Renders inline spans (code, bold, strikethrough) inside an already-parsed block. */
+function renderInline(text: string, keyPrefix: string): React.ReactNode[] {
+  const nodes: React.ReactNode[] = []
+  let lastIndex = 0
+  let match: RegExpExecArray | null
+
+  INLINE_PATTERN.lastIndex = 0
+  while ((match = INLINE_PATTERN.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      nodes.push(text.slice(lastIndex, match.index))
+    }
+
+    const token = match[0]
+    if (token.startsWith("`")) {
+      nodes.push(
+        <code
+          key={`${keyPrefix}-c${nodes.length}`}
+          className="font-mono text-[0.9em] px-1 py-0.5 rounded bg-bg-tertiary text-text-primary break-all"
+        >
+          {token.slice(1, -1)}
+        </code>
+      )
+    } else if (token.startsWith("**") || token.startsWith("__")) {
+      nodes.push(
+        <strong key={`${keyPrefix}-b${nodes.length}`} className="font-semibold text-text-primary">
+          {token.slice(2, -2)}
+        </strong>
+      )
+    } else {
+      nodes.push(
+        <del key={`${keyPrefix}-s${nodes.length}`} className="text-text-muted">
+          {token.slice(2, -2)}
+        </del>
+      )
+    }
+
+    lastIndex = INLINE_PATTERN.lastIndex
+  }
+
+  if (lastIndex < text.length) {
+    nodes.push(text.slice(lastIndex))
+  }
+
+  return nodes
+}
+
+/** Splits one blank-line-delimited chunk into headings, lists and paragraphs. */
+function renderBlocks(block: string, keyPrefix: string): React.ReactNode[] {
+  const lines = block.split("\n")
+  const out: React.ReactNode[] = []
+  const textBuffer: string[] = []
+  let i = 0
+
+  const flushText = () => {
+    if (textBuffer.length === 0) return
+    const joined = textBuffer.join("\n")
+    textBuffer.length = 0
+    out.push(
+      <p key={`${keyPrefix}-p${out.length}`} className="leading-relaxed whitespace-pre-wrap">
+        {renderInline(joined, `${keyPrefix}-p${out.length}`)}
+      </p>
+    )
+  }
+
+  while (i < lines.length) {
+    const line = lines[i]
+    if (!line.trim()) {
+      i++
+      continue
+    }
+
+    const heading = line.match(HEADING_PATTERN)
+    if (heading) {
+      flushText()
+      const level = heading[1].length
+      const inner = heading[2]
+      const key = `${keyPrefix}-h${out.length}`
+
+      if (level <= 2) {
+        out.push(
+          <h3 key={key} className="text-base font-semibold text-text-primary mt-3 mb-1 text-balance break-words">
+            {renderInline(inner, key)}
+          </h3>
+        )
+      } else if (level === 3) {
+        out.push(
+          <h4 key={key} className="text-sm font-semibold text-text-primary mt-3 mb-1 text-balance break-words">
+            {renderInline(inner, key)}
+          </h4>
+        )
+      } else {
+        out.push(
+          <h5 key={key} className="text-xs font-semibold uppercase tracking-wider text-text-secondary mt-2 mb-1 break-words">
+            {renderInline(inner, key)}
+          </h5>
+        )
+      }
+      i++
+      continue
+    }
+
+    const isBullet = BULLET_PATTERN.test(line)
+    const isOrdered = !isBullet && ORDERED_PATTERN.test(line)
+    if (isBullet || isOrdered) {
+      flushText()
+      const pattern = isBullet ? BULLET_PATTERN : ORDERED_PATTERN
+      const items: string[] = []
+
+      while (i < lines.length) {
+        const m = lines[i].match(pattern)
+        if (!m) break
+        items.push(m[1])
+        i++
+      }
+
+      const key = `${keyPrefix}-l${out.length}`
+      const items_ = items.map((item, idx) => (
+        <li key={idx} className="leading-relaxed marker:text-text-muted">
+          {renderInline(item, `${key}-${idx}`)}
+        </li>
+      ))
+
+      out.push(
+        isOrdered ? (
+          <ol key={key} className="space-y-1.5 ps-5 list-decimal">
+            {items_}
+          </ol>
+        ) : (
+          <ul key={key} className="space-y-1.5 ps-5 list-disc">
+            {items_}
+          </ul>
+        )
+      )
+      continue
+    }
+
+    textBuffer.push(line)
+    i++
+  }
+
+  flushText()
+  return out
+}
+
 function FormattedMessageContent({ content }: { content: string }) {
-  const parts = content.split(/(```[\s\S]*?```)/g)
+  // Normalise CRLF so the code-fence and list parsers behave the same on Windows-authored content.
+  const parts = content.replace(/\r\n/g, "\n").split(/(```[\s\S]*?```)/g)
 
   return (
-    <div className="space-y-2.5 text-sm leading-relaxed select-text">
+    <div className="space-y-2.5 text-sm leading-relaxed select-text break-words overflow-wrap-anywhere">
       {parts.map((part, idx) => {
         if (part.startsWith("```") && part.endsWith("```")) {
-          const match = part.match(/^```(\w+)?\n([\s\S]*?)```$/)
-          const language = match ? match[1] || "text" : "text"
-          const codeBody = match ? match[2].trimEnd() : part.slice(3, -3)
+          const match = part.match(/^```([\w+#.-]*)\n?([\s\S]*?)```$/)
+          const language = (match?.[1] || "text").toLowerCase()
+          const codeBody = (match?.[2] ?? part.slice(3, -3)).replace(/\n$/, "")
 
           return <CodeBlock key={idx} language={language} code={codeBody} />
         }
 
-        // Standard text blocks with paragraphs, bullet lists, bold and inline code
-        return (
-          <div key={idx} className="space-y-2 whitespace-pre-wrap">
-            {part.split("\n\n").map((paragraph, pIdx) => {
-              if (paragraph.startsWith("### ")) {
-                return (
-                  <h4 key={pIdx} className="font-semibold text-text-primary text-sm mt-3 mb-1">
-                    {paragraph.replace("### ", "")}
-                  </h4>
-                )
-              }
-              if (paragraph.startsWith("#### ")) {
-                return (
-                  <h5 key={pIdx} className="font-medium text-text-primary text-xs uppercase tracking-wider mt-2 mb-1">
-                    {paragraph.replace("#### ", "")}
-                  </h5>
-                )
-              }
-              return (
-                <p key={pIdx} className="leading-relaxed">
-                  {paragraph}
-                </p>
-              )
-            })}
-          </div>
-        )
+        return <div key={idx} className="space-y-2">{renderBlocks(part, `b${idx}`)}</div>
       })}
     </div>
   )
@@ -180,7 +306,7 @@ export function MessageBubble({
               className={cn(
                 "p-3 sm:p-4 text-sm leading-relaxed transition-all shadow-xs",
                 isUser
-                  ? "bg-brand text-brand-contrast rounded-2xl rounded-br-none border border-transparent font-normal select-text shadow-sm"
+                  ? "bg-bg-tertiary text-text-primary rounded-2xl rounded-br-none border border-border-subtle font-normal select-text shadow-xs"
                   : "bg-bg-elevated text-text-primary border border-border-default rounded-2xl rounded-bl-none"
               )}
             >

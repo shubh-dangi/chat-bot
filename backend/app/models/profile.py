@@ -30,7 +30,6 @@ class Profile(Base):
     updated_at = Column(DateTime(timezone=True), default=utcnow, onupdate=utcnow, nullable=False)
 
     # Relationships
-    students = relationship("Student", back_populates="profile")
     chat_sessions = relationship("ChatSession", back_populates="user", cascade="all, delete-orphan")
     documents = relationship("Document", back_populates="uploader")
     audit_logs = relationship("AuditLog", back_populates="user")

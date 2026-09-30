@@ -87,14 +87,14 @@ export function ShareDialog({
                 className="font-mono text-xs select-all bg-bg-tertiary min-w-0"
               />
               <Button variant="primary" size="md" onClick={handleCopy} className="shrink-0 gap-1.5 w-full xs:w-auto justify-center">
-                {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 <span>{copied ? "Copied" : "Copy"}</span>
               </Button>
             </div>
 
             {showRevokeConfirm ? (
-              <div className="p-3 rounded-lg border border-status-warning-border bg-status-warning-surface text-xs space-y-2">
-                <div className="flex items-center gap-1.5 font-medium text-status-warning-text">
+              <div className="p-3 rounded-lg border border-border-strong bg-bg-secondary text-xs space-y-2">
+                <div className="flex items-center gap-1.5 font-medium text-text-primary">
                   <AlertTriangle className="w-4 h-4" />
                   <span>Revoke this link?</span>
                 </div>

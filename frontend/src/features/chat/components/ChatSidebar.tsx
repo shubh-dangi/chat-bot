@@ -53,7 +53,7 @@ export function ChatSidebar({
         </div>
 
         {/* Scrollable Conversation History */}
-        <div className="flex-1 overflow-y-auto p-2">
+        <div className="flex-1 min-h-0 min-w-0 overflow-y-auto overscroll-contain p-2">
           {conversations.length === 0 ? (
             <div className="text-center py-8 px-4 text-xs text-text-muted space-y-2">
               <MessageSquare className="w-6 h-6 mx-auto opacity-40 mb-2" />

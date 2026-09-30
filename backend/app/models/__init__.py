@@ -2,7 +2,6 @@
 from app.database.session import Base
 from app.models.profile import Profile
 from app.models.academic import Course, Subject
-from app.models.student import Student
 from app.models.chat import ChatSession, Conversation, Message, SharedChat
 from app.models.document import Document, DocumentChunk
 from app.models.audit import AuditLog
@@ -16,7 +15,6 @@ __all__ = [
     "User",
     "Course",
     "Subject",
-    "Student",
     "ChatSession",
     "Conversation",
     "Message",

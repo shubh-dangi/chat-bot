@@ -16,10 +16,9 @@ from app.core.exceptions import (
 from app.core.logging import get_logger, setup_logging
 from app.core.middleware import RequestSizeLimiterMiddleware, SecurityHeadersMiddleware
 from app.database.session import Base, SessionLocal, engine
-from app.models import Conversation, Document, Message, SharedChat, Student, User
+from app.models import Conversation, Document, Message, SharedChat, User
 from app.api.routes.users import ensure_users_seeded
 from app.services.document_service import DocumentService
-from app.services.student_service import StudentService
 
 # Initialize structured logging
 setup_logging()
@@ -37,10 +36,9 @@ async def lifespan(app: FastAPI):
         Base.metadata.create_all(bind=engine)
         logger.info("Database schemas verified and initialized.")
 
-        # Seed initial default users, student, and document records if empty
+        # Seed initial default users and document records if empty
         with SessionLocal() as db:
             ensure_users_seeded(db)
-            StudentService.ensure_seeded(db)
             DocumentService.ensure_seeded(db)
         logger.info("Default seed data verified.")
     except Exception as exc:

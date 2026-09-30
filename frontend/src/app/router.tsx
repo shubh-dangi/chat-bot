@@ -1,38 +1,11 @@
 import { createBrowserRouter, type RouteObject } from "react-router-dom"
-import { lazy, Suspense, type ComponentType } from "react"
 import { RootLayout } from "@/layouts/RootLayout"
 import { AdminLayout } from "@/layouts/AdminLayout"
+import { lazyPage } from "./lazyPage"
 
 import LandingPage from "@/pages/LandingPage"
 
 import ErrorPage from "@/pages/ErrorPage"
-
-/**
- * Leaf pages are code-split so the initial bundle stays small. Each page gets its
- * own Suspense boundary so navigating between routes never blanks the app shell
- * (sidebar, header, toast host) that is already mounted.
- */
-function lazyPage(loader: () => Promise<{ default: ComponentType }>): React.ReactElement {
-  const Lazy = lazy(loader)
-  return (
-    <Suspense fallback={<RouteFallback />}>
-      <Lazy />
-    </Suspense>
-  )
-}
-
-function RouteFallback() {
-  return (
-    <div
-      className="flex-1 min-h-0 h-full w-full flex items-center justify-center p-8 bg-bg-primary"
-      role="status"
-      aria-live="polite"
-      aria-label="Loading page"
-    >
-      <div className="h-6 w-6 rounded-full border-2 border-border-strong border-t-brand animate-spin" />
-    </div>
-  )
-}
 
 export const router = createBrowserRouter([
   // Public Landing & Auth Routes
@@ -74,18 +47,6 @@ export const router = createBrowserRouter([
       {
         path: "/chat/:chatId",
         element: lazyPage(() => import("@/pages/ChatConversationPage")),
-      },
-      {
-        path: "/search",
-        element: lazyPage(() => import("@/pages/SearchPage")),
-      },
-      {
-        path: "/students",
-        element: lazyPage(() => import("@/pages/StudentSearchPage")),
-      },
-      {
-        path: "/students/:studentId",
-        element: lazyPage(() => import("@/pages/StudentDetailPage")),
       },
       {
         path: "/profile",

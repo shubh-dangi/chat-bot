@@ -23,17 +23,17 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary:
-        "bg-brand text-brand-contrast hover:bg-brand-hover active:bg-brand-active shadow-sm border border-transparent font-medium",
+        "bg-brand text-brand-contrast hover:bg-brand-hover active:bg-brand-active shadow-xs border border-transparent font-medium",
       secondary:
-        "bg-bg-elevated text-text-primary border border-border-default hover:border-brand-border hover:bg-brand-surface shadow-xs",
+        "bg-bg-elevated text-text-primary border border-border-strong hover:bg-interactive-hover hover:border-text-primary shadow-2xs font-medium",
       ghost:
-        "bg-transparent text-text-secondary hover:text-brand-text hover:bg-brand-surface",
+        "bg-transparent text-text-secondary hover:text-text-primary hover:bg-interactive-hover font-medium",
       outline:
-        "bg-bg-primary text-brand-text border border-brand-border hover:bg-brand-surface hover:border-brand-border-strong shadow-xs font-medium",
+        "bg-transparent text-text-primary border border-border-default hover:border-border-strong hover:bg-interactive-hover shadow-2xs font-medium",
       danger:
-        "bg-status-error-surface text-status-error-text border border-status-error-border hover:bg-status-error-border/20 shadow-xs",
+        "bg-bg-secondary text-text-primary border border-border-strong hover:bg-interactive-hover hover:border-text-primary font-medium",
       "danger-ghost":
-        "bg-transparent text-status-error-text hover:bg-status-error-surface",
+        "bg-transparent text-text-secondary hover:text-text-primary hover:bg-interactive-hover",
     }
 
     // Mobile-first: every variant meets the 44px touch target on small screens,

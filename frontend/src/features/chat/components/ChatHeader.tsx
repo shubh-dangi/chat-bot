@@ -3,6 +3,7 @@ import { Share2, MoreVertical, Edit2, Trash2, Check, X, Menu } from "lucide-reac
 import { Button } from "@/shared/components/ui/Button"
 import { DropdownMenu } from "@/shared/components/ui/DropdownMenu"
 import { Dialog } from "@/shared/components/ui/Dialog"
+import { NavbarUserMenu } from "@/shared/components/layout/NavbarUserMenu"
 import { useUiStore } from "@/stores/uiStore"
 import type { Conversation } from "../types/conversation.types"
 
@@ -119,32 +120,37 @@ export function ChatHeader({
           )}
         </div>
 
-        {conversation && (
-          <div className="flex items-center gap-1.5">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={onOpenShare}
-              className="text-xs h-8 gap-1.5 min-w-[44px]"
-            >
-              <Share2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Share</span>
-            </Button>
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto">
+          {conversation && (
+            <>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={onOpenShare}
+                className="text-xs h-8 gap-1.5 min-w-[44px]"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Share</span>
+              </Button>
 
-            <DropdownMenu
-              align="right"
-              trigger={
-                <button
-                  className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-interactive-hover transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
-                  aria-label="More options"
-                >
-                  <MoreVertical className="w-4 h-4" />
-                </button>
-              }
-              items={moreItems}
-            />
-          </div>
-        )}
+              <DropdownMenu
+                align="right"
+                trigger={
+                  <button
+                    className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-interactive-hover transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                    aria-label="More options"
+                  >
+                    <MoreVertical className="w-4 h-4" />
+                  </button>
+                }
+                items={moreItems}
+              />
+            </>
+          )}
+
+          {/* User Account Details in Navbar Right Corner */}
+          <NavbarUserMenu />
+        </div>
       </header>
 
       {/* Delete Dialog */}

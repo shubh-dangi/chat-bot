@@ -48,7 +48,7 @@ export function Tooltip({
         <div
           role="tooltip"
           className={cn(
-            "absolute z-tooltip whitespace-nowrap rounded px-2 py-1 text-xs font-medium pointer-events-none select-none",
+            "absolute z-tooltip max-w-[min(14rem,60vw)] rounded px-2 py-1 text-xs font-medium text-balance break-words pointer-events-none select-none",
             "bg-neutral-900 text-neutral-0 dark:bg-neutral-50 dark:text-neutral-900 shadow-sm",
             sides[side]
           )}

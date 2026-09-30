@@ -11,13 +11,7 @@ export const ROUTES = {
   
   SHARED: (token: string) => `/shared/${token}`,
   SHARED_PARAM: "/shared/:shareToken",
-  
-  SEARCH: "/search",
-  
-  STUDENTS: "/students",
-  STUDENT_DETAIL: (id: string) => `/students/${id}`,
-  STUDENT_PARAM: "/students/:studentId",
-  
+
   PROFILE: "/profile",
   
   SETTINGS: "/settings",

@@ -22,7 +22,6 @@ class Course(Base):
 
     # Relationships
     subjects = relationship("Subject", back_populates="course", cascade="all, delete-orphan")
-    students = relationship("Student", back_populates="course_rel")
 
 
 class Subject(Base):

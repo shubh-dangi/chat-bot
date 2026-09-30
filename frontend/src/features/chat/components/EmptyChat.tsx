@@ -1,5 +1,4 @@
 import {
-  GraduationCap,
   Calendar,
   BookOpen,
   FileText,

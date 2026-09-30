@@ -1,11 +1,20 @@
 import { useState, useEffect, useCallback } from "react"
+import { useSearchParams } from "react-router-dom"
 import type { Conversation } from "../types/conversation.types"
 import { chatService } from "../services/chatService"
 
 export function useConversations() {
+  const [searchParams] = useSearchParams()
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
+
+  // Seed the list filter from /chat?q= so the navbar's universal search drives
+  // this list. Reading it here keeps Sidebar and MobileNav in sync for free.
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get("q") || "")
+
+  useEffect(() => {
+    setSearchQuery(searchParams.get("q") || "")
+  }, [searchParams])
 
   const refresh = useCallback(async () => {
     try {

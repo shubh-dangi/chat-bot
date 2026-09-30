@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-[300px] flex items-center justify-center p-6">
+        <div className="min-h-[300px] w-full max-w-full flex items-center justify-center px-page-x py-6">
           <ErrorState
             title="An error occurred in this view"
             message="Something didn't load correctly. You can try refreshing this section."

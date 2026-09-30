@@ -9,7 +9,6 @@ export interface NavItem {
 
 export const MAIN_NAV_ITEMS: NavItem[] = [
   { label: "Chat Assistant", href: ROUTES.CHAT, icon: "MessageSquare" },
-  { label: "Search Knowledge", href: ROUTES.SEARCH, icon: "Search" },
 ]
 
 export const ADMIN_NAV_ITEMS: NavItem[] = [

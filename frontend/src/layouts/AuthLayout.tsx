@@ -23,7 +23,7 @@ export function AuthLayout({
   }
 
   return (
-    <div className="min-h-screen-dvh w-full max-w-full overflow-x-hidden bg-bg-secondary text-text-primary px-page-x py-4 sm:py-6 flex flex-col justify-between select-none animate-page-enter">
+    <div className="min-h-screen-dvh w-full max-w-full bg-bg-secondary text-text-primary px-page-x py-4 sm:py-6 flex flex-col justify-between select-none animate-page-enter">
       {/* Top Header */}
       <div className="w-full max-w-5xl mx-auto flex items-center justify-between gap-3 shrink-0">
         <Link

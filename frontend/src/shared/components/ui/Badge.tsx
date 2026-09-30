@@ -18,21 +18,21 @@ export function Badge({
 
   const variants = {
     default:
-      "bg-brand-surface text-brand-text border-brand-border",
+      "bg-bg-secondary text-text-primary border-border-default",
     brand:
       "bg-brand text-brand-contrast border-transparent",
     secondary:
-      "bg-bg-secondary text-text-secondary border-border-subtle",
+      "bg-bg-tertiary text-text-secondary border-border-subtle",
     outline:
       "bg-transparent text-text-primary border-border-default",
     success:
-      "bg-status-success-surface text-status-success-text border-status-success-border",
+      "bg-bg-secondary text-text-primary border-border-strong",
     warning:
-      "bg-status-warning-surface text-status-warning-text border-status-warning-border",
+      "bg-bg-tertiary text-text-primary border-border-strong",
     error:
-      "bg-status-error-surface text-status-error-text border-status-error-border",
+      "bg-bg-secondary text-text-primary border-border-strong font-medium",
     info:
-      "bg-status-info-surface text-status-info-text border-status-info-border",
+      "bg-bg-secondary text-text-secondary border-border-default",
   }
 
   const sizes = {

@@ -1,14 +1,13 @@
 import { useState } from "react"
-import { MOCK_STUDENTS } from "@/features/student/services/studentService"
+import { MANAGED_STUDENTS, type ManagedStudent } from "@/features/admin/data/managedStudents"
 import { DataTable, type Column } from "@/shared/components/data/DataTable"
 import { Badge } from "@/shared/components/ui/Badge"
 import { Button } from "@/shared/components/ui/Button"
 import { useToast } from "@/shared/components/feedback/ToastContainer"
-import type { Student } from "@/features/student/types/student.types"
 
 export function StudentManagement() {
   const { success } = useToast()
-  const [students, setStudents] = useState<Student[]>(MOCK_STUDENTS)
+  const [students, setStudents] = useState<ManagedStudent[]>(MANAGED_STUDENTS)
 
   const toggleStudentStatus = (id: string) => {
     setStudents((prev) =>
@@ -23,7 +22,7 @@ export function StudentManagement() {
     )
   }
 
-  const columns: Column<Student>[] = [
+  const columns: Column<ManagedStudent>[] = [
     {
       header: "Roll No",
       accessorKey: "rollNumber",

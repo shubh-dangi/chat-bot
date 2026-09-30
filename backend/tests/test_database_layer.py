@@ -16,36 +16,6 @@ def test_profile_access(client, auth_headers):
     assert unauth_res.status_code == 401
 
 
-def test_student_unique_constraint(client, admin_headers):
-    unique_roll = f"TEST-{uuid.uuid4().hex[:6].upper()}"
-    payload1 = {
-        "name": "Original Student",
-        "rollNumber": unique_roll,
-        "email": f"{unique_roll.lower()}@college.edu",
-        "department": "Computer Science",
-        "course": "BCA",
-        "semester": 1,
-        "year": "Freshman",
-        "enrollmentStatus": "Active",
-    }
-    res1 = client.post("/api/students", json=payload1, headers=admin_headers)
-    assert res1.status_code == 201
-
-    # Attempt duplicate student registration with same student ID
-    payload2 = {
-        "name": "Duplicate Student",
-        "rollNumber": unique_roll,
-        "email": f"diff_{unique_roll.lower()}@college.edu",
-        "department": "Computer Science",
-        "course": "BCA",
-        "semester": 1,
-        "year": "Freshman",
-        "enrollmentStatus": "Active",
-    }
-    res2 = client.post("/api/students", json=payload2, headers=admin_headers)
-    assert res2.status_code == 409
-
-
 def test_chat_ownership_isolation(client, auth_headers, other_student_headers):
     # User A creates a chat session
     create_res = client.post(

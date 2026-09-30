@@ -24,7 +24,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center text-center p-8 max-w-md mx-auto select-none",
+        "flex flex-col items-center justify-center text-center px-page-x py-8 max-w-md mx-auto select-none",
         className
       )}
     >
@@ -33,9 +33,9 @@ export function EmptyState({
           {icon}
         </div>
       )}
-      <h3 className="text-base font-semibold text-text-primary mb-1.5">{title}</h3>
+      <h3 className="text-base font-semibold text-text-primary mb-1.5 text-balance break-words">{title}</h3>
       {description && (
-        <p className="text-sm text-text-secondary leading-relaxed mb-5 max-w-xs">{description}</p>
+        <p className="text-sm text-text-secondary leading-relaxed mb-5 max-w-xs text-pretty break-words">{description}</p>
       )}
       {actionLabel && onAction && (
         <Button variant="primary" size="sm" onClick={onAction}>

@@ -164,12 +164,29 @@ def test_admin_endpoints_reject_student_and_teacher(client, auth_headers, teache
     "' OR 1=1 --",
     "admin' --",
 ])
-def test_student_search_sqli_resilience(client, admin_headers, sqli_payload):
-    """SQL injection payloads in search query parameters must be safely handled without SQL syntax error."""
-    res = client.get(f"/api/students?searchQuery={sqli_payload}", headers=admin_headers)
-    assert res.status_code == 200
-    data = res.json()
-    assert "items" in data
+def test_stored_sql_injection_resilience(client, auth_headers, sqli_payload):
+    """Hostile strings must round-trip as literal data, never execute as SQL.
+
+    The student directory search endpoint was removed, so this now writes the
+    payload through a persisted user-supplied field and reads it back. If the
+    layer ever regressed to string-formatted SQL, the read would error or the
+    profiles table would be gone.
+    """
+    create_res = client.post(
+        "/api/chats",
+        json={"title": sqli_payload},
+        headers=auth_headers,
+    )
+    assert create_res.status_code == 201
+    chat_id = create_res.json()["id"]
+
+    get_res = client.get(f"/api/chats/{chat_id}", headers=auth_headers)
+    assert get_res.status_code == 200
+    assert get_res.json()["title"] == sqli_payload
+
+    # The profiles table must still be intact after the hostile write.
+    profile_res = client.get("/api/profile/me", headers=auth_headers)
+    assert profile_res.status_code == 200
 
 
 # ==============================================================================
