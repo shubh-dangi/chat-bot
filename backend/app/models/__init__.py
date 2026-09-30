@@ -1,17 +1,27 @@
+"""Database models package registering all core entities for College AI."""
 from app.database.session import Base
-from app.models.user import User
+from app.models.profile import Profile
+from app.models.academic import Course, Subject
 from app.models.student import Student
-from app.models.chat import Conversation
-from app.models.message import Message
-from app.models.shared_chat import SharedChat
-from app.models.document import Document
+from app.models.chat import ChatSession, Conversation, Message, SharedChat
+from app.models.document import Document, DocumentChunk
+from app.models.audit import AuditLog
+
+# Backward compatibility alias
+User = Profile
 
 __all__ = [
     "Base",
+    "Profile",
     "User",
+    "Course",
+    "Subject",
     "Student",
+    "ChatSession",
     "Conversation",
     "Message",
     "SharedChat",
     "Document",
+    "DocumentChunk",
+    "AuditLog",
 ]

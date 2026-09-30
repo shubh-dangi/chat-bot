@@ -1,42 +1,88 @@
-from app.schemas.common import ApiResponse, PaginatedResponse, ApiErrorResponse, ApiErrorDetail
+"""Pydantic schemas package for College AI."""
+from app.schemas.common import PaginationParams, PaginatedResponse
+from app.schemas.profile import (
+    ProfileBase,
+    ProfileCreate,
+    ProfileUpdate,
+    ProfileResponse,
+)
+from app.schemas.academic import (
+    CourseBase,
+    CourseCreate,
+    CourseUpdate,
+    CourseResponse,
+    SubjectBase,
+    SubjectCreate,
+    SubjectUpdate,
+    SubjectResponse,
+)
+from app.schemas.student import (
+    StudentBase,
+    StudentCreate,
+    StudentUpdate,
+    StudentPublic,
+    StudentPrivate,
+)
+from app.schemas.chat import (
+    MessageBase,
+    MessageCreate,
+    MessageResponse,
+    ChatSessionCreate,
+    ChatSessionUpdate,
+    ChatSessionResponse,
+    SharedChatCreate,
+    SharedChatResponse,
+    SharedChatPublicView,
+)
+from app.schemas.document import (
+    DocumentBase,
+    DocumentCreate,
+    DocumentUpdate,
+    DocumentResponse,
+    DocumentChunkBase,
+    DocumentChunkCreate,
+    DocumentChunkResponse,
+)
+from app.schemas.audit import AuditLogResponse
 from app.schemas.health import HealthCheckResponse, DatabaseStatusResponse
-from app.schemas.user import UserResponse, UserCreate, UserUpdate, UserProfileUpdate
-from app.schemas.auth import LoginCredentials, RegisterCredentials, AuthResponse, PasswordResetRequest, PasswordResetConfirm
-from app.schemas.student import StudentResponse, StudentCreate, StudentUpdate, StudentFilterParams
-from app.schemas.chat import ConversationResponse, ConversationCreate, ConversationRenameRequest
-from app.schemas.message import MessageResponse, SendMessageRequest, SendMessageResponse, EditMessageRequest
-from app.schemas.share import ShareLinkResponse, SharedConversationResponse
-from app.schemas.document import DocumentResponse, DocumentCreate
 
 __all__ = [
-    "ApiResponse",
+    "PaginationParams",
     "PaginatedResponse",
-    "ApiErrorResponse",
-    "ApiErrorDetail",
-    "HealthCheckResponse",
-    "DatabaseStatusResponse",
-    "UserResponse",
-    "UserCreate",
-    "UserUpdate",
-    "UserProfileUpdate",
-    "LoginCredentials",
-    "RegisterCredentials",
-    "AuthResponse",
-    "PasswordResetRequest",
-    "PasswordResetConfirm",
-    "StudentResponse",
+    "ProfileBase",
+    "ProfileCreate",
+    "ProfileUpdate",
+    "ProfileResponse",
+    "CourseBase",
+    "CourseCreate",
+    "CourseUpdate",
+    "CourseResponse",
+    "SubjectBase",
+    "SubjectCreate",
+    "SubjectUpdate",
+    "SubjectResponse",
+    "StudentBase",
     "StudentCreate",
     "StudentUpdate",
-    "StudentFilterParams",
-    "ConversationResponse",
-    "ConversationCreate",
-    "ConversationRenameRequest",
+    "StudentPublic",
+    "StudentPrivate",
+    "MessageBase",
+    "MessageCreate",
     "MessageResponse",
-    "SendMessageRequest",
-    "SendMessageResponse",
-    "EditMessageRequest",
-    "ShareLinkResponse",
-    "SharedConversationResponse",
-    "DocumentResponse",
+    "ChatSessionCreate",
+    "ChatSessionUpdate",
+    "ChatSessionResponse",
+    "SharedChatCreate",
+    "SharedChatResponse",
+    "SharedChatPublicView",
+    "DocumentBase",
     "DocumentCreate",
+    "DocumentUpdate",
+    "DocumentResponse",
+    "DocumentChunkBase",
+    "DocumentChunkCreate",
+    "DocumentChunkResponse",
+    "AuditLogResponse",
+    "HealthCheckResponse",
+    "DatabaseStatusResponse",
 ]

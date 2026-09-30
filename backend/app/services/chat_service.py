@@ -1,13 +1,36 @@
-from datetime import datetime, timezone
-from typing import List, Optional
+from datetime import datetime, timedelta, timezone
+import math
+import secrets
+from typing import List, Optional, Union
 import uuid
+from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.exceptions import EntityNotFoundException, PermissionDeniedException
-from app.models.chat import Conversation
-from app.models.message import Message
-from app.schemas.chat import ConversationResponse
-from app.schemas.message import MessageResponse, SendMessageResponse
+from app.models.chat import ChatSession, Message, SharedChat
+from app.models.profile import Profile
+from app.schemas.chat import (
+    ChatSessionCreate,
+    ChatSessionResponse,
+    ChatSessionUpdate,
+    ConversationResponse,
+    MessageCreate,
+    MessageResponse,
+    SendMessageResponse,
+    SharedChatCreate,
+    SharedChatPublicView,
+    SharedChatResponse,
+)
+from app.schemas.common import PaginatedResponse
 from app.services.ai_service import ai_service
+
+
+def to_uuid(val: Union[str, uuid.UUID]) -> uuid.UUID:
+    if isinstance(val, uuid.UUID):
+        return val
+    try:
+        return uuid.UUID(str(val))
+    except Exception:
+        return uuid.uuid5(uuid.NAMESPACE_DNS, str(val))
 
 
 def format_iso(dt: Optional[datetime]) -> str:
@@ -24,167 +47,198 @@ def format_time_str(dt: Optional[datetime]) -> str:
 
 class ChatService:
     @staticmethod
-    def get_conversations(user_id: str, db: Session) -> List[ConversationResponse]:
-        convs = (
-            db.query(Conversation)
-            .filter(Conversation.user_id == user_id)
-            .order_by(Conversation.updated_at.desc())
+    def get_conversations(user_id: Union[str, uuid.UUID], db: Session) -> List[ConversationResponse]:
+        uid = to_uuid(user_id)
+        sessions = (
+            db.query(ChatSession)
+            .filter(ChatSession.user_id == uid)
+            .order_by(ChatSession.updated_at.desc())
             .all()
         )
         return [
             ConversationResponse(
-                id=c.id,
-                title=c.title,
-                created_at=format_iso(c.created_at),
-                updated_at=format_iso(c.updated_at),
-                last_message_preview=c.last_message_preview,
-                is_shared=c.is_shared,
-                share_token=c.share_token,
+                id=str(s.id),
+                title=s.title,
+                created_at=format_iso(s.created_at),
+                updated_at=format_iso(s.updated_at),
+                last_message_preview=s.last_message_preview,
+                is_shared=bool(s.is_shared),
+                share_token=s.share_token,
             )
-            for c in convs
+            for s in sessions
         ]
 
     @staticmethod
-    def get_conversation(conversation_id: str, user_id: str, db: Session) -> ConversationResponse:
-        conv = db.query(Conversation).filter(Conversation.id == conversation_id).first()
-        if not conv:
+    def get_conversation(
+        conversation_id: Union[str, uuid.UUID], user_id: Union[str, uuid.UUID], db: Session
+    ) -> ConversationResponse:
+        cid = to_uuid(conversation_id)
+        uid = to_uuid(user_id)
+        chat = db.query(ChatSession).filter(ChatSession.id == cid).first()
+        if not chat:
             raise EntityNotFoundException("Conversation", conversation_id)
-        if conv.user_id != user_id:
+        if chat.user_id != uid:
             raise PermissionDeniedException("You do not have access to this conversation.")
 
         return ConversationResponse(
-            id=conv.id,
-            title=conv.title,
-            created_at=format_iso(conv.created_at),
-            updated_at=format_iso(conv.updated_at),
-            last_message_preview=conv.last_message_preview,
-            is_shared=conv.is_shared,
-            share_token=conv.share_token,
+            id=str(chat.id),
+            title=chat.title,
+            created_at=format_iso(chat.created_at),
+            updated_at=format_iso(chat.updated_at),
+            last_message_preview=chat.last_message_preview,
+            is_shared=bool(chat.is_shared),
+            share_token=chat.share_token,
         )
 
     @staticmethod
     def create_conversation(
-        user_id: str, initial_message: Optional[str], db: Session, title: Optional[str] = None
+        user_id: Union[str, uuid.UUID],
+        initial_message: Optional[str],
+        db: Session,
+        title: Optional[str] = None,
     ) -> ConversationResponse:
-        now = datetime.now(timezone.utc)
+        uid = to_uuid(user_id)
         conv_title = title or (
             initial_message[:36] + ("..." if len(initial_message) > 36 else "")
             if initial_message
             else "New Conversation"
         )
-
-        conv = Conversation(
-            id=f"conv-{uuid.uuid4().hex[:10]}",
-            user_id=user_id,
+        now = datetime.now(timezone.utc)
+        chat = ChatSession(
+            user_id=uid,
             title=conv_title,
             last_message_preview=initial_message[:60] if initial_message else None,
             created_at=now,
             updated_at=now,
         )
-        db.add(conv)
+        db.add(chat)
         db.commit()
-        db.refresh(conv)
+        db.refresh(chat)
 
         return ConversationResponse(
-            id=conv.id,
-            title=conv.title,
-            created_at=format_iso(conv.created_at),
-            updated_at=format_iso(conv.updated_at),
-            last_message_preview=conv.last_message_preview,
-            is_shared=conv.is_shared,
-            share_token=conv.share_token,
+            id=str(chat.id),
+            title=chat.title,
+            created_at=format_iso(chat.created_at),
+            updated_at=format_iso(chat.updated_at),
+            last_message_preview=chat.last_message_preview,
+            is_shared=bool(chat.is_shared),
+            share_token=chat.share_token,
         )
 
     @staticmethod
     def rename_conversation(
-        conversation_id: str, user_id: str, new_title: str, db: Session
+        conversation_id: Union[str, uuid.UUID],
+        user_id: Union[str, uuid.UUID],
+        new_title: str,
+        db: Session,
     ) -> ConversationResponse:
-        conv = db.query(Conversation).filter(Conversation.id == conversation_id).first()
-        if not conv:
+        cid = to_uuid(conversation_id)
+        uid = to_uuid(user_id)
+        chat = db.query(ChatSession).filter(ChatSession.id == cid).first()
+        if not chat:
             raise EntityNotFoundException("Conversation", conversation_id)
-        if conv.user_id != user_id:
-            raise PermissionDeniedException("You do not have permission to modify this conversation.")
+        if chat.user_id != uid:
+            raise PermissionDeniedException("You do not have access to this conversation.")
 
-        conv.title = new_title.strip() or conv.title
-        conv.updated_at = datetime.now(timezone.utc)
+        chat.title = new_title.strip() or chat.title
+        chat.updated_at = datetime.now(timezone.utc)
         db.commit()
-        db.refresh(conv)
+        db.refresh(chat)
 
         return ConversationResponse(
-            id=conv.id,
-            title=conv.title,
-            created_at=format_iso(conv.created_at),
-            updated_at=format_iso(conv.updated_at),
-            last_message_preview=conv.last_message_preview,
-            is_shared=conv.is_shared,
-            share_token=conv.share_token,
+            id=str(chat.id),
+            title=chat.title,
+            created_at=format_iso(chat.created_at),
+            updated_at=format_iso(chat.updated_at),
+            last_message_preview=chat.last_message_preview,
+            is_shared=bool(chat.is_shared),
+            share_token=chat.share_token,
         )
 
     @staticmethod
-    def delete_conversation(conversation_id: str, user_id: str, db: Session) -> None:
-        conv = db.query(Conversation).filter(Conversation.id == conversation_id).first()
-        if not conv:
+    def delete_conversation(
+        conversation_id: Union[str, uuid.UUID],
+        user_id: Union[str, uuid.UUID],
+        db: Session,
+    ) -> None:
+        cid = to_uuid(conversation_id)
+        uid = to_uuid(user_id)
+        chat = db.query(ChatSession).filter(ChatSession.id == cid).first()
+        if not chat:
             raise EntityNotFoundException("Conversation", conversation_id)
-        if conv.user_id != user_id:
-            raise PermissionDeniedException("You do not have permission to delete this conversation.")
+        if chat.user_id != uid:
+            raise PermissionDeniedException("You do not have access to this conversation.")
 
-        db.delete(conv)
+        db.delete(chat)
         db.commit()
 
     @staticmethod
-    def get_messages(conversation_id: str, user_id: str, db: Session) -> List[MessageResponse]:
-        conv = db.query(Conversation).filter(Conversation.id == conversation_id).first()
-        if not conv:
+    def get_messages(
+        conversation_id: Union[str, uuid.UUID],
+        user_id: Union[str, uuid.UUID],
+        db: Session,
+    ) -> List[MessageResponse]:
+        cid = to_uuid(conversation_id)
+        uid = to_uuid(user_id)
+        chat = db.query(ChatSession).filter(ChatSession.id == cid).first()
+        if not chat:
             raise EntityNotFoundException("Conversation", conversation_id)
-        if conv.user_id != user_id:
-            raise PermissionDeniedException("You do not have permission to view messages in this conversation.")
+        if chat.user_id != uid:
+            raise PermissionDeniedException("You do not have access to this conversation.")
 
         messages = (
             db.query(Message)
-            .filter(Message.conversation_id == conversation_id)
+            .filter(Message.chat_id == cid)
             .order_by(Message.created_at.asc())
             .all()
         )
         return [
             MessageResponse(
-                id=m.id,
-                conversation_id=m.conversation_id,
-                sender=m.sender,
+                id=str(m.id),
+                conversation_id=str(m.chat_id),
+                chat_id=m.chat_id,
+                sender=m.role,
+                role=m.role,
                 content=m.content,
                 timestamp=format_time_str(m.created_at),
                 status=m.status,
+                created_at=format_iso(m.created_at),
             )
             for m in messages
         ]
 
     @staticmethod
     async def send_message(
-        conversation_id: str, user_id: str, content: str, db: Session
+        conversation_id: Union[str, uuid.UUID],
+        user_id: Union[str, uuid.UUID],
+        content: str,
+        db: Session,
     ) -> SendMessageResponse:
-        conv = db.query(Conversation).filter(Conversation.id == conversation_id).first()
-        if not conv:
+        cid = to_uuid(conversation_id)
+        uid = to_uuid(user_id)
+        chat = db.query(ChatSession).filter(ChatSession.id == cid).first()
+        if not chat:
             raise EntityNotFoundException("Conversation", conversation_id)
-        if conv.user_id != user_id:
+        if chat.user_id != uid:
             raise PermissionDeniedException("You do not have access to this conversation.")
 
         now = datetime.now(timezone.utc)
 
         # 1. Save user message
         user_msg = Message(
-            id=f"msg-{uuid.uuid4().hex[:10]}",
-            conversation_id=conversation_id,
-            sender="user",
+            chat_id=cid,
+            role="user",
             content=content,
             status="sent",
             created_at=now,
         )
         db.add(user_msg)
 
-        # 2. Update conversation title & preview
-        conv.updated_at = now
-        conv.last_message_preview = content[:60]
-        if conv.title == "New Conversation":
-            conv.title = content[:32] + ("..." if len(content) > 32 else "")
+        # 2. Update conversation
+        chat.updated_at = now
+        chat.last_message_preview = content[:60]
+        if chat.title == "New Conversation":
+            chat.title = content[:32] + ("..." if len(content) > 32 else "")
 
         db.commit()
         db.refresh(user_msg)
@@ -193,12 +247,11 @@ class ChatService:
         ai_reply = await ai_service.generate_response(content)
 
         assistant_msg = Message(
-            id=f"msg-{uuid.uuid4().hex[:10]}",
-            conversation_id=conversation_id,
-            sender="assistant",
+            chat_id=cid,
+            role="assistant",
             content=ai_reply,
             status="sent",
-            created_at=datetime.now(timezone.utc),
+            created_at=now + timedelta(milliseconds=50),
         )
         db.add(assistant_msg)
         db.commit()
@@ -206,17 +259,19 @@ class ChatService:
 
         return SendMessageResponse(
             user_message=MessageResponse(
-                id=user_msg.id,
-                conversation_id=user_msg.conversation_id,
-                sender=user_msg.sender,
+                id=str(user_msg.id),
+                conversation_id=str(user_msg.chat_id),
+                sender="user",
+                role="user",
                 content=user_msg.content,
                 timestamp=format_time_str(user_msg.created_at),
                 status=user_msg.status,
             ),
             assistant_message=MessageResponse(
-                id=assistant_msg.id,
-                conversation_id=assistant_msg.conversation_id,
-                sender=assistant_msg.sender,
+                id=str(assistant_msg.id),
+                conversation_id=str(assistant_msg.chat_id),
+                sender="assistant",
+                role="assistant",
                 content=assistant_msg.content,
                 timestamp=format_time_str(assistant_msg.created_at),
                 status=assistant_msg.status,
@@ -225,59 +280,48 @@ class ChatService:
 
     @staticmethod
     async def edit_message(
-        conversation_id: str, message_id: str, user_id: str, new_content: str, db: Session
+        conversation_id: Union[str, uuid.UUID],
+        message_id: Union[str, uuid.UUID],
+        user_id: Union[str, uuid.UUID],
+        new_content: str,
+        db: Session,
     ) -> List[MessageResponse]:
-        conv = db.query(Conversation).filter(Conversation.id == conversation_id).first()
-        if not conv:
+        cid = to_uuid(conversation_id)
+        mid = to_uuid(message_id)
+        uid = to_uuid(user_id)
+
+        chat = db.query(ChatSession).filter(ChatSession.id == cid).first()
+        if not chat:
             raise EntityNotFoundException("Conversation", conversation_id)
-        if conv.user_id != user_id:
+        if chat.user_id != uid:
             raise PermissionDeniedException("You do not have access to this conversation.")
 
-        target_msg = db.query(Message).filter(Message.id == message_id, Message.conversation_id == conversation_id).first()
+        target_msg = db.query(Message).filter(Message.id == mid, Message.chat_id == cid).first()
         if not target_msg:
             raise EntityNotFoundException("Message", message_id)
 
-        # Update target message content
         target_msg.content = new_content
-        now = datetime.now(timezone.utc)
-        target_msg.created_at = now
+        target_msg.updated_at = datetime.now(timezone.utc)
 
-        # Delete subsequent messages
+        # Delete subsequent messages to re-branch from this point
         db.query(Message).filter(
-            Message.conversation_id == conversation_id,
-            Message.created_at > target_msg.created_at,
+            Message.chat_id == cid,
+            Message.id != target_msg.id,
+            Message.created_at >= target_msg.created_at,
         ).delete()
         db.commit()
 
         # Generate fresh assistant response
         ai_reply = await ai_service.generate_response(new_content)
         assistant_msg = Message(
-            id=f"msg-{uuid.uuid4().hex[:10]}",
-            conversation_id=conversation_id,
-            sender="assistant",
+            chat_id=cid,
+            role="assistant",
             content=ai_reply,
             status="sent",
-            created_at=datetime.now(timezone.utc),
+            created_at=target_msg.created_at + timedelta(milliseconds=50),
         )
         db.add(assistant_msg)
-        conv.updated_at = datetime.now(timezone.utc)
+        chat.updated_at = datetime.now(timezone.utc)
         db.commit()
 
-        # Return updated messages
-        messages = (
-            db.query(Message)
-            .filter(Message.conversation_id == conversation_id)
-            .order_by(Message.created_at.asc())
-            .all()
-        )
-        return [
-            MessageResponse(
-                id=m.id,
-                conversation_id=m.conversation_id,
-                sender=m.sender,
-                content=m.content,
-                timestamp=format_time_str(m.created_at),
-                status=m.status,
-            )
-            for m in messages
-        ]
+        return ChatService.get_messages(conversation_id, user_id, db)

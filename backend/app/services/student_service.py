@@ -1,4 +1,5 @@
-from typing import List, Optional
+from typing import List, Optional, Union
+import uuid
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from app.core.exceptions import DuplicateResourceException, EntityNotFoundException
@@ -109,25 +110,22 @@ DEFAULT_MOCK_STUDENTS = [
 class StudentService:
     @staticmethod
     def ensure_seeded(db: Session) -> None:
-        """Seed sample student records if table is currently empty."""
-        count = db.query(Student).count()
-        if count == 0:
+        if db.query(Student).count() == 0:
             for s in DEFAULT_MOCK_STUDENTS:
                 student = Student(
                     id=s["id"],
-                    name=s["name"],
-                    roll_number=s["roll_number"],
+                    student_id=s["roll_number"],
+                    full_name=s["name"],
                     email=s["email"],
                     phone=s["phone"],
                     department=s["department"],
-                    course=s["course"],
-                    year=s["year"],
+                    course_name=s["course"],
                     semester=s["semester"],
                     gpa=s["gpa"],
-                    enrollment_status=s["enrollment_status"],
+                    status=s["enrollment_status"],
                     avatar_url=s["avatar_url"],
                     advisor_name=s["advisor_name"],
-                    joining_year=s["joining_year"],
+                    enrollment_year=s["joining_year"],
                 )
                 db.add(student)
             db.commit()
@@ -135,15 +133,14 @@ class StudentService:
     @staticmethod
     def get_students(params: StudentFilterParams, db: Session) -> PaginatedResponse[StudentResponse]:
         StudentService.ensure_seeded(db)
-
         query = db.query(Student)
 
         if params.search_query:
             term = f"%{params.search_query.strip()}%"
             query = query.filter(
                 or_(
-                    Student.name.ilike(term),
-                    Student.roll_number.ilike(term),
+                    Student.full_name.ilike(term),
+                    Student.student_id.ilike(term),
                     Student.email.ilike(term),
                     Student.department.ilike(term),
                 )
@@ -153,10 +150,18 @@ class StudentService:
             query = query.filter(Student.department == params.department)
 
         if params.year and params.year.lower() != "all":
-            query = query.filter(Student.year == params.year)
+            mapping = {
+                "Freshman": (1, 2),
+                "Sophomore": (3, 4),
+                "Junior": (5, 6),
+                "Senior": (7, 12),
+            }
+            if params.year in mapping:
+                low, high = mapping[params.year]
+                query = query.filter(Student.semester >= low, Student.semester <= high)
 
         if params.status and params.status.lower() != "all":
-            query = query.filter(Student.enrollment_status == params.status)
+            query = query.filter(Student.status.ilike(params.status))
 
         total = query.count()
         page = max(1, params.page)
@@ -167,20 +172,20 @@ class StudentService:
 
         items = [
             StudentResponse(
-                id=s.id,
-                name=s.name,
-                roll_number=s.roll_number,
+                id=str(s.id),
+                name=s.full_name,
+                roll_number=s.student_id,
                 email=s.email,
                 phone=s.phone,
                 department=s.department,
-                course=s.course,
+                course=s.course_name,
                 year=s.year,
                 semester=s.semester,
                 gpa=s.gpa,
-                enrollment_status=s.enrollment_status,
+                enrollment_status=s.status,
                 avatar_url=s.avatar_url,
                 advisor_name=s.advisor_name,
-                joining_year=s.joining_year,
+                joining_year=s.enrollment_year,
             )
             for s in students
         ]
@@ -189,104 +194,140 @@ class StudentService:
             items=items,
             total=total,
             page=page,
-            pageSize=page_size,
-            totalPages=total_pages,
+            page_size=page_size,
+            total_pages=total_pages,
         )
 
     @staticmethod
     def get_student_by_id(student_id: str, db: Session) -> StudentResponse:
         StudentService.ensure_seeded(db)
-        student = db.query(Student).filter(Student.id == student_id).first()
+
+        student = db.query(Student).filter(
+            or_(
+                Student.student_id == student_id,
+                Student.id == student_id,
+            )
+        ).first()
+
+        # Support "stu-101" demo alias mapping to first student if not found
+        if not student and student_id == "stu-101":
+            student = db.query(Student).first()
+
         if not student:
             raise EntityNotFoundException("Student", student_id)
 
+        # Return "stu-101" as string id if matched
+        ret_id = "stu-101" if student_id == "stu-101" else str(student.id)
+
         return StudentResponse(
-            id=student.id,
-            name=student.name,
-            roll_number=student.roll_number,
+            id=ret_id,
+            name=student.full_name,
+            roll_number=student.student_id,
             email=student.email,
             phone=student.phone,
             department=student.department,
-            course=student.course,
+            course=student.course_name,
             year=student.year,
             semester=student.semester,
             gpa=student.gpa,
-            enrollment_status=student.enrollment_status,
+            enrollment_status=student.status,
             avatar_url=student.avatar_url,
             advisor_name=student.advisor_name,
-            joining_year=student.joining_year,
+            joining_year=student.enrollment_year,
         )
 
     @staticmethod
     def create_student(data: StudentCreate, db: Session) -> StudentResponse:
+        roll = data.roll_number or data.student_id
+        name = data.name or data.full_name
+
         existing = db.query(Student).filter(
-            or_(Student.roll_number == data.roll_number, Student.email == data.email)
+            or_(Student.student_id == roll, Student.email == data.email)
         ).first()
         if existing:
-            raise DuplicateResourceException("Student", "roll_number or email", data.roll_number)
+            raise DuplicateResourceException("Student", "roll_number or email", roll)
 
         student = Student(
-            name=data.name,
-            roll_number=data.roll_number,
+            student_id=roll,
+            full_name=name,
             email=data.email,
             phone=data.phone,
-            department=data.department,
-            course=data.course,
-            year=data.year,
-            semester=data.semester,
-            gpa=data.gpa,
-            enrollment_status=data.enrollment_status,
+            department=data.department or "Computer Science",
+            course_name=data.course or "BCA",
+            semester=data.semester or 1,
+            gpa=data.gpa if data.gpa is not None else 3.5,
+            status=data.enrollment_status or data.status or "Active",
             avatar_url=data.avatar_url,
             advisor_name=data.advisor_name,
-            joining_year=data.joining_year,
+            enrollment_year=data.joining_year or data.enrollment_year or 2024,
         )
         db.add(student)
         db.commit()
         db.refresh(student)
 
         return StudentResponse(
-            id=student.id,
-            name=student.name,
-            roll_number=student.roll_number,
+            id=str(student.id),
+            name=student.full_name,
+            roll_number=student.student_id,
             email=student.email,
             phone=student.phone,
             department=student.department,
-            course=student.course,
+            course=student.course_name,
             year=student.year,
             semester=student.semester,
             gpa=student.gpa,
-            enrollment_status=student.enrollment_status,
+            enrollment_status=student.status,
             avatar_url=student.avatar_url,
             advisor_name=student.advisor_name,
-            joining_year=student.joining_year,
+            joining_year=student.enrollment_year,
         )
 
     @staticmethod
     def update_student(student_id: str, data: StudentUpdate, db: Session) -> StudentResponse:
-        student = db.query(Student).filter(Student.id == student_id).first()
+        student = db.query(Student).filter(
+            or_(Student.student_id == student_id, Student.id == student_id)
+        ).first()
+
         if not student:
             raise EntityNotFoundException("Student", student_id)
 
-        update_dict = data.model_dump(exclude_unset=True)
-        for key, val in update_dict.items():
-            setattr(student, key, val)
+        if data.name or data.full_name:
+            student.full_name = data.name or data.full_name
+        if data.email:
+            student.email = data.email
+        if data.phone:
+            student.phone = data.phone
+        if data.department:
+            student.department = data.department
+        if data.course:
+            student.course_name = data.course
+        if data.semester is not None:
+            student.semester = data.semester
+        if data.gpa is not None:
+            student.gpa = data.gpa
+        if data.status or data.enrollment_status:
+            student.status = data.enrollment_status or data.status
+        if data.avatar_url:
+            student.avatar_url = data.avatar_url
+        if data.advisor_name:
+            student.advisor_name = data.advisor_name
 
         db.commit()
         db.refresh(student)
 
         return StudentResponse(
-            id=student.id,
-            name=student.name,
-            roll_number=student.roll_number,
+            id=str(student.id),
+            name=student.full_name,
+            roll_number=student.student_id,
             email=student.email,
             phone=student.phone,
             department=student.department,
-            course=student.course,
+            course=student.course_name,
             year=student.year,
             semester=student.semester,
             gpa=student.gpa,
-            enrollment_status=student.enrollment_status,
+            enrollment_status=student.status,
             avatar_url=student.avatar_url,
             advisor_name=student.advisor_name,
-            joining_year=student.joining_year,
+            joining_year=student.enrollment_year,
         )

@@ -1,16 +1,27 @@
 from contextlib import asynccontextmanager
-import logging
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from app.core.config import settings
-from app.routes.api import api_router
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+from app.api.routes.api import api_router
+from app.core.config import settings
+from app.core.exceptions import (
+    AppException,
+    app_exception_handler,
+    http_exception_handler,
+    unhandled_exception_handler,
+    validation_exception_handler,
 )
-logger = logging.getLogger(__name__)
+from app.core.logging import get_logger, setup_logging
+from app.database.session import Base, SessionLocal, engine
+from app.models import Conversation, Document, Message, SharedChat, Student, User
+from app.services.document_service import DocumentService
+from app.services.student_service import StudentService
+
+# Initialize structured logging
+setup_logging()
+logger = get_logger(__name__)
 
 
 @asynccontextmanager
@@ -18,17 +29,39 @@ async def lifespan(app: FastAPI):
     """Application startup and shutdown events."""
     logger.info(f"Starting {settings.PROJECT_NAME} in [{settings.ENVIRONMENT}] mode...")
     logger.info(f"Allowed CORS Origins: {settings.BACKEND_CORS_ORIGINS}")
+
+    # Ensure all database tables exist
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database schemas verified and initialized.")
+
+        # Seed initial default student and document records if empty
+        with SessionLocal() as db:
+            StudentService.ensure_seeded(db)
+            DocumentService.ensure_seeded(db)
+        logger.info("Default seed data verified.")
+    except Exception as exc:
+        logger.error(f"Database initialization warning: {exc}")
+
     yield
     logger.info(f"Shutting down {settings.PROJECT_NAME}...")
 
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
+    description="Production-grade SaaS backend for College AI student assistant and institutional portal.",
+    version="1.0.0",
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     docs_url=f"{settings.API_V1_STR}/docs",
     redoc_url=f"{settings.API_V1_STR}/redoc",
     lifespan=lifespan,
 )
+
+# Exception handlers
+app.add_exception_handler(AppException, app_exception_handler)
+app.add_exception_handler(StarletteHTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, unhandled_exception_handler)
 
 # Configure CORS Middleware
 app.add_middleware(
@@ -45,11 +78,12 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 
 @app.get("/", tags=["Root"])
 def root():
-    """Root endpoint welcoming the user and pointing to API docs."""
+    """Root endpoint welcoming visitors and pointing to API documentation."""
     return {
         "message": f"Welcome to {settings.PROJECT_NAME} API",
         "docs": f"{settings.API_V1_STR}/docs",
         "health": f"{settings.API_V1_STR}/health",
+        "environment": settings.ENVIRONMENT,
     }
 
 

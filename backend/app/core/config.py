@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     SUPABASE_URL: Optional[str] = None
     SUPABASE_ANON_KEY: Optional[str] = None
     SUPABASE_SERVICE_ROLE_KEY: Optional[str] = None  # Never expose to frontend
+    STORAGE_BUCKET_DOCUMENTS: str = "college-documents"
 
     # Database: Default to SQLite for local development/testing without requiring active Postgres,
     # or set DATABASE_URL in .env to connect to Supabase PostgreSQL or self-hosted Postgres.

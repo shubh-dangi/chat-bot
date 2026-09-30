@@ -1,5 +1,6 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Union
+import uuid
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
@@ -37,7 +38,7 @@ class UserProfileUpdate(BaseModel):
 
 
 class UserResponse(BaseModel):
-    id: str
+    id: Union[uuid.UUID, str]
     name: str
     email: str
     role: str

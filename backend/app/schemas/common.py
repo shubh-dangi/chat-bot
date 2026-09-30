@@ -1,34 +1,23 @@
-from typing import Any, Generic, List, Optional, TypeVar
-from pydantic import BaseModel, Field
+from typing import Generic, List, TypeVar
+from pydantic import BaseModel, ConfigDict, Field
 
 T = TypeVar("T")
 
 
-class ApiResponse(BaseModel, Generic[T]):
-    """Standard unified response envelope expected by frontend."""
+class PaginationParams(BaseModel):
+    page: int = Field(default=1, ge=1, description="Page number starting at 1")
+    page_size: int = Field(default=20, ge=1, le=100, description="Items per page (max 100)")
 
-    data: T
-    message: Optional[str] = None
-    status: int = 200
-    success: bool = True
+    @property
+    def offset(self) -> int:
+        return (self.page - 1) * self.page_size
 
 
 class PaginatedResponse(BaseModel, Generic[T]):
-    """Standard pagination envelope for lists and tables."""
-
     items: List[T]
     total: int
-    page: int
-    pageSize: int
-    totalPages: int
+    page: int = 1
+    page_size: int = Field(default=20, alias="pageSize")
+    total_pages: int = Field(default=1, alias="totalPages")
 
-
-class ApiErrorDetail(BaseModel):
-    message: str
-    code: Optional[str] = None
-    status: Optional[int] = None
-    details: Optional[dict] = None
-
-
-class ApiErrorResponse(BaseModel):
-    error: ApiErrorDetail
+    model_config = ConfigDict(populate_by_name=True)
