@@ -80,13 +80,13 @@ export function ShareDialog({
       <div className="space-y-4 pt-1">
         {conversation.isShared && shareUrl ? (
           <>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-2 min-w-0">
               <Input
                 readOnly
                 value={shareUrl}
-                className="font-mono text-xs select-all bg-bg-tertiary"
+                className="font-mono text-xs select-all bg-bg-tertiary min-w-0"
               />
-              <Button variant="primary" size="md" onClick={handleCopy} className="shrink-0 gap-1.5">
+              <Button variant="primary" size="md" onClick={handleCopy} className="shrink-0 gap-1.5 w-full xs:w-auto justify-center">
                 {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
                 <span>{copied ? "Copied" : "Copy"}</span>
               </Button>
@@ -101,8 +101,8 @@ export function ShareDialog({
                 <p className="text-text-secondary">
                   Anyone who has this link will immediately lose access to this conversation.
                 </p>
-                <div className="flex items-center justify-end gap-2 pt-1">
-                  <Button variant="ghost" size="sm" onClick={() => setShowRevokeConfirm(false)}>
+                <div className="flex flex-col-reverse xs:flex-row xs:items-center xs:justify-end gap-2 pt-1">
+                  <Button variant="ghost" size="sm" onClick={() => setShowRevokeConfirm(false)} className="w-full xs:w-auto justify-center">
                     Cancel
                   </Button>
                   <Button
@@ -116,13 +116,13 @@ export function ShareDialog({
                 </div>
               </div>
             ) : (
-              <div className="flex items-center justify-between pt-2 border-t border-border-default">
+              <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-2 pt-3 border-t border-border-default">
                 <span className="text-xs text-text-muted">Public link active</span>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setShowRevokeConfirm(true)}
-                  className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-neutral-800 text-xs"
+                  className="text-status-error-text hover:bg-status-error-surface text-xs w-full xs:w-auto justify-center"
                 >
                   Revoke link
                 </Button>

@@ -26,6 +26,7 @@ import { ConversationList } from "@/features/chat/components/ConversationList"
 import { ShareDialog } from "@/features/chat/components/ShareDialog"
 import { Button } from "@/shared/components/ui/Button"
 import { Avatar } from "@/shared/components/ui/Avatar"
+import { BrandLogo } from "@/shared/components/ui/Logo"
 import { useTheme } from "@/shared/hooks/useTheme"
 import { ROUTES } from "@/shared/config/routes"
 import { cn } from "@/shared/utils/cn"
@@ -117,31 +118,23 @@ export function MobileNav() {
           className={cn(
             "fixed top-0 bottom-0 left-0 w-[300px] max-w-[85vw] bg-bg-secondary border-r border-border-default shadow-xl flex flex-col justify-between transition-transform duration-200 ease-out z-10",
             "animate-in slide-in-from-left",
-            "h-[100dvh]"
+            "h-screen-dvh",
+            // Fixed overlays ignore the body safe-area padding, so the drawer
+            // reserves the top inset itself to stay clear of notches.
+            "pt-[env(safe-area-inset-top)]"
           )}
         >
           {/* Header */}
           <div className="flex flex-col flex-1 min-h-0">
             <div className="h-14 px-4 flex items-center justify-between border-b border-border-default shrink-0">
-              <div
-                className="flex items-center gap-2.5 cursor-pointer"
+              <BrandLogo
+                size="sm"
+                subtitle={isAdminRoute ? "Admin Console" : "Campus Assistant"}
                 onClick={() => {
                   setMobileNavOpen(false)
                   navigate(ROUTES.CHAT)
                 }}
-              >
-                <div className="w-7 h-7 rounded-lg bg-brand text-brand-contrast flex items-center justify-center font-bold text-xs shadow-sm">
-                  CA
-                </div>
-                <div className="min-w-0">
-                  <span className="font-semibold text-sm tracking-tight text-text-primary block truncate">
-                    College AI
-                  </span>
-                  <span className="text-[10px] text-text-muted block truncate -mt-0.5">
-                    {isAdminRoute ? "Admin Console" : "Campus Assistant"}
-                  </span>
-                </div>
-              </div>
+              />
               <button
                 onClick={() => setMobileNavOpen(false)}
                 className="p-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-interactive-hover min-w-[44px] min-h-[44px] flex items-center justify-center"

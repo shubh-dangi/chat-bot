@@ -444,6 +444,85 @@ html, body {
   animation: dialogEntrance var(--duration-normal) var(--ease-out) forwards;
 }
 
+/* Drawer / toast / popover entrances.
+   These replace the `animate-in` + `slide-in-*` / `zoom-in-*` utilities from
+   tailwindcss-animate, which is not part of this project's plugin set. */
+@keyframes drawerSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(0.75);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-in {
+  animation-duration: var(--duration-normal);
+  animation-timing-function: var(--ease-out);
+  animation-fill-mode: forwards;
+}
+
+.slide-in-from-left {
+  animation-name: drawerSlideIn;
+}
+
+.slide-in-from-bottom-2 {
+  animation-name: slideInFromBottom;
+}
+
+.zoom-in-75 {
+  animation-name: zoomIn;
+}
+
+.fade-in {
+  animation-name: fadeIn;
+}
+
+/* Horizontal scrollers (tab strips, chip rows) keep the scroll position but
+   drop the visual scrollbar so the row does not gain extra height. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

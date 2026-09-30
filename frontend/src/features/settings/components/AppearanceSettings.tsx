@@ -45,7 +45,7 @@ export function AppearanceSettings() {
               type="button"
               onClick={() => setTheme(opt.id)}
               className={cn(
-                "p-4 rounded-xl border text-left flex flex-col justify-between transition-all duration-150 relative select-none cursor-pointer",
+                "p-4 rounded-xl border text-left flex flex-col justify-between transition-colors duration-150 relative select-none cursor-pointer min-h-[44px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-interactive-ring",
                 isSelected
                   ? "border-brand bg-brand-surface/40 shadow-sm ring-1 ring-brand"
                   : "border-border-default bg-bg-elevated hover:border-brand-border hover:bg-brand-surface/20"
@@ -59,7 +59,7 @@ export function AppearanceSettings() {
               <div className="mb-3">{opt.icon}</div>
               <div>
                 <div className="text-sm font-semibold text-text-primary mb-1">{opt.label}</div>
-                <div className="text-[11px] text-text-secondary leading-normal">{opt.description}</div>
+                <div className="text-[11px] text-text-secondary leading-normal text-pretty break-words">{opt.description}</div>
               </div>
             </button>
           )

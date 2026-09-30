@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 import { Button } from "@/shared/components/ui/Button"
 import { Badge } from "@/shared/components/ui/Badge"
+import { Logo, BrandLogo } from "@/shared/components/ui/Logo"
 import { FadeIn } from "@/shared/components/motion/FadeIn"
 import { TypingIndicator } from "@/shared/components/motion/TypingIndicator"
 import { useTheme } from "@/shared/hooks/useTheme"
@@ -103,16 +104,8 @@ export default function LandingPage() {
     <div className="min-h-screen-dvh bg-bg-primary text-text-primary flex flex-col justify-between select-none">
       {/* 1. Navbar */}
       <header className="min-h-16 py-2 border-b border-border-default px-page-x flex flex-wrap items-center justify-between gap-2 sm:gap-3 sticky top-0 bg-bg-primary/95 backdrop-blur z-sticky transition-colors duration-fast">
-        <Link to={ROUTES.HOME} className="flex items-center gap-2.5 sm:gap-3 min-w-0 shrink">
-          <div className="w-8 h-8 rounded-lg bg-brand text-brand-contrast flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
-            CA
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="font-semibold text-base sm:text-lg tracking-tight text-text-primary leading-tight truncate">
-              College AI
-            </span>
-            <span className="text-[10px] text-text-muted hidden sm:inline truncate">Institutional Intelligence</span>
-          </div>
+        <Link to={ROUTES.HOME} className="flex items-center min-w-0 shrink">
+          <BrandLogo size="md" subtitle="Institutional Intelligence" />
         </Link>
 
         <nav className="hidden lg:flex items-center gap-5 xl:gap-6 text-xs sm:text-sm text-text-secondary">
@@ -631,9 +624,7 @@ export default function LandingPage() {
       <footer className="py-8 sm:py-10 px-page-x border-t border-border-default bg-bg-primary text-xs text-text-muted select-none pb-[max(2rem,env(safe-area-inset-bottom))]">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-5 sm:gap-6">
           <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap justify-center min-w-0">
-            <div className="w-6 h-6 rounded bg-brand text-brand-contrast flex items-center justify-center text-[10px] font-bold shadow-xs shrink-0">
-              CA
-            </div>
+            <Logo size="xs" />
             <span className="font-semibold text-text-primary">College AI</span>
             <span className="text-center sm:text-left">• © 2026 Academic Intelligence System</span>
           </div>

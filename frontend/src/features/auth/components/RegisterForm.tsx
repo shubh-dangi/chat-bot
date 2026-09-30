@@ -76,9 +76,9 @@ export function RegisterForm() {
   const strength = getPasswordStrength()
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-3.5" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-3.5 min-w-0" noValidate>
       {errors.general && (
-        <div className="p-3 rounded-md bg-status-error-surface border border-status-error-border text-xs text-status-error-text">
+        <div className="p-3 rounded-md bg-status-error-surface border border-status-error-border text-xs text-status-error-text break-words" role="alert">
           {errors.general}
         </div>
       )}
@@ -152,7 +152,7 @@ export function RegisterForm() {
                 }`}
               />
             ))}
-            <span className="text-[10px] text-text-muted ml-1">
+            <span className="text-[10px] text-text-muted ml-1 shrink-0">
               {strength <= 1 ? "Weak" : strength <= 3 ? "Good" : "Strong"}
             </span>
           </div>
@@ -180,7 +180,7 @@ export function RegisterForm() {
 
       <div className="text-center pt-3 border-t border-border-default text-xs text-text-secondary">
         Already have an account?{" "}
-        <Link to={ROUTES.LOGIN} className="font-medium text-text-primary underline hover:text-text-secondary">
+        <Link to={ROUTES.LOGIN} className="font-medium text-text-primary underline hover:text-text-secondary inline-flex items-center min-h-[32px]">
           Log in
         </Link>
       </div>

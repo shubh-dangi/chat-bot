@@ -32,14 +32,14 @@ export function SecuritySettings() {
         </p>
       </div>
 
-      <form onSubmit={handleUpdatePassword} className="p-5 rounded-xl border border-border-default bg-bg-primary space-y-4">
+      <form onSubmit={handleUpdatePassword} className="p-4 sm:p-5 rounded-xl border border-border-default bg-bg-primary space-y-4 min-w-0">
         <div className="flex items-center gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider">
           <KeyRound className="w-3.5 h-3.5" />
           <span>Change Password</span>
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-text-secondary mb-1">Current Password</label>
+          <label className="block text-xs font-medium text-text-secondary mb-1.5" htmlFor="sec-current-pass">Current Password</label>
           <Input
             type="password"
             value={currentPass}
@@ -50,7 +50,7 @@ export function SecuritySettings() {
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-text-secondary mb-1">New Password</label>
+          <label className="block text-xs font-medium text-text-secondary mb-1.5" htmlFor="sec-new-pass">New Password</label>
           <Input
             type="password"
             value={newPass}
@@ -67,7 +67,7 @@ export function SecuritySettings() {
         </div>
       </form>
 
-      <div className="p-5 rounded-xl border border-border-default bg-bg-primary space-y-4">
+      <div className="p-4 sm:p-5 rounded-xl border border-border-default bg-bg-primary space-y-4 min-w-0">
         <div className="flex items-center gap-2 text-xs font-semibold text-text-muted uppercase tracking-wider">
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>Multi-Factor Authentication</span>

@@ -25,14 +25,16 @@ export function ProfileForm() {
   }
 
   return (
-    <div className="space-y-6 max-w-xl mx-auto">
+    <div className="space-y-fluid-5 max-w-xl mx-auto min-w-0">
       {/* Avatar & Summary Card */}
-      <div className="p-6 rounded-xl border border-border-default bg-bg-elevated flex items-center gap-5 shadow-xs">
-        <div className="relative group">
+      <div className="p-4 sm:p-6 rounded-xl border border-border-default bg-bg-elevated flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 shadow-xs min-w-0">
+        <div className="relative group shrink-0">
           <Avatar src={user?.avatarUrl} fallback={user?.name} size="xl" />
           <button
             type="button"
-            className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center text-white
+                       opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100
+                       focus-visible:opacity-100 transition-opacity"
             onClick={() => {
               const url = prompt("Enter an avatar image URL:", user?.avatarUrl || "")
               if (url !== null) updateProfile({ avatarUrl: url })
@@ -44,8 +46,8 @@ export function ProfileForm() {
         </div>
 
         <div className="min-w-0">
-          <h2 className="text-base font-semibold text-text-primary truncate">{user?.name}</h2>
-          <p className="text-xs text-text-secondary truncate">{user?.email}</p>
+          <h2 className="text-base font-semibold text-text-primary break-words">{user?.name}</h2>
+          <p className="text-xs text-text-secondary break-all">{user?.email}</p>
           <div className="mt-2 inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-brand-surface text-brand-text capitalize border border-brand-border">
             {user?.role || "Student"}
           </div>
@@ -53,7 +55,7 @@ export function ProfileForm() {
       </div>
 
       {/* Editable Profile Form */}
-      <form onSubmit={handleSubmit} className="p-6 rounded-xl border border-border-default bg-bg-primary space-y-4 shadow-xs">
+      <form onSubmit={handleSubmit} className="p-4 sm:p-6 rounded-xl border border-border-default bg-bg-primary space-y-4 shadow-xs min-w-0">
         <div>
           <label className="block text-xs font-medium text-text-secondary mb-1.5" htmlFor="prof-name">
             Full Name
@@ -102,8 +104,8 @@ export function ProfileForm() {
           />
         </div>
 
-        <div className="pt-2 flex justify-end">
-          <Button type="submit" variant="primary" size="md" isLoading={loading}>
+        <div className="pt-2 flex flex-col-reverse xs:flex-row xs:justify-end">
+          <Button type="submit" variant="primary" size="md" isLoading={loading} className="w-full xs:w-auto">
             Save Changes
           </Button>
         </div>

@@ -92,12 +92,12 @@ export function ConversationItem({
           onChange={(e) => setTitleInput(e.target.value)}
           onKeyDown={handleKeyDown}
           onBlur={handleSaveRename}
-          className="flex-1 min-w-0 bg-transparent text-xs text-text-primary focus:outline-none"
+          className="flex-1 min-w-0 h-9 px-2 -mx-1 rounded bg-transparent text-xs text-text-primary focus:outline-none"
         />
         <button
           type="button"
           onClick={handleSaveRename}
-          className="p-1 text-text-muted hover:text-text-primary rounded hover:bg-interactive-hover"
+          className="p-2.5 text-text-muted hover:text-text-primary rounded-md hover:bg-interactive-hover transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center shrink-0"
           aria-label="Save title"
         >
           <Check className="w-3.5 h-3.5 text-status-success-text" />
@@ -108,7 +108,7 @@ export function ConversationItem({
             setTitleInput(conversation.title)
             setIsEditing(false)
           }}
-          className="p-1 text-text-muted hover:text-text-primary rounded hover:bg-interactive-hover"
+          className="p-2.5 text-text-muted hover:text-text-primary rounded-md hover:bg-interactive-hover transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center shrink-0"
           aria-label="Cancel editing"
         >
           <X className="w-3.5 h-3.5" />
@@ -143,7 +143,7 @@ export function ConversationItem({
         </div>
 
         <div
-          className="opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-fast shrink-0 flex items-center gap-0.5"
+          className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity duration-fast shrink-0 flex items-center -mr-1"
           onClick={(e) => e.stopPropagation()}
         >
           <DropdownMenu
@@ -151,7 +151,7 @@ export function ConversationItem({
             trigger={
               <button
                 type="button"
-                className="p-1 rounded-md text-text-muted hover:text-text-primary hover:bg-interactive-hover transition-colors"
+                className="p-2.5 -m-1.5 rounded-md text-text-muted hover:text-text-primary hover:bg-interactive-hover transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center"
                 aria-label="Conversation options"
               >
                 <MoreHorizontal className="w-3.5 h-3.5" />
@@ -175,11 +175,11 @@ export function ConversationItem({
               <AlertTriangle className="w-4 h-4" />
             </div>
             <p className="text-xs text-text-secondary leading-relaxed">
-              Are you sure you want to delete <span className="font-semibold text-text-primary">&quot;{conversation.title}&quot;</span>? This will permanently remove the message history.
+              Are you sure you want to delete <span className="font-semibold text-text-primary break-words">&quot;{conversation.title}&quot;</span>? This will permanently remove the message history.
             </p>
           </div>
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-border-default">
-            <Button variant="ghost" size="sm" onClick={() => setShowDeleteModal(false)}>
+          <div className="flex flex-col-reverse xs:flex-row xs:items-center xs:justify-end gap-2 pt-3 border-t border-border-default">
+            <Button variant="ghost" size="sm" onClick={() => setShowDeleteModal(false)} className="w-full xs:w-auto justify-center">
               Cancel
             </Button>
             <Button
@@ -187,6 +187,7 @@ export function ConversationItem({
               size="sm"
               onClick={handleDeleteConfirm}
               isLoading={isDeleting}
+              className="w-full xs:w-auto justify-center"
             >
               Delete Conversation
             </Button>

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom"
 import { ArrowLeft, Sun, Moon, Laptop } from "lucide-react"
 import { useTheme } from "@/shared/hooks/useTheme"
 import { FadeIn } from "@/shared/components/motion/FadeIn"
+import { BrandLogo } from "@/shared/components/ui/Logo"
 import { ROUTES } from "@/shared/config/routes"
 
 export function AuthLayout({
@@ -51,13 +52,8 @@ export function AuthLayout({
       {/* Centered Auth Card */}
       <div className="w-full max-w-[min(100%,420px)] mx-auto my-auto py-6 sm:py-8">
         <FadeIn delay={40} className="flex flex-col items-center mb-5 sm:mb-6 text-center">
-          <Link to={ROUTES.HOME} className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-text-primary text-bg-primary flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
-              CA
-            </div>
-            <span className="font-semibold text-lg text-text-primary tracking-tight">
-              College AI
-            </span>
+          <Link to={ROUTES.HOME} className="mb-3 hover:opacity-95 transition-opacity">
+            <BrandLogo size="md" subtitle="Institutional Access" />
           </Link>
           <h1 className="text-xl sm:text-2xl font-semibold text-text-primary tracking-tight text-balance break-words">
             {title}

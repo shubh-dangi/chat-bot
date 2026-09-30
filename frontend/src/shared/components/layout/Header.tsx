@@ -4,6 +4,7 @@ import { useUiStore } from "@/stores/uiStore"
 import { useTheme } from "@/shared/hooks/useTheme"
 import { Button } from "@/shared/components/ui/Button"
 import { Tooltip } from "@/shared/components/ui/Tooltip"
+import { Logo } from "@/shared/components/ui/Logo"
 import { cn } from "@/shared/utils/cn"
 
 export interface HeaderProps {
@@ -52,6 +53,10 @@ export function Header({ title, subtitle, actions, className }: HeaderProps) {
         >
           <Menu className="w-5 h-5" />
         </button>
+
+        <div className="tablet:hidden shrink-0">
+          <Logo size="xs" />
+        </div>
 
         {title && (
           <div className="min-w-0">

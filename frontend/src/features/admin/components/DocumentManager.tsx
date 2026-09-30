@@ -1,9 +1,10 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Upload, FileText, CheckCircle2, Clock, Trash2, RotateCw } from "lucide-react"
 import { Button } from "@/shared/components/ui/Button"
 import { Badge } from "@/shared/components/ui/Badge"
 import { DataTable, type Column } from "@/shared/components/data/DataTable"
 import { useToast } from "@/shared/components/feedback/ToastContainer"
+import { apiClient } from "@/shared/services/apiClient"
 
 interface DocumentItem {
   id: string
@@ -52,11 +53,56 @@ const INITIAL_DOCS: DocumentItem[] = [
 export function DocumentManager() {
   const { success } = useToast()
   const [docs, setDocs] = useState<DocumentItem[]>(INITIAL_DOCS)
+  const [loading, setLoading] = useState(false)
 
-  const handleSimulateUpload = () => {
+  const fetchDocs = async () => {
+    try {
+      const res = await apiClient.get<any[]>("/api/documents")
+      if (Array.isArray(res) && res.length > 0) {
+        const mapped: DocumentItem[] = res.map((d) => ({
+          id: String(d.id),
+          filename: d.file_name || d.filename || "Institutional_Doc.pdf",
+          type: d.category || d.type || "Official Document",
+          size: d.file_size ? `${(d.file_size / (1024 * 1024)).toFixed(1)} MB` : "1.2 MB",
+          uploadedAt: d.created_at ? new Date(d.created_at).toLocaleDateString() : "Recent",
+          status: (d.status as DocumentItem["status"]) || "Processed",
+        }))
+        setDocs(mapped)
+      }
+    } catch (err) {
+      console.warn("Backend /api/documents query failed, using local document cache:", err)
+    }
+  }
+
+  useEffect(() => {
+    fetchDocs()
+  }, [])
+
+  const handleSimulateUpload = async () => {
+    setLoading(true)
+    const newDocFilename = `College_Circular_${new Date().toLocaleDateString().replace(/\//g, "_")}.pdf`
+
+    try {
+      const res = await apiClient.post<any>("/api/documents", {
+        file_name: newDocFilename,
+        storage_path: `documents/${Date.now()}_${newDocFilename}`,
+        mime_type: "application/pdf",
+        category: "Official Circular",
+        file_size: 640000,
+      })
+      if (res && res.id) {
+        fetchDocs()
+        success("Document successfully uploaded and registered in knowledge base")
+        setLoading(false)
+        return
+      }
+    } catch {
+      // Fallback local simulation
+    }
+
     const newDoc: DocumentItem = {
       id: "doc-" + Date.now(),
-      filename: `College_Circular_${new Date().toLocaleDateString().replace(/\//g, "_")}.pdf`,
+      filename: newDocFilename,
       type: "Official Circular",
       size: "640 KB",
       uploadedAt: "Just now",
@@ -70,19 +116,35 @@ export function DocumentManager() {
         prev.map((d) => (d.id === newDoc.id ? { ...d, status: "Processed" } : d))
       )
       success("Document indexing complete")
+      setLoading(false)
     }, 2500)
   }
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    try {
+      await apiClient.delete(`/api/documents/${id}`)
+    } catch {
+      // Fallback
+    }
     setDocs((prev) => prev.filter((d) => d.id !== id))
     success("Document removed from knowledge base")
   }
 
-  const handleReprocess = (id: string) => {
+  const handleReprocess = async (id: string) => {
+    try {
+      await apiClient.patch(`/api/documents/${id}/status`, { status: "Processing" })
+    } catch {
+      // Fallback
+    }
     setDocs((prev) =>
       prev.map((d) => (d.id === id ? { ...d, status: "Processing" } : d))
     )
-    setTimeout(() => {
+    setTimeout(async () => {
+      try {
+        await apiClient.patch(`/api/documents/${id}/status`, { status: "Processed" })
+      } catch {
+        // Fallback
+      }
       setDocs((prev) =>
         prev.map((d) => (d.id === id ? { ...d, status: "Processed" } : d))
       )
@@ -94,11 +156,11 @@ export function DocumentManager() {
     {
       header: "Document Name",
       cell: (d) => (
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 min-w-0">
           <FileText className="w-4 h-4 text-text-muted shrink-0" />
           <div className="min-w-0">
             <div className="font-semibold text-xs text-text-primary truncate">{d.filename}</div>
-            <div className="text-[11px] text-text-muted">{d.size} • {d.uploadedAt}</div>
+            <div className="text-[11px] text-text-muted truncate">{d.size} • {d.uploadedAt}</div>
           </div>
         </div>
       ),
@@ -107,6 +169,7 @@ export function DocumentManager() {
       header: "Category",
       accessorKey: "type",
       className: "text-xs text-text-secondary",
+      hideBelow: "lg",
     },
     {
       header: "Status",
@@ -139,7 +202,8 @@ export function DocumentManager() {
             size="sm"
             onClick={() => handleReprocess(d.id)}
             title="Re-index document"
-            className="h-7 w-7 p-0"
+            aria-label="Re-index document"
+            className="p-0 cursor-pointer min-h-[40px] min-w-[40px] sm:min-h-0 sm:min-w-0"
           >
             <RotateCw className="w-3.5 h-3.5" />
           </Button>
@@ -148,7 +212,8 @@ export function DocumentManager() {
             size="sm"
             onClick={() => handleDelete(d.id)}
             title="Delete document"
-            className="h-7 w-7 p-0 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-neutral-800"
+            aria-label="Delete document"
+            className="p-0 text-status-error-text hover:bg-status-error-surface cursor-pointer min-h-[40px] min-w-[40px] sm:min-h-0 sm:min-w-0"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </Button>
@@ -158,21 +223,32 @@ export function DocumentManager() {
   ]
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-fluid-4 max-w-5xl min-w-0">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl font-semibold text-text-primary">Campus Knowledge Documents</h2>
-          <p className="text-xs text-text-secondary mt-1">
+        <div className="min-w-0">
+          <h2 className="text-xl font-semibold text-text-primary text-balance">Campus Knowledge Documents</h2>
+          <p className="text-xs text-text-secondary mt-1 text-pretty break-words">
             Upload institutional PDFs and circulars for AI retrieval and conversational QA.
           </p>
         </div>
-        <Button variant="primary" size="sm" onClick={handleSimulateUpload} className="gap-2 shrink-0">
-          <Upload className="w-3.5 h-3.5" />
-          <span>Upload Document</span>
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={handleSimulateUpload}
+          isLoading={loading}
+          className="gap-2 shrink-0 cursor-pointer w-full sm:w-auto justify-center"
+        >
+          <Upload className="w-3.5 h-3.5 shrink-0" />
+          <span className="truncate">Upload Document</span>
         </Button>
       </div>
 
-      <DataTable columns={columns} data={docs} keyExtractor={(d) => d.id} />
+      <DataTable
+        columns={columns}
+        data={docs}
+        keyExtractor={(d) => d.id}
+        caption="Uploaded institutional knowledge documents"
+      />
     </div>
   )
 }

@@ -41,8 +41,10 @@ export function StudentFilters({
   ]
 
   return (
-    <div className="flex flex-wrap items-center gap-2.5">
-      <div className="w-40 sm:w-44">
+    // Full-width stacked selects on narrow screens, then equal columns from xs up.
+    // Fixed widths are avoided so 320px never overflows or squeezes the labels.
+    <div className="grid grid-cols-1 xs:grid-cols-3 gap-2.5 w-full lg:w-auto lg:grid-cols-3 min-w-0">
+      <div className="min-w-0">
         <Select
           options={departments}
           value={department}
@@ -50,7 +52,7 @@ export function StudentFilters({
           aria-label="Filter by department"
         />
       </div>
-      <div className="w-32 sm:w-36">
+      <div className="min-w-0">
         <Select
           options={years}
           value={year}
@@ -58,7 +60,7 @@ export function StudentFilters({
           aria-label="Filter by academic year"
         />
       </div>
-      <div className="w-32 sm:w-36">
+      <div className="min-w-0">
         <Select
           options={statuses}
           value={status}

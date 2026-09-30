@@ -8,6 +8,7 @@ import {
 } from "lucide-react"
 import { Header } from "@/shared/components/layout/Header"
 import { MobileNav } from "@/shared/components/layout/MobileNav"
+import { BrandLogo } from "@/shared/components/ui/Logo"
 import { ROUTES } from "@/shared/config/routes"
 import { cn } from "@/shared/utils/cn"
 
@@ -24,10 +25,8 @@ export function AdminLayout() {
       {/* Admin Desktop Sidebar */}
       <aside className="w-[220px] h-full shrink-0 bg-bg-secondary border-r border-border-default desktop:flex flex-col justify-between select-none hidden">
         <div className="flex flex-col flex-1 min-h-0">
-          <div className="h-14 px-4 flex items-center gap-2 border-b border-border-default shrink-0">
-            <span className="font-semibold text-sm tracking-tight text-text-primary truncate">
-              Admin Console
-            </span>
+          <div className="h-14 px-4 flex items-center border-b border-border-default shrink-0">
+            <BrandLogo size="sm" subtitle="Admin Console" />
           </div>
 
           <nav className="p-3 space-y-1 overflow-y-auto flex-1 min-h-0">

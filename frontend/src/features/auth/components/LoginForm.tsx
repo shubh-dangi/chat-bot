@@ -57,9 +57,9 @@ export function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+    <form onSubmit={handleSubmit} className="space-y-4 min-w-0" noValidate>
       {errors.general && (
-        <div className="p-3 rounded-md bg-status-error-surface border border-status-error-border text-xs text-status-error-text">
+        <div className="p-3 rounded-md bg-status-error-surface border border-status-error-border text-xs text-status-error-text break-words" role="alert">
           {errors.general}
         </div>
       )}
@@ -87,7 +87,7 @@ export function LoginForm() {
           </label>
           <Link
             to={ROUTES.FORGOT_PASSWORD}
-            className="text-xs text-text-muted hover:text-text-primary transition-colors"
+            className="text-xs text-text-muted hover:text-text-primary transition-colors inline-flex items-center min-h-[36px] -my-1.5 px-1 -ml-1 rounded"
           >
             Forgot password?
           </Link>
@@ -110,7 +110,7 @@ export function LoginForm() {
 
       <div className="text-center pt-3 border-t border-border-default text-xs text-text-secondary">
         Don&apos;t have an account?{" "}
-        <Link to={ROUTES.REGISTER} className="font-medium text-text-primary underline hover:text-text-secondary">
+        <Link to={ROUTES.REGISTER} className="font-medium text-text-primary underline hover:text-text-secondary inline-flex items-center min-h-[32px]">
           Register now
         </Link>
       </div>

@@ -28,13 +28,14 @@ export function SettingsLayout({ children }: SettingsLayoutProps) {
 
   return (
     <PageTransition>
-      <div className="flex-1 flex flex-col h-full overflow-y-auto">
+      <div className="flex-1 flex flex-col h-full overflow-y-auto min-w-0">
         <Header title="Settings" subtitle="Manage your account preferences and theme settings" />
         <PageContainer className="max-w-3xl">
-          <div className="mb-6">
+          {/* The tab strip scrolls horizontally instead of wrapping or clipping. */}
+          <div className="mb-fluid-4 sm:mb-fluid-5 -mx-1 px-1">
             <Tabs tabs={tabs} activeTab={activeTab} onChange={handleTabChange} />
           </div>
-          <FadeIn key={activeTab} delay={0} className="mt-6">
+          <FadeIn key={activeTab} delay={0} className="mt-fluid-4 sm:mt-fluid-5">
             {children(activeTab)}
           </FadeIn>
         </PageContainer>

@@ -52,14 +52,14 @@ export default function StudentSearchPage() {
 
   return (
     <PageTransition>
-      <div className="flex-1 flex flex-col h-full overflow-y-auto">
+      <div className="flex-1 flex flex-col h-full overflow-y-auto min-w-0">
         <Header
           title="Student Directory"
           subtitle="Search and verify verified institutional student records"
         />
 
         <PageContainer>
-          <div className="space-y-5">
+          <div className="space-y-fluid-4 sm:space-y-fluid-5 min-w-0">
             {/* Search Bar & Filter Controls */}
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-2">
               <StudentSearchBar value={searchQuery} onChange={setSearchQuery} />

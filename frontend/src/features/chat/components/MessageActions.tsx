@@ -47,7 +47,7 @@ export function MessageActions({
   return (
     <div
       className={cn(
-        "flex items-center gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100 transition-opacity duration-fast select-none",
+        "flex flex-wrap items-center gap-1 sm:gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100 transition-opacity duration-fast select-none",
         className
       )}
     >
@@ -55,7 +55,7 @@ export function MessageActions({
         type="button"
         onClick={handleCopy}
         className={cn(
-          "inline-flex items-center gap-1 px-2 py-1 rounded text-xs transition-all duration-fast min-h-[28px]",
+          "inline-flex items-center justify-center gap-1 px-2 py-1 rounded text-xs transition-all duration-fast min-h-[40px] min-w-[40px] sm:min-h-[28px] sm:min-w-0",
           copied
             ? "text-status-success-text bg-status-success-surface border border-status-success-border"
             : "text-text-muted hover:text-text-primary hover:bg-interactive-hover"
@@ -80,7 +80,7 @@ export function MessageActions({
         <button
           type="button"
           onClick={onEdit}
-          className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs text-text-muted hover:text-text-primary hover:bg-interactive-hover transition-colors min-h-[28px]"
+          className="inline-flex items-center justify-center gap-1 px-2 py-1 rounded text-xs text-text-muted hover:text-text-primary hover:bg-interactive-hover transition-colors min-h-[40px] min-w-[40px] sm:min-h-[28px] sm:min-w-0"
           aria-label="Edit message"
           title="Edit message"
         >
@@ -95,7 +95,7 @@ export function MessageActions({
           onClick={handleRegenerate}
           disabled={isBusy}
           className={cn(
-            "inline-flex items-center gap-1 px-2 py-1 rounded text-xs transition-colors min-h-[28px]",
+            "inline-flex items-center justify-center gap-1 px-2 py-1 rounded text-xs transition-colors min-h-[40px] min-w-[40px] sm:min-h-[28px] sm:min-w-0",
             isBusy
               ? "opacity-60 cursor-not-allowed text-text-muted"
               : "text-text-muted hover:text-text-primary hover:bg-interactive-hover"

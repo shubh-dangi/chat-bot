@@ -46,7 +46,7 @@ export default function StudentDetailPage() {
             <ErrorState
               title="Student Not Found"
               message="No student record matches this identifier. Please verify the roll number."
-              onGoHome={() => (window.location.href = ROUTES.STUDENTS)}
+              onGoHome={() => navigate(ROUTES.STUDENTS)}
             />
           ) : (
             <StudentDetailPanel student={student} />

@@ -44,7 +44,8 @@ export function StudentManagement() {
     },
     {
       header: "Semester",
-      cell: (s) => <span className="text-xs text-text-muted">Sem {s.semester}</span>,
+      cell: (s) => <span className="text-xs text-text-muted whitespace-nowrap">Sem {s.semester}</span>,
+      hideBelow: "lg",
     },
     {
       header: "Status",

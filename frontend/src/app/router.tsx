@@ -1,30 +1,38 @@
-import { createBrowserRouter } from "react-router-dom"
+import { createBrowserRouter, type RouteObject } from "react-router-dom"
+import { lazy, Suspense, type ComponentType } from "react"
 import { RootLayout } from "@/layouts/RootLayout"
 import { AdminLayout } from "@/layouts/AdminLayout"
 
 import LandingPage from "@/pages/LandingPage"
-import LoginPage from "@/pages/LoginPage"
-import RegisterPage from "@/pages/RegisterPage"
-import ForgotPasswordPage from "@/pages/ForgotPasswordPage"
-import ResetPasswordPage from "@/pages/ResetPasswordPage"
 
-import ChatPage from "@/pages/ChatPage"
-import ChatConversationPage from "@/pages/ChatConversationPage"
-import SharedChatPage from "@/pages/SharedChatPage"
-import SearchPage from "@/pages/SearchPage"
-import StudentSearchPage from "@/pages/StudentSearchPage"
-import StudentDetailPage from "@/pages/StudentDetailPage"
-import ProfilePage from "@/pages/ProfilePage"
-import SettingsPage from "@/pages/SettingsPage"
-
-import AdminDashboardPage from "@/pages/AdminDashboardPage"
-import AdminUsersPage from "@/pages/AdminUsersPage"
-import AdminStudentsPage from "@/pages/AdminStudentsPage"
-import AdminDocumentsPage from "@/pages/AdminDocumentsPage"
-
-import NotFoundPage from "@/pages/NotFoundPage"
-import UnauthorizedPage from "@/pages/UnauthorizedPage"
 import ErrorPage from "@/pages/ErrorPage"
+
+/**
+ * Leaf pages are code-split so the initial bundle stays small. Each page gets its
+ * own Suspense boundary so navigating between routes never blanks the app shell
+ * (sidebar, header, toast host) that is already mounted.
+ */
+function lazyPage(loader: () => Promise<{ default: ComponentType }>): React.ReactElement {
+  const Lazy = lazy(loader)
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <Lazy />
+    </Suspense>
+  )
+}
+
+function RouteFallback() {
+  return (
+    <div
+      className="flex-1 min-h-0 h-full w-full flex items-center justify-center p-8 bg-bg-primary"
+      role="status"
+      aria-live="polite"
+      aria-label="Loading page"
+    >
+      <div className="h-6 w-6 rounded-full border-2 border-border-strong border-t-brand animate-spin" />
+    </div>
+  )
+}
 
 export const router = createBrowserRouter([
   // Public Landing & Auth Routes
@@ -35,23 +43,23 @@ export const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <LoginPage />,
+    element: lazyPage(() => import("@/pages/LoginPage")),
   },
   {
     path: "/register",
-    element: <RegisterPage />,
+    element: lazyPage(() => import("@/pages/RegisterPage")),
   },
   {
     path: "/forgot-password",
-    element: <ForgotPasswordPage />,
+    element: lazyPage(() => import("@/pages/ForgotPasswordPage")),
   },
   {
     path: "/reset-password",
-    element: <ResetPasswordPage />,
+    element: lazyPage(() => import("@/pages/ResetPasswordPage")),
   },
   {
     path: "/shared/:shareToken",
-    element: <SharedChatPage />,
+    element: lazyPage(() => import("@/pages/SharedChatPage")),
   },
 
   // Authenticated Application Shell Routes
@@ -61,31 +69,31 @@ export const router = createBrowserRouter([
     children: [
       {
         path: "/chat",
-        element: <ChatPage />,
+        element: lazyPage(() => import("@/pages/ChatPage")),
       },
       {
         path: "/chat/:chatId",
-        element: <ChatConversationPage />,
+        element: lazyPage(() => import("@/pages/ChatConversationPage")),
       },
       {
         path: "/search",
-        element: <SearchPage />,
+        element: lazyPage(() => import("@/pages/SearchPage")),
       },
       {
         path: "/students",
-        element: <StudentSearchPage />,
+        element: lazyPage(() => import("@/pages/StudentSearchPage")),
       },
       {
         path: "/students/:studentId",
-        element: <StudentDetailPage />,
+        element: lazyPage(() => import("@/pages/StudentDetailPage")),
       },
       {
         path: "/profile",
-        element: <ProfilePage />,
+        element: lazyPage(() => import("@/pages/ProfilePage")),
       },
       {
         path: "/settings",
-        element: <SettingsPage />,
+        element: lazyPage(() => import("@/pages/SettingsPage")),
       },
     ],
   },
@@ -98,31 +106,32 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <AdminDashboardPage />,
+        element: lazyPage(() => import("@/pages/AdminDashboardPage")),
       },
       {
         path: "users",
-        element: <AdminUsersPage />,
+        element: lazyPage(() => import("@/pages/AdminUsersPage")),
       },
       {
         path: "students",
-        element: <AdminStudentsPage />,
+        element: lazyPage(() => import("@/pages/AdminStudentsPage")),
       },
       {
         path: "documents",
-        element: <AdminDocumentsPage />,
+        element: lazyPage(() => import("@/pages/AdminDocumentsPage")),
       },
     ],
   },
 
   {
     path: "/unauthorized",
-    element: <UnauthorizedPage />,
+    element: lazyPage(() => import("@/pages/UnauthorizedPage")),
   },
 
   // 404 Catch-All
   {
     path: "*",
-    element: <NotFoundPage />,
+    element: lazyPage(() => import("@/pages/NotFoundPage")),
   },
-])
+] satisfies RouteObject[])
+

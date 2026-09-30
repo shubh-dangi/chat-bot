@@ -1,9 +1,10 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { DataTable, type Column } from "@/shared/components/data/DataTable"
 import { Badge } from "@/shared/components/ui/Badge"
 import { Avatar } from "@/shared/components/ui/Avatar"
 import { Button } from "@/shared/components/ui/Button"
 import { useToast } from "@/shared/components/feedback/ToastContainer"
+import { apiClient } from "@/shared/services/apiClient"
 import type { User } from "@/shared/types"
 
 interface ManagedUser extends User {
@@ -57,7 +58,44 @@ export function UserTable() {
   const { success } = useToast()
   const [users, setUsers] = useState<ManagedUser[]>(INITIAL_USERS)
 
-  const toggleStatus = (id: string) => {
+  const fetchUsers = async () => {
+    try {
+      const res = await apiClient.get<any[]>("/api/users")
+      if (Array.isArray(res) && res.length > 0) {
+        const mapped: ManagedUser[] = res.map((u) => ({
+          id: String(u.id),
+          name: u.name,
+          email: u.email,
+          role: u.role || "student",
+          department: u.department || "General",
+          avatarUrl: u.avatar_url || u.avatarUrl,
+          status: u.is_active || u.status === "Active" ? "Active" : "Inactive",
+          lastActive: u.last_active || "Recent",
+          createdAt: u.created_at,
+        }))
+        setUsers(mapped)
+      }
+    } catch (err) {
+      console.warn("Backend /api/users query failed, using local user list:", err)
+    }
+  }
+
+  useEffect(() => {
+    fetchUsers()
+  }, [])
+
+  const toggleStatus = async (id: string) => {
+    try {
+      const updated = await apiClient.patch<any>(`/api/users/${id}/status`)
+      if (updated && updated.id) {
+        fetchUsers()
+        success(`User status updated`)
+        return
+      }
+    } catch {
+      // Fallback
+    }
+
     setUsers((prev) =>
       prev.map((u) => {
         if (u.id === id) {
@@ -74,11 +112,11 @@ export function UserTable() {
     {
       header: "User",
       cell: (u) => (
-        <div className="flex items-center gap-3">
-          <Avatar src={u.avatarUrl} fallback={u.name} size="sm" />
-          <div>
-            <div className="font-semibold text-xs text-text-primary">{u.name}</div>
-            <div className="text-[11px] text-text-muted">{u.email}</div>
+        <div className="flex items-center gap-3 min-w-0">
+          <Avatar src={u.avatarUrl} fallback={u.name} size="sm" className="shrink-0" />
+          <div className="min-w-0">
+            <div className="font-semibold text-xs text-text-primary truncate">{u.name}</div>
+            <div className="text-[11px] text-text-muted truncate">{u.email}</div>
           </div>
         </div>
       ),
@@ -86,7 +124,7 @@ export function UserTable() {
     {
       header: "Role",
       cell: (u) => (
-        <Badge variant={u.role === "admin" ? "default" : u.role === "faculty" ? "info" : "secondary"} size="sm">
+        <Badge variant={u.role === "admin" ? "default" : u.role === "faculty" || u.role === "teacher" ? "info" : "secondary"} size="sm">
           {u.role.toUpperCase()}
         </Badge>
       ),
@@ -94,12 +132,14 @@ export function UserTable() {
     {
       header: "Department",
       accessorKey: "department",
-      className: "text-xs text-text-secondary",
+      className: "text-xs text-text-secondary truncate max-w-[10rem]",
+      hideBelow: "lg",
     },
     {
       header: "Last Active",
       accessorKey: "lastActive",
-      className: "text-xs text-text-muted",
+      className: "text-xs text-text-muted whitespace-nowrap",
+      hideBelow: "xl",
     },
     {
       header: "Status",
@@ -116,7 +156,7 @@ export function UserTable() {
           variant="ghost"
           size="sm"
           onClick={() => toggleStatus(u.id)}
-          className="text-xs h-7"
+          className="text-xs cursor-pointer min-h-[40px] min-w-[40px] sm:min-h-0 sm:min-w-0 justify-center"
         >
           {u.status === "Active" ? "Deactivate" : "Activate"}
         </Button>
@@ -125,15 +165,20 @@ export function UserTable() {
   ]
 
   return (
-    <div className="space-y-4 max-w-5xl">
-      <div>
-        <h2 className="text-xl font-semibold text-text-primary">Institutional Users</h2>
-        <p className="text-xs text-text-secondary mt-1">
+    <div className="space-y-fluid-4 max-w-5xl min-w-0">
+      <div className="min-w-0">
+        <h2 className="text-xl font-semibold text-text-primary text-balance">Institutional Users</h2>
+        <p className="text-xs text-text-secondary mt-1 text-pretty break-words">
           Manage roles, departmental credentials, and active permissions.
         </p>
       </div>
 
-      <DataTable columns={columns} data={users} keyExtractor={(u) => u.id} />
+      <DataTable
+        columns={columns}
+        data={users}
+        keyExtractor={(u) => u.id}
+        caption="Institutional user accounts"
+      />
     </div>
   )
 }

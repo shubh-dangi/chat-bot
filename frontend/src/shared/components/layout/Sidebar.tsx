@@ -25,10 +25,15 @@ import { Button } from "@/shared/components/ui/Button"
 import { Avatar } from "@/shared/components/ui/Avatar"
 import { DropdownMenu } from "@/shared/components/ui/DropdownMenu"
 import { Tooltip } from "@/shared/components/ui/Tooltip"
+import { BrandLogo } from "@/shared/components/ui/Logo"
+import { useMediaQuery } from "@/shared/hooks/useMediaQuery"
 import { useTheme } from "@/shared/hooks/useTheme"
 import { ROUTES } from "@/shared/config/routes"
 import { cn } from "@/shared/utils/cn"
 import type { Conversation } from "@/features/chat/types/conversation.types"
+
+// Matches the `tablet` .. `desktop` range declared in tailwind.config.js.
+const TABLET_COMPACT_QUERY = "(min-width: 640px) and (max-width: 1023.98px)"
 
 export function Sidebar({ className, compact = false }: { className?: string; compact?: boolean }) {
   const navigate = useNavigate()
@@ -88,7 +93,9 @@ export function Sidebar({ className, compact = false }: { className?: string; co
     },
   ]
 
-  const isTabletCompact = compact
+  // Hook runs unconditionally; the `compact` prop only forces the rail on.
+  const isTabletRange = useMediaQuery(TABLET_COMPACT_QUERY)
+  const isTabletCompact = compact || isTabletRange
   const isMini = collapsed || isTabletCompact
 
   return (
@@ -110,29 +117,17 @@ export function Sidebar({ className, compact = false }: { className?: string; co
             )}
           >
             {!isMini ? (
-              <div
-                className="flex items-center gap-2.5 min-w-0 cursor-pointer"
+              <BrandLogo
+                size="sm"
+                subtitle="Campus Assistant"
                 onClick={() => navigate(ROUTES.CHAT)}
-              >
-                <div className="w-7 h-7 rounded-lg bg-brand text-brand-contrast flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
-                  CA
-                </div>
-                <div className="min-w-0">
-                  <span className="font-semibold text-sm tracking-tight text-text-primary block truncate">
-                    College AI
-                  </span>
-                  <span className="text-[10px] text-text-muted block truncate -mt-0.5">
-                    Campus Assistant
-                  </span>
-                </div>
-              </div>
+              />
             ) : (
-              <div
-                className="w-7 h-7 rounded-lg bg-brand text-brand-contrast flex items-center justify-center font-bold text-xs shadow-sm cursor-pointer"
+              <BrandLogo
+                size="sm"
+                compact
                 onClick={() => navigate(ROUTES.CHAT)}
-              >
-                CA
-              </div>
+              />
             )}
 
             {!isTabletCompact && (
