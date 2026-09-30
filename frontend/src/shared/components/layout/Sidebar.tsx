@@ -160,16 +160,9 @@ export function Sidebar({ className, compact = false }: { className?: string; co
                 )
               }
             >
-              {isMini ? (
-                <Tooltip content="Chat Assistant" side="right">
-                  <MessageSquare className="w-4 h-4 shrink-0" />
-                </Tooltip>
-              ) : (
-                <>
-                  <MessageSquare className="w-4 h-4 shrink-0" />
-                  <span className="truncate">Chat Assistant</span>
-                </>
-              )}
+              <Tooltip content="Chat Assistant" side="right">
+                <MessageSquare className="w-4 h-4 shrink-0" />
+              </Tooltip>
             </NavLink>
           </div>
 
