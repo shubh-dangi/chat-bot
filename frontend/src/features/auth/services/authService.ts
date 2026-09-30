@@ -14,8 +14,17 @@ interface BackendAuthResponse {
     avatarUrl?: string
     created_at?: string
   }
-  access_token: string
-  token_type: string
+  token?: string
+  access_token?: string
+  token_type?: string
+}
+
+function extractToken(data: BackendAuthResponse): string {
+  const token = data.token || data.access_token
+  if (!token) {
+    throw new Error("Authentication response did not include a token.")
+  }
+  return token
 }
 
 function normalizeUser(rawUser: BackendAuthResponse["user"]): User {
@@ -39,7 +48,7 @@ export const authService = {
       })
 
       const user = normalizeUser(data.user)
-      const token = data.access_token
+      const token = extractToken(data)
 
       tokenService.setToken(token)
       return { user, token }
@@ -78,7 +87,7 @@ export const authService = {
       })
 
       const user = normalizeUser(data.user)
-      const token = data.access_token
+      const token = extractToken(data)
 
       tokenService.setToken(token)
       return { user, token }
